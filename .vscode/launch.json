@@ -9,13 +9,14 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}\\src\\index.js",
-            "cwd": "${workspaceFolder}\\test",
+            "cwd": "${workspaceFolder}",
             "args": [
                 // "--build"
                 // "setscript", "uat"
                 // "checkscript", "uat"
-                "watch", "uat",
-                "-r"
+                // "watch", "uat",
+                // "-r"
+                "create", "test"
             ]
         }
     ]

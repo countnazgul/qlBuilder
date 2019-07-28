@@ -7,7 +7,7 @@ let argsFunctions = require('./packages/argumentsFunctions');
         .command('create [project]')
         .description('run setup commands for all envs')
         .action(async function (project, options) {
-            await argsFunctions.create()
+            await argsFunctions.create(project)
         });
 
     program

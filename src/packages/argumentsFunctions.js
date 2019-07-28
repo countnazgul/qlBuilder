@@ -8,8 +8,9 @@ const qlikComm = require('./qlik-comm');
 
 const create = async function (project) {
     if (!fs.existsSync(`./${project}`)) {
-        await helpers.checkInitFoldersExists()
-        await helpers.checkConfigExists()
+        helpers.createInitFolders(project)
+        helpers.createInitialScriptFiles(project)
+        helpers.createInitConfig(project)
     } else {
         console.log(`Folder ${project} already exists`)
     }
