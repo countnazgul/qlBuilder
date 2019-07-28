@@ -1,7 +1,7 @@
 const fs = require('fs');
-
 const chokidar = require('chokidar');
 const readline = require('readline');
+const axios = require('axios')
 
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
@@ -23,17 +23,20 @@ const buildScript = async function () {
     return loadScript
 }
 
-const setScript = async function () {
+const setScript = async function (env) {
     let script = await buildScript()
-    await qlikComm.setScript(script)
+    await qlikComm.setScript(script, env)
 }
 
-const checkScript = async function () {
+const checkScript = async function (env) {
     let script = await buildScript()
-    return await qlikComm.checkScriptSyntax(script)
+    let scriptResult = await qlikComm.checkScriptSyntax(script, env)
+    console.log(scriptResult.length)
+
+    return scriptResult
 }
 
-const startWatching = async function (reload) {
+const startWatching = async function (reload, env) {
 
     if (reload) {
         console.log(`Reload is set to "true"! 
@@ -55,23 +58,39 @@ You know ... just saying :)`)
         if (line.toLowerCase() === "rl") {
             console.log('Here goes the reload')
         }
+
+        if (line.toLowerCase() === "x") {
+            process.exit()
+        }        
     })
 
     const watcher = chokidar.watch('./src/**/*.qvs');
 
     watcher
         .on('add', path => console.log(`${path} has been added. Added to the watching list`))
-        .on('change', async function (path) {
-            console.log(path)
+        .on('change', async function (path) {            
+
             let script = await buildScript()
-            let scriptErrors = await qlikComm.checkScriptSyntax(script)
+            let scriptErrors = await qlikComm.checkScriptSyntax(script, env)
             console.log(scriptErrors.length)
 
             if (reload) {
-                await qlikComm.setScript(script)
+                await qlikComm.setScript(script, env)
                 await qlikComm.reload()
             }
         })
+}
+
+const checkForUpdate = async function () {
+    // try {
+    // let getGitData = axios.get('https://github.com/countnazgul/qBuilder/blob/master/package.json')
+    let getGitData = await axios.get('https://raw.githubusercontent.com/countnazgul/enigma-mixin/master/package.json')
+    let gitVersion = getGitData.data.version
+    let a = 1
+
+    // } catch (e) {
+
+    // }
 }
 
 module.exports = {
@@ -79,5 +98,6 @@ module.exports = {
     buildScript,
     setScript,
     checkScript,
-    startWatching
+    startWatching,
+    checkForUpdate
 }

@@ -1,6 +1,19 @@
 const fs = require('fs');
 const yaml = require('js-yaml')
 
+const getEnvDetails = function (env) {
+    let config = yaml.safeLoad(fs.readFileSync('./config.yml'))
+
+    try {
+        let envDetails = config["qlik-environments"].filter(function (e) {
+            return e.name.toLowerCase() == env.toLowerCase()
+        })
+        return envDetails
+    } catch (e) {
+        return false
+    }
+}
+
 const createInitFolders = function (project) {
     fs.mkdirSync(`./${project}`)
     fs.mkdirSync(`./${project}/src`)
@@ -23,10 +36,9 @@ SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
     
 //${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}: Automated: Script created 
     `
-
     fs.writeFileSync(`./${project}/src/0--Main.qvs`, initialScriptContent)
     fs.writeFileSync(`./${project}/src/1--ChangeLog.qvs`, changeLogContent)
-    fs.writeFileSync(`./${project}/dist/LoadScript.qvs`, `///$tab Main\n${initialScriptContent}\n\n///$tab ChangeLog\n${changeLogContent}`)
+    fs.writeFileSync(`./${project}/dist/LoadScript.qvs`, buildLoadScript(project))
 }
 
 const createInitConfig = function (project) {
@@ -49,15 +61,19 @@ const createInitConfig = function (project) {
     fs.writeFileSync(`./${project}/config.yml`, yaml.safeDump(defaultConfig))
 }
 
-const buildLoadScript = function () {
-    let scriptFiles = fs.readdirSync('./src').filter(function (f) {
+const buildLoadScript = function (initProject) {
+    let projectFolder = ''
+    if (initProject) {
+        projectFolder = `${initProject}/`
+    }
+    let scriptFiles = fs.readdirSync(`./${projectFolder}src`).filter(function (f) {
         return f.indexOf('.qvs') > -1
     })
 
     let buildScript = []
     for (let file of scriptFiles) {
         let tabName = file.replace('.qvs', '').split('--')[1]
-        let fileContent = fs.readFileSync(`./src/${file}`)
+        let fileContent = fs.readFileSync(`./${projectFolder}src/${file}`)
 
         buildScript.push(`///$tab ${tabName}\n${fileContent}`)
     }
@@ -66,20 +82,28 @@ const buildLoadScript = function () {
 }
 
 const writeLoadScript = function (script) {
-    fs.writeFileSync('./dist/LoadScript.qvs', script)
+    try {
+        fs.writeFileSync('./dist/LoadScript.qvs', script)
+    } catch (e) {
+        console.log(e.message)
+    }
 }
 
 const setScript = async function () {
 
 }
 
-
+const readCert = function (certPath, filename) {
+    return fs.readFileSync(`${certPath}/${filename}`);
+}
 
 module.exports = {
+    getEnvDetails,
     createInitFolders,
     createInitialScriptFiles,
     createInitConfig,
     buildLoadScript,
     writeLoadScript,
-    setScript
+    setScript,
+    readCert
 }

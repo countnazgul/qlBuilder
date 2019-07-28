@@ -1,6 +1,7 @@
 const program = require('commander');
-// require('./packages/argumentsSetup.js')();
-let argsFunctions = require('./packages/argumentsFunctions');
+const argsFunctions = require('./packages/argumentsFunctions');
+
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 (async function () {
     program
@@ -14,34 +15,41 @@ let argsFunctions = require('./packages/argumentsFunctions');
         .command('setscript [env]')
         .description('run setup commands for all envs')
         .action(async function (env, options) {
-            await argsFunctions.setScript()
+            await argsFunctions.setScript(env)
         });
 
     program
         .command('checkscript [env]')
         .description('run setup commands for all envs')
-        // .option("-s, --setup_mode [mode]", "Which setup mode to use")
         .action(async function (env, options) {
-            await argsFunctions.checkScript()
-            // console.log(env);
+            await argsFunctions.checkScript(env)
         });
-
-
 
     program
         .command('watch [env]')
         .description('run setup commands for all envs')
         .action(async function (env, options) {
-            await argsFunctions.startWatching(program.reload)
+            await argsFunctions.startWatching(program.reload, env)
+        });
+
+    program
+        .command('build')
+        .description('run setup commands for all envs')
+        .action(async function (env, options) {
+            await argsFunctions.buildScript()
+            console.log(`Load script created`)
+        });
+
+    program
+        .command('checkupdate [env]')
+        .description('run setup commands for all envs')
+        .action(async function (env, options) {
+            await argsFunctions.checkForUpdate()
         });
 
     program
         .version('0.0.1')
-        .option('-b, --build', 'Build the load script from "src" folder files')
         .option('-r, --reload', 'Reload the app')
-    // .option('-P, --pineapple', 'Add pineapple')
-    // .option('-b, --bbq-sauce', 'Add bbq sauce')
-    // .option('-c, --cheese [type]', 'Add the specified type of cheese [marble]')
 
     program.on('--help', function () {
         console.log('')
@@ -51,12 +59,5 @@ let argsFunctions = require('./packages/argumentsFunctions');
     });
 
     program.parse(process.argv);
-
-    // if (program.cheese) console.log(program.cheese);
-
-    if (program.build) {
-        await argsFunctions.buildScript()
-    }
-
 })()
 
