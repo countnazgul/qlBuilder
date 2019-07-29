@@ -13,9 +13,9 @@
             "args": [
                 // "checkupdate"
                 // "build"
-                "setscript", "QSE"
+                // "setscript", "QSE"
                 // "checkscript", "desktop"
-                // "watch", "desktop",
+                "watch", "QSE",
                 // "-r"
                 // "create", "test"
             ]

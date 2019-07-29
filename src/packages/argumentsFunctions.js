@@ -33,6 +33,10 @@ const checkScript = async function (env) {
     let scriptResult = await qlikComm.checkScriptSyntax(script, env)
     console.log(scriptResult.length)
 
+    if (scriptResult.length > 0) {
+        displayScriptErrors(scriptResult)
+    }
+
     return scriptResult
 }
 
@@ -54,25 +58,34 @@ You know ... just saying :)`)
         output: process.stdout
     });
 
-    rl.on('line', function (line) {
+    rl.on('line', async function (line) {
         if (line.toLowerCase() === "rl") {
             console.log('Here goes the reload')
         }
 
         if (line.toLowerCase() === "x") {
             process.exit()
-        }        
+        }
+
+        if (line.toLowerCase() === "s") {
+            let script = await buildScript()
+            console.log('Script build')
+            await qlikComm.setScript(script, env)
+        }
     })
 
     const watcher = chokidar.watch('./src/**/*.qvs');
 
     watcher
         .on('add', path => console.log(`${path} has been added. Added to the watching list`))
-        .on('change', async function (path) {            
+        .on('change', async function (path) {
 
             let script = await buildScript()
             let scriptErrors = await qlikComm.checkScriptSyntax(script, env)
-            console.log(scriptErrors.length)
+            // console.log(scriptErrors.length)
+            if(scriptErrors.length > 0) {
+                displayScriptErrors(scriptErrors)
+            }
 
             if (reload) {
                 await qlikComm.setScript(script, env)
@@ -91,6 +104,21 @@ const checkForUpdate = async function () {
     // } catch (e) {
 
     // }
+}
+
+function displayScriptErrors(scriptResultObj) {
+    let scriptFiles = fs.readdirSync(`./src`).filter(function (f) {
+        return f.indexOf('.qvs') > -1
+    })
+
+    let scriptErrorsPrimary = scriptResultObj.filter(function(e) {
+        return !e.qSecondaryFailure
+    })
+
+    for(let scriptError of scriptErrorsPrimary) {
+        let tabScript = fs.readFileSync(`./src/${scriptFiles[scriptError.qTabIx]}`).toString().split('\n')
+        console.log(tabScript[scriptError.qLineInTab - 1])
+    }
 }
 
 module.exports = {
