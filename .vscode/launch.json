@@ -15,7 +15,8 @@
                 // "build"
                 // "setscript", "QSE"
                 // "checkscript", "desktop"
-                "watch", "QSE",
+                // "watch", "QSE",
+                "reload", "desktop",
                 // "-r"
                 // "create", "test"
             ]

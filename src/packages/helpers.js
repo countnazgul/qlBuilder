@@ -1,5 +1,6 @@
 const fs = require('fs');
-const yaml = require('js-yaml')
+const yaml = require('js-yaml');
+const os = require('os');
 
 const getEnvDetails = function (env) {
     let config = yaml.safeLoad(fs.readFileSync('./config.yml'))
@@ -47,12 +48,12 @@ const createInitConfig = function (project) {
         "qlik-environments": [
             {
                 "name": "desktop",
-                "host": "localhost:4747",
-                "appId": 123
+                "host": `ws://localhost:4848`,
+                "appId": `C:\\Users\\${os.userInfo().username}\\Documents\\Qlik\\Sense\\Apps\\test.qvf`
             },
             {
                 "name": "core",
-                "host": "localhost:9076",
+                "host": "ws://localhost:9076",
                 "appId": 456
             }
         ]

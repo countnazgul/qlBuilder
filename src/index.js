@@ -48,6 +48,13 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         });
 
     program
+        .command('reload [env]')
+        .description('run setup commands for all envs')
+        .action(async function (env, options) {
+            await argsFunctions.reload(env)
+        });
+
+    program
         .version('0.0.1')
         .option('-r, --reload', 'Reload the app')
 

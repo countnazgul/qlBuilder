@@ -33,8 +33,11 @@ const checkScript = async function (env) {
     let scriptResult = await qlikComm.checkScriptSyntax(script, env)
     console.log(scriptResult.length)
 
+    console.log('Checking for syntax errors ...')
     if (scriptResult.length > 0) {
         displayScriptErrors(scriptResult)
+    } else {
+        console.log('No syntax errors were found')
     }
 
     return scriptResult
@@ -82,9 +85,12 @@ You know ... just saying :)`)
 
             let script = await buildScript()
             let scriptErrors = await qlikComm.checkScriptSyntax(script, env)
-            // console.log(scriptErrors.length)
-            if(scriptErrors.length > 0) {
+
+            console.log('Checking for syntax errors ...')
+            if (scriptErrors.length > 0) {
                 displayScriptErrors(scriptErrors)
+            } else {
+                console.log('No syntax errors were found')
             }
 
             if (reload) {
@@ -92,6 +98,10 @@ You know ... just saying :)`)
                 await qlikComm.reload()
             }
         })
+}
+
+const reload = async function(env) {
+    await qlikComm.reloadApp(env)
 }
 
 const checkForUpdate = async function () {
@@ -111,11 +121,11 @@ function displayScriptErrors(scriptResultObj) {
         return f.indexOf('.qvs') > -1
     })
 
-    let scriptErrorsPrimary = scriptResultObj.filter(function(e) {
+    let scriptErrorsPrimary = scriptResultObj.filter(function (e) {
         return !e.qSecondaryFailure
     })
 
-    for(let scriptError of scriptErrorsPrimary) {
+    for (let scriptError of scriptErrorsPrimary) {
         let tabScript = fs.readFileSync(`./src/${scriptFiles[scriptError.qTabIx]}`).toString().split('\n')
         console.log(tabScript[scriptError.qLineInTab - 1])
     }
@@ -126,6 +136,7 @@ module.exports = {
     buildScript,
     setScript,
     checkScript,
+    reload,
     startWatching,
     checkForUpdate
 }
