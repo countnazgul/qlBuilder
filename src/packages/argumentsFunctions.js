@@ -62,8 +62,9 @@ You know ... just saying :)`)
     });
 
     rl.on('line', async function (line) {
-        if (line.toLowerCase() === "rl") {
-            console.log('Here goes the reload')
+        if (line.toLowerCase() === "rl" || line.toLowerCase() === "r") {
+            await qlikComm.reloadApp(env)
+            // console.log('Here goes the reload')
         }
 
         if (line.toLowerCase() === "x") {
