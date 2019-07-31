@@ -17,6 +17,7 @@ const create = async function (project) {
 }
 
 const buildScript = async function () {
+    // getIncludeFileContent 
     let loadScript = helpers.buildLoadScript()
     helpers.writeLoadScript(loadScript)
 
@@ -45,11 +46,19 @@ const checkScript = async function (env) {
 
 const startWatching = async function (reload, env) {
 
+    console.log(`Commands during watch mode:
+- set script: s or set
+- reload app: r or rl
+- clear console: c or clr
+- exit - x
+    `)
+
     if (reload) {
         console.log(`Reload is set to "true"! 
 Each succesful build will trigger:
     - set script
-    - save app
+    - check the script for syntax errors
+      - if error - stop here. The app is not saved and the script is not updated
     - reload app
     - save app
    
@@ -71,7 +80,13 @@ You know ... just saying :)`)
             process.exit()
         }
 
-        if (line.toLowerCase() === "s") {
+        if (line.toLowerCase() === "c" || line.toLowerCase() === "clr") {
+            // console.clear()
+            process.stdout.write("\u001b[2J\u001b[0;0H");
+            console.log('Still here :)')
+        }
+
+        if (line.toLowerCase() === "s" || line.toLocaleLowerCase() == "set") {
             let script = await buildScript()
             console.log('Script build')
             await qlikComm.setScript(script, env)
@@ -101,7 +116,7 @@ You know ... just saying :)`)
         })
 }
 
-const reload = async function(env) {
+const reload = async function (env) {
     await qlikComm.reloadApp(env)
 }
 

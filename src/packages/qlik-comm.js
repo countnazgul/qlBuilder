@@ -138,7 +138,9 @@ const reloadApp = async function (env) {
 
 function reloadAndGetProgress({ global, doc }) {
     return new Promise(function (resolve, reject) {
-        console.log('reload started')
+        console.log('')
+        console.log('--------------- RELOAD STARTED ---------------')
+        console.log('')
 
         let reloaded = false;
         let scriptError = false;
@@ -148,6 +150,10 @@ function reloadAndGetProgress({ global, doc }) {
             .then(function (result) {
                 setTimeout(function () {
                     reloaded = true
+                    console.log('')
+                    console.log('--------------- RELOAD COMPLETED ---------------')
+                    console.log('')
+
                     resolve({
                         success: result.qSuccess,
                         log: result.qScriptLogFile,
@@ -162,23 +168,40 @@ function reloadAndGetProgress({ global, doc }) {
             if (reloaded != true) {
                 global.getProgress(-1)
                     .then(function (msg) {
-                        let timestamp = new Date().toLocaleString()
+
+
+                        var timestampOptions = {
+                            year: "numeric", month: "2-digit",
+                            day: "2-digit", hour: "2-digit", minute: "2-digit",
+                            second: "2-digit", hour12: false
+                        };
+
+                        // document.write(date.toLocaleTimeString("en-US", options));
+
+                        let timestamp = new Date().toLocaleString("en-US", timestampOptions)
+
+                        // console.log(`Persistent: ${msg.qPersistentProgress} Transient: ${msg.qTransientProgress}`)
+                        // console.log(`${timestamp}: ${msg.qPersistentProgress} ${msg.qTransientProgress}`)
+
+                        if (msg.qPersistentProgress && msg.qTransientProgress) {
+                            console.log(`${timestamp}: ${msg.qPersistentProgress} <-- ${msg.qTransientProgress}`)
+                        }
 
                         if (msg.qPersistentProgress) {
-                            persistentProgress = msg.qPersistentProgress
+                            // persistentProgress = msg.qPersistentProgress
                             if (msg.qTransientProgress) {
-                                console.log(`${timestamp}: ${msg.qTransientProgress}`)
+                                // console.log(`${timestamp}: ${msg.qTransientProgress}`)
                             } else {
                                 if (msg.qPersistentProgress.indexOf('Script Error. ') > -1) {
                                     reloaded = true
                                     scriptError = true
                                 }
 
-                                console.log(`${timestamp}: ${msg.qPersistentProgress}`)
+                                // console.log(`${timestamp}: ${msg.qPersistentProgress}`)
                             }
                         } else {
                             if (msg.qTransientProgress) {
-                                console.log(`${timestamp}: ${persistentProgress} <-- ${msg.qTransientProgress}`)
+                                // console.log(`${timestamp}: ${persistentProgress} <-- ${msg.qTransientProgress}`)
                             }
                         }
                     })
