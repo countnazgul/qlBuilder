@@ -1,18 +1,28 @@
 const fs = require('fs');
 const chokidar = require('chokidar');
 const readline = require('readline');
-const axios = require('axios')
+const axios = require('axios');
+const chalk = require('chalk');
+const Spinner = require('cli-spinner').Spinner;
 
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
 
 const create = async function (project) {
+
+    let spinner = new Spinner('Creating ...');
+    spinner.setSpinnerString('◐◓◑◒');
+    spinner.start();
+
     if (!fs.existsSync(`./${project}`)) {
         helpers.createInitFolders(project)
         helpers.createInitialScriptFiles(project)
         helpers.createInitConfig(project)
+        spinner.stop(true)
+        console.log(chalk.hex('#00FF00')('\u2713 ') + 'All set')
     } else {
-        console.log(`Folder ${project} already exists`)
+        spinner.stop(true)
+        console.log(chalk.red('\u2716 ') + ` Folder "${project}" already exists`)
     }
 }
 
@@ -29,28 +39,39 @@ const setScript = async function (env) {
     await qlikComm.setScript(script, env)
 }
 
-const checkScript = async function (env) {
-    let script = await buildScript()
-    let scriptResult = await qlikComm.checkScriptSyntax(script, env)
-    console.log(scriptResult.length)
+const checkScript = async function (env, script) {
+    let spinner = new Spinner('Checking for syntax errors ...');
+    spinner.setSpinnerString('☱☲☴');
+    spinner.start();
 
-    console.log('Checking for syntax errors ...')
+    if (!script) {
+        var script = await buildScript()
+    }
+
+    let scriptResult = await qlikComm.checkScriptSyntax(script, env)
+
+    spinner.stop(true)
+
     if (scriptResult.length > 0) {
+        console.log(chalk.red('\u2716 ') + ` Syntax errors found!`)
         displayScriptErrors(scriptResult)
     } else {
-        console.log('No syntax errors were found')
+        console.log(chalk.hex('#00FF00')('\u2713 ') + 'No syntax errors were found')
     }
+
 
     return scriptResult
 }
 
 const startWatching = async function (reload, env) {
 
-    console.log(`Commands during watch mode:
+    console.log(`\nCommands during watch mode:
 - set script: s or set
 - reload app: r or rl
 - clear console: c or clr
 - exit - x
+(script is checked for syntax errors anytime one of the qvs files is saved)
+
     `)
 
     if (reload) {
@@ -88,7 +109,9 @@ You know ... just saying :)`)
 
         if (line.toLowerCase() === "s" || line.toLocaleLowerCase() == "set") {
             let script = await buildScript()
-            console.log('Script build')
+
+
+            console.log(chalk.hex('#00FF00')('\u2713 ') + 'Script build')
             await qlikComm.setScript(script, env)
         }
     })
@@ -96,22 +119,21 @@ You know ... just saying :)`)
     const watcher = chokidar.watch('./src/**/*.qvs');
 
     watcher
-        .on('add', path => console.log(`${path} has been added. Added to the watching list`))
         .on('change', async function (path) {
-
             let script = await buildScript()
-            let scriptErrors = await qlikComm.checkScriptSyntax(script, env)
+            await checkScript(env, script)
+            // let scriptErrors = await qlikComm.checkScriptSyntax(script, env)
 
-            console.log('Checking for syntax errors ...')
-            if (scriptErrors.length > 0) {
-                displayScriptErrors(scriptErrors)
-            } else {
-                console.log('No syntax errors were found')
-            }
+            // // console.log('Checking for syntax errors ...')
+            // if (scriptErrors.length > 0) {
+            //     displayScriptErrors(scriptErrors)
+            // } else {
+            //     // console.log('No syntax errors were found')
+            // }
 
             if (reload) {
                 await qlikComm.setScript(script, env)
-                await qlikComm.reload()
+                await qlikComm.reloadApp(env)
             }
         })
 }
@@ -143,8 +165,14 @@ function displayScriptErrors(scriptResultObj) {
 
     for (let scriptError of scriptErrorsPrimary) {
         let tabScript = fs.readFileSync(`./src/${scriptFiles[scriptError.qTabIx]}`).toString().split('\n')
-        console.log(tabScript[scriptError.qLineInTab - 1])
+
+        console.log(`
+Tab : ${scriptFiles[scriptError.qTabIx]} 
+Line: ${scriptError.qLineInTab} 
+Code: ${tabScript[scriptError.qLineInTab - 1]}`)
     }
+
+    
 }
 
 module.exports = {

@@ -1,6 +1,8 @@
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.20.0.json');
+const Spinner = require('cli-spinner').Spinner;
+const chalk = require('chalk');
 
 const helpers = require('./helpers')
 
@@ -26,21 +28,18 @@ const setScript = async function (script, env) {
     });
 
     try {
+        let spinner = new Spinner('Setting script ..');
+        spinner.setSpinnerString('☱☲☴');
+        spinner.start();
+
         let global = await session.open()
-        console.log('Connected')
-
-        console.log('Opening app ...')
         let doc = await global.openDoc(envDetails.appId)
-        console.log('App open!')
-
         await doc.setScript(script)
-        console.log('Script set')
-
-        console.log('Saving ...')
         await doc.doSave()
-        console.log('Document saved!')
-
         await session.close()
+
+        spinner.stop(true)
+        console.log( chalk.hex('#00FF00')('\u2713 ') + 'Script was set and document was saved')
     } catch (e) {
         console.log(e.message)
         process.exit(0)
@@ -146,6 +145,8 @@ function reloadAndGetProgress({ global, doc }) {
         let scriptError = false;
         let scriptResult = []
 
+        let persistentProgress = '';
+
         doc.doReloadEx()
             .then(function (result) {
                 setTimeout(function () {
@@ -163,7 +164,7 @@ function reloadAndGetProgress({ global, doc }) {
                 }, 1000)
             })
 
-        let persistentProgress = '';
+
         let progress = setInterval(function () {
             if (reloaded != true) {
                 global.getProgress(-1)
@@ -176,33 +177,33 @@ function reloadAndGetProgress({ global, doc }) {
                             second: "2-digit", hour12: false
                         };
 
-                        // document.write(date.toLocaleTimeString("en-US", options));
-
                         let timestamp = new Date().toLocaleString("en-US", timestampOptions)
 
-                        // console.log(`Persistent: ${msg.qPersistentProgress} Transient: ${msg.qTransientProgress}`)
-                        // console.log(`${timestamp}: ${msg.qPersistentProgress} ${msg.qTransientProgress}`)
-
                         if (msg.qPersistentProgress && msg.qTransientProgress) {
-                            console.log(`${timestamp}: ${msg.qPersistentProgress} <-- ${msg.qTransientProgress}`)
+                            persistentProgress = msg.qPersistentProgress
+                            if (persistentProgress.split('\n').length > 1) {
+                                console.log(`${timestamp}: ${persistentProgress.split('\n')[0]}`)
+                                console.log(`${timestamp}: ${persistentProgress.split('\n')[1]} <-- ${msg.qTransientProgress}`)
+                            } else {
+                                console.log(`${timestamp}: ${msg.qPersistentProgress} <-- ${msg.qTransientProgress}`)
+                            }
                         }
 
-                        if (msg.qPersistentProgress) {
-                            // persistentProgress = msg.qPersistentProgress
-                            if (msg.qTransientProgress) {
-                                // console.log(`${timestamp}: ${msg.qTransientProgress}`)
+                        if (!msg.qPersistentProgress && msg.qTransientProgress) {
+                            if (persistentProgress.split('\n').length > 1) {
+                                console.log(`${timestamp}: ${persistentProgress.split('\n')[1]} <-- ${msg.qTransientProgress}`)
                             } else {
-                                if (msg.qPersistentProgress.indexOf('Script Error. ') > -1) {
-                                    reloaded = true
-                                    scriptError = true
-                                }
+                                console.log(`${timestamp}: ${persistentProgress} <-- ${msg.qTransientProgress}`)
+                            }
+                        }
 
-                                // console.log(`${timestamp}: ${msg.qPersistentProgress}`)
-                            }
-                        } else {
-                            if (msg.qTransientProgress) {
-                                // console.log(`${timestamp}: ${persistentProgress} <-- ${msg.qTransientProgress}`)
-                            }
+                        if (msg.qPersistentProgress && !msg.qTransientProgress) {
+                            console.log(`${timestamp}: ${msg.qPersistentProgress}`)
+                        }
+
+                        if (msg.qPersistentProgress.indexOf('Script Error. ') > -1) {
+                            reloaded = true
+                            scriptError = true
                         }
                     })
             } else {
@@ -211,8 +212,6 @@ function reloadAndGetProgress({ global, doc }) {
         }, 500)
     })
 }
-
-
 
 module.exports = {
     setScript,

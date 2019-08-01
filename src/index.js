@@ -37,7 +37,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .description('run setup commands for all envs')
         .action(async function (env, options) {
             await argsFunctions.buildScript()
-            console.log(`Load script created`)
+            console.log( chalk.hex('#00FF00')('\u2713 ') + 'Load script created')
+            // console.log(`Load script created`)
         });
 
     program
