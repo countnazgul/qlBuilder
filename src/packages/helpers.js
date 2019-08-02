@@ -3,7 +3,13 @@ const yaml = require('js-yaml');
 const os = require('os');
 
 const getEnvDetails = function (env) {
-    let config = yaml.safeLoad(fs.readFileSync('./config.yml'))
+    let config = ''
+    try {
+        config = yaml.safeLoad(fs.readFileSync('./config.yml'))
+    } catch (e) {
+        console.log(`"config.yml" not found in the current directory`)
+        process.exit()
+    }
 
     try {
         let envDetails = config["qlik-environments"].filter(function (e) {
@@ -96,6 +102,11 @@ const setScript = async function () {
 
 const readCert = function (certPath, filename) {
     return fs.readFileSync(`${certPath}/${filename}`);
+}
+
+const checkForConfig = function() {
+
+    process.exit()
 }
 
 module.exports = {

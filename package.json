@@ -1,8 +1,12 @@
 {
-  "name": "qlik-dev-builder",
+  "name": "qbuilder",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/index.js",
+  "preferGlobal": true,
+  "bin": {
+    "qBuilder": "./bin/qBuilder.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
