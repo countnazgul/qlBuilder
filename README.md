@@ -1,10 +1,8 @@
-## Under development! 
-
-# qBuilder
+**Under development!**
 
 ## Motivation
 
-
+`qBuilder` is a CLI tool from command prompt (or PowerShell) by providing the required arguments. The tool allows Qlik Sense developers to write their Qlik script on the local machine and set this script in Qlik app and reload the app from within Qlik Sense. 
 
 ## Installation
 
@@ -15,28 +13,28 @@ Once the global package is installed you can use `qbuilder` command from anywher
 
 ## How to use?
 
-`qBuilder` is a CLI tool and its used from command prompt by providing the required arguments. The possible arguments are:
+Run one of the following commands from CMD/PowerShell
 
-* `create [name]` - create the initial folders and files in the current folder. `name` is used as root folder name
+* `qBuilder create [name]` - create the initial folders and files in the current folder. `name` is used as root folder name
 
-* `build`
+* `qBuilder build`
     * builds the full load script from `/src/*.qvs` files. The produced script is saved in `dist` folder (`LoadScript.qvs`)
 
-* `checkscript [env]`
+* `qBuilder checkscript [env]`
     * builds the script (from `/src/*.qvs` files)
     * connects to Qlik and checks the script for syntax errors - `env` is the environment name from `config.yml`
 
-* `reload [env]`
+* `qBuilder reload [env]`
     * connects to Qlik and reload the app - `env` is the environment name from `config.yml`. Once the reload has started `qBuilder` will display the progress in the same console (check the video below to see it in action)
 
-* `setscript [env]`
+* `qBuilder setscript [env]`
     * builds the script (from `/src/*.qvs` files)
     * connects to Qlik and checks the script for syntax errors - `env` is the environment name from `config.yml`
     * sets the new script
     * saves the app
 
 
-* `watch [env]` - enters in watch mode. The default behavior is to build and check the script syntax on any `*.qvs` file inside `src` folder. Can accept two additional flags:
+* `qBuilder watch [env]` - enters in watch mode. The default behavior is to build and check the script syntax on any `*.qvs` file inside `src` folder. Can accept two additional flags:
 
     * `-r` - reloads the script on any `qvs` file change
     * `-s` - sets the script (and save the app) on any `qvs` file change
