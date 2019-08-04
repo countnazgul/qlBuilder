@@ -1,6 +1,6 @@
 {
   "name": "qbuilder",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "./src/index.js",
   "preferGlobal": true,
@@ -19,6 +19,7 @@
     "chokidar": "^3.0.2",
     "cli-spinner": "^0.2.10",
     "commander": "^2.20.0",
+    "compare-versions": "^3.5.1",
     "enigma.js": "^2.4.0",
     "js-yaml": "^3.13.1",
     "ws": "^7.1.1"

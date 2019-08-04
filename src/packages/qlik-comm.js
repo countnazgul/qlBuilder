@@ -7,7 +7,7 @@ const chalk = require('chalk');
 const helpers = require('./helpers')
 
 const setScript = async function (script, env) {
-    let session = createQlikSession(env)
+    let { session, envDetails } = createQlikSession(env)
 
     try {
         let spinner = new Spinner('Setting script ..');
@@ -30,7 +30,7 @@ const setScript = async function (script, env) {
 
 const getScriptFromApp = async function (env) {
 
-    let session = createQlikSession(env)
+    let { session, envDetails } = createQlikSession(env)
 
     try {
         let spinner = new Spinner('Getting script ..');
@@ -52,7 +52,7 @@ const getScriptFromApp = async function (env) {
 }
 
 const checkScriptSyntax = async function (script, env) {
-    let session = createQlikSession(env)
+    let { session, envDetails } = createQlikSession(env)
 
     try {
         let global = await session.open()
@@ -69,7 +69,7 @@ const checkScriptSyntax = async function (script, env) {
 }
 
 const reloadApp = async function (env) {
-    let session = createQlikSession(env)
+    let { session, envDetails } = createQlikSession(env)
 
     try {
         let global = await session.open()
@@ -182,7 +182,7 @@ function createQlikSession(env) {
         createSocket: url => new WebSocket(url, qsEnt)
     });
 
-    return session
+    return { session, envDetails }
 }
 
 module.exports = {

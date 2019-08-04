@@ -33,6 +33,11 @@ Run one of the following commands from CMD/PowerShell
     * sets the new script
     * saves the app
 
+* `qBuilder getscript [env]` - (the opposite of `setscript`) get the remote script, split it to tabs and save the files to `scr` folder. `config.yml` should present to indicate from which env/app to extract the script
+    * connects to Qlik and get the script from desired app - `env` is the environment name from `config.yml`
+    * split the script into tabs/files
+    * saves the `qvs` files into `src` folder
+
 
 * `qBuilder watch [env]` - enters in watch mode. The default behavior is to build and check the script syntax on any `*.qvs` file inside `src` folder. Can accept two additional flags:
 
@@ -45,6 +50,8 @@ Run one of the following commands from CMD/PowerShell
     * `r` or `rl` - build and set the script, reload the app and save. If any syntax error (during the build and set) the reload is not triggered
     * `c` or `clr` - clear console
     * `x` - exit 
+
+* `qBuilder checkupdate` - compares the current version number to the remote one
 
 ## config.yml
 

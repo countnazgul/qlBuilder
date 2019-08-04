@@ -61,9 +61,9 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         });
 
     program
-        .command('checkupdate [env]')
+        .command('checkupdate')
         .description('run setup commands for all envs')
-        .action(async function (env, options) {
+        .action(async function () {
             await argsFunctions.checkForUpdate()
         });
 

@@ -1,12 +1,15 @@
 const fs = require('fs');
 const chokidar = require('chokidar');
 const readline = require('readline');
+const compareVersions = require('compare-versions');
 const axios = require('axios');
 const chalk = require('chalk');
 const Spinner = require('cli-spinner').Spinner;
+const currentVersion = require('..\\..\\package.json').version
 
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
+
 
 const create = async function (project) {
 
@@ -152,15 +155,23 @@ const reload = async function (env) {
 }
 
 const checkForUpdate = async function () {
-    // try {
-    // let getGitData = axios.get('https://github.com/countnazgul/qBuilder/blob/master/package.json')
-    let getGitData = await axios.get('https://raw.githubusercontent.com/countnazgul/enigma-mixin/master/package.json')
-    let gitVersion = getGitData.data.version
-    let a = 1
+    try {
+        let getGitData = await axios.get('https://raw.githubusercontent.com/countnazgul/qBuilder/master/package.json')
+        let gitVersion = getGitData.data.version
 
-    // } catch (e) {
+        if (compareVersions(gitVersion, currentVersion, '>')) {
+            console.log('New version is available!')
+            console.log(`Current version: ${currentVersion}`)
+            console.log(`Remote version: ${gitVersion}`)
+            console.log('To install it run:')
+            console.log('npm install -g qBuilder')
+        } else {
+            console.log('Lastest version is already installed')
+        }
 
-    // }
+    } catch (e) {
+        console.log(`Unable to get the remote version number :'(`)
+    }
 }
 
 function displayScriptErrors(scriptResultObj) {
@@ -185,15 +196,15 @@ Code: ${tabScript[scriptError.qLineInTab - 1]}`)
 }
 
 function writeScriptToFiles(scriptTabs) {
-    for (let tab of scriptTabs) {
-        let a = 1
+    for (let [i, tab] of scriptTabs.entries()) {
+
         if (tab.length > 0) {
             let rows = tab.split('\r\n')
             let tabName = rows[0]
 
             let scriptContent = rows.slice(1, rows.length).join('\r\n')
 
-            fs.writeFileSync(`.\\src\\${tabName}.qvs`, scriptContent)
+            fs.writeFileSync(`.\\src\\${i}--${tabName}.qvs`, scriptContent)
         }
     }
 }
