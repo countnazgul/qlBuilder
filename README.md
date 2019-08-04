@@ -101,10 +101,6 @@ Having the script files as local files allows to put them in version control. Th
 In some cases the Prod environment app can be without the original (full) script and just include (via REST API call) the final load script (the one in `dist` folder) from Git's master branch. This was technically you don't need to touch the Prod app in case of script change ... this is just an idea how to benefit from this approach
 
 
-## In use
-
-![Usage](https://github.com/countnazgul/qBuilder/blob/master/images/qBuilder_Demo.gif?raw=true)
-
 ---
 
 If you have any issues, comments, suggestions etc please use the [GitHub issue tracker](https://github.com/countnazgul/qBuilder/issues)
