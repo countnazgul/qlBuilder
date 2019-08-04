@@ -143,6 +143,16 @@ const initialChecks = {
             process.exit()
         }
     },
+    environment: function (env) {
+        let envDetails = getEnvDetails(env)
+        if (envDetails.length > 0) {
+            return true
+        } else {
+            console.log(chalk.red('✖ ') + `Environment "${env}" was not found in the "config.yml"! Typo?`)
+            process.exit()
+        }
+
+    },
     combined: function () {
         initialChecks.configFile()
         initialChecks.srcFolder()

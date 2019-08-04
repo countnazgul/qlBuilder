@@ -17,7 +17,7 @@
                 // "checkscript", "desktop"
                 // "watch", "QSE",
                 // "reload", "desktop",
-                "getscript", "desktop"
+                "getscript", "desktop1"
                 // "-r"
                 // "create", "test"
             ]
