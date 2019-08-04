@@ -1,5 +1,6 @@
 const program = require('commander');
 const argsFunctions = require('./packages/argumentsFunctions');
+const helpers = require('./packages/helpers')
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
@@ -15,20 +16,23 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('setscript [env]')
         .description('run setup commands for all envs')
         .action(async function (env, options) {
+            helpers.initialChecks.combined()
             await argsFunctions.setScript(env)
         });
 
-        program
+    program
         .command('getscript [env]')
         .description('run setup commands for all envs')
         .action(async function (env, options) {
+            helpers.initialChecks.combined()
             await argsFunctions.getScript(env)
-        });        
+        });
 
     program
         .command('checkscript [env]')
         .description('run setup commands for all envs')
         .action(async function (env, options) {
+            helpers.initialChecks.combined()
             await argsFunctions.checkScript(env)
         });
 
@@ -36,6 +40,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('watch [env]')
         .description('run setup commands for all envs')
         .action(async function (env, options) {
+            helpers.initialChecks.combined()
             await argsFunctions.startWatching(program.reload, env)
         });
 
@@ -43,9 +48,16 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('build')
         .description('run setup commands for all envs')
         .action(async function (env, options) {
+            helpers.initialChecks.combined()
             await argsFunctions.buildScript()
-            console.log( chalk.hex('#00FF00')('\u2713 ') + 'Load script created')
-            // console.log(`Load script created`)
+        });
+
+    program
+        .command('reload [env]')
+        .description('run setup commands for all envs')
+        .action(async function (env, options) {
+            helpers.initialChecks.combined()
+            await argsFunctions.reload(env)
         });
 
     program
@@ -53,13 +65,6 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .description('run setup commands for all envs')
         .action(async function (env, options) {
             await argsFunctions.checkForUpdate()
-        });
-
-    program
-        .command('reload [env]')
-        .description('run setup commands for all envs')
-        .action(async function (env, options) {
-            await argsFunctions.reload(env)
         });
 
     program

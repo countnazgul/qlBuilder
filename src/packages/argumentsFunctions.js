@@ -27,10 +27,9 @@ const create = async function (project) {
 }
 
 const buildScript = async function () {
-    // getIncludeFileContent 
     let loadScript = helpers.buildLoadScript()
     helpers.writeLoadScript(loadScript)
-
+    console.log(chalk.hex('#00FF00')('\u2713 ') + 'Load script created')
     return loadScript
 }
 

@@ -106,11 +106,6 @@ const readCert = function (certPath, filename) {
     return fs.readFileSync(`${certPath}/${filename}`);
 }
 
-const checkForConfig = function () {
-
-    process.exit()
-}
-
 const clearLocalScript = async function () {
     let directory = './src'
 
@@ -122,6 +117,44 @@ const clearLocalScript = async function () {
 
     console.log(chalk.hex('#00FF00')('\u2713 ') + 'Local script files removed')
 }
+const initialChecks = {
+    configFile: function () {
+        try {
+            if (fs.existsSync('.\\config.yml')) {
+                return true
+            }
+        } catch (err) {
+            console.log(chalk.red('\u2716 ') + `"config.yml" do not exists! I'm running at the correct folder?`)
+            process.exit()
+        }
+    },
+    srcFolder: function () {
+        try {
+            if (fs.existsSync('.\\src')) {
+                return true
+            }
+        } catch (err) {
+            console.log(chalk.red('\u2713 ') + `config is present but "src" foder was not and was created`)
+            process.exit()
+        }
+    },
+    distFolder: function () {
+        try {
+            if (fs.existsSync('.\\dist')) {
+                return true
+            }
+        } catch (err) {
+            console.log(chalk.red('\u2713 ') + `config is present but "dist" foder was not and was created`)
+            process.exit()
+        }
+    },
+    combined: function () {
+        initialChecks.configFile()
+        initialChecks.srcFolder()
+        initialChecks.distFolder()
+    }
+
+}
 
 module.exports = {
     getEnvDetails,
@@ -132,5 +165,6 @@ module.exports = {
     writeLoadScript,
     setScript,
     readCert,
-    clearLocalScript
+    clearLocalScript,
+    initialChecks
 }

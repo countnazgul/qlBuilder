@@ -7,25 +7,7 @@ const chalk = require('chalk');
 const helpers = require('./helpers')
 
 const setScript = async function (script, env) {
-    let envDetails = helpers.getEnvDetails(env)[0]
-
-    let qsEnt = {}
-    if (envDetails.certificates) {
-        qsEnt = {
-            ca: [helpers.readCert(envDetails.certificates, 'root.pem')],
-            key: helpers.readCert(envDetails.certificates, 'client_key.pem'),
-            cert: helpers.readCert(envDetails.certificates, 'client.pem'),
-            headers: {
-                'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.user.domain)}; UserId=${encodeURIComponent(envDetails.user.name)}`,
-            },
-        }
-    }
-
-    const session = enigma.create({
-        schema,
-        url: `${envDetails.host}/app/engineData`,
-        createSocket: url => new WebSocket(url, qsEnt)
-    });
+    let session = createQlikSession(env)
 
     try {
         let spinner = new Spinner('Setting script ..');
@@ -47,25 +29,8 @@ const setScript = async function (script, env) {
 }
 
 const getScriptFromApp = async function (env) {
-    let envDetails = helpers.getEnvDetails(env)[0];
 
-    let qsEnt = {}
-    if (envDetails.certificates) {
-        qsEnt = {
-            ca: [helpers.readCert(envDetails.certificates, 'root.pem')],
-            key: helpers.readCert(envDetails.certificates, 'client_key.pem'),
-            cert: helpers.readCert(envDetails.certificates, 'client.pem'),
-            headers: {
-                'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.user.domain)}; UserId=${encodeURIComponent(envDetails.user.name)}`,
-            },
-        }
-    }
-
-    const session = enigma.create({
-        schema,
-        url: `${envDetails.host}/app/engineData`,
-        createSocket: url => new WebSocket(url, qsEnt)
-    });
+    let session = createQlikSession(env)
 
     try {
         let spinner = new Spinner('Getting script ..');
@@ -87,32 +52,7 @@ const getScriptFromApp = async function (env) {
 }
 
 const checkScriptSyntax = async function (script, env) {
-    let envDetails = helpers.getEnvDetails(env)[0]
-
-    let qsEnt = {}
-    let session = {}
-
-    if (envDetails.certificates) {
-        qsEnt = {
-            ca: [helpers.readCert(envDetails.certificates, 'root.pem')],
-            key: helpers.readCert(envDetails.certificates, 'client_key.pem'),
-            cert: helpers.readCert(envDetails.certificates, 'client.pem'),
-            headers: {
-                'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.user.domain)}; UserId=${encodeURIComponent(envDetails.user.name)}`,
-            },
-        }
-    }
-
-    try {
-        session = enigma.create({
-            schema,
-            url: `${envDetails.host}/app/engineData`,
-            createSocket: url => new WebSocket(url, qsEnt),
-        });
-    } catch (e) {
-        console.log(e.message)
-        process.exit()
-    }
+    let session = createQlikSession(env)
 
     try {
         let global = await session.open()
@@ -129,50 +69,18 @@ const checkScriptSyntax = async function (script, env) {
 }
 
 const reloadApp = async function (env) {
-    let envDetails = helpers.getEnvDetails(env)[0]
-
-    let qsEnt = {}
-    let session = {}
-
-    if (envDetails.certificates) {
-        qsEnt = {
-            ca: [helpers.readCert(envDetails.certificates, 'root.pem')],
-            key: helpers.readCert(envDetails.certificates, 'client_key.pem'),
-            cert: helpers.readCert(envDetails.certificates, 'client.pem'),
-            headers: {
-                'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.user.domain)}; UserId=${encodeURIComponent(envDetails.user.name)}`,
-            },
-        }
-    }
-
-    try {
-        session = enigma.create({
-            schema,
-            url: `${envDetails.host}/app/engineData`,
-            createSocket: url => new WebSocket(url, qsEnt),
-        });
-    } catch (e) {
-        console.log(e.message)
-        process.exit()
-    }
+    let session = createQlikSession(env)
 
     try {
         let global = await session.open()
         let doc = await global.openDoc(envDetails.appId)
-        // let reloadResult = await doc.doReload()
         await reloadAndGetProgress({ global, doc })
         await session.close()
-
-
-
-
-
 
     } catch (e) {
         console.log(e.message)
         process.exit(0)
     }
-
 }
 
 function reloadAndGetProgress({ global, doc }) {
@@ -253,7 +161,29 @@ function reloadAndGetProgress({ global, doc }) {
     })
 }
 
+function createQlikSession(env) {
+    let envDetails = helpers.getEnvDetails(env)[0];
 
+    let qsEnt = {}
+    if (envDetails.certificates) {
+        qsEnt = {
+            ca: [helpers.readCert(envDetails.certificates, 'root.pem')],
+            key: helpers.readCert(envDetails.certificates, 'client_key.pem'),
+            cert: helpers.readCert(envDetails.certificates, 'client.pem'),
+            headers: {
+                'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.user.domain)}; UserId=${encodeURIComponent(envDetails.user.name)}`,
+            },
+        }
+    }
+
+    const session = enigma.create({
+        schema,
+        url: `${envDetails.host}/app/engineData`,
+        createSocket: url => new WebSocket(url, qsEnt)
+    });
+
+    return session
+}
 
 module.exports = {
     setScript,
