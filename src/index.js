@@ -1,20 +1,21 @@
 const program = require('commander');
 const argsFunctions = require('./packages/argumentsFunctions');
 const helpers = require('./packages/helpers')
+const currentVersion = require('..\\package.json').version
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 (async function () {
     program
-        .command('create [project]')
-        .description('run setup commands for all envs')
-        .action(async function (project, options) {
-            await argsFunctions.create(project)
+        .command('create [name]')
+        .description('Create new project folder structure')
+        .action(async function (name, options) {
+            await argsFunctions.create(name)
         });
 
     program
         .command('setscript [env]')
-        .description('run setup commands for all envs')
+        .description('Build and set the script')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             await argsFunctions.setScript(env)
@@ -22,7 +23,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('getscript [env]')
-        .description('run setup commands for all envs')
+        .description('Get the script from the target Qlik app and overwrite the local script')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             await argsFunctions.getScript(env)
@@ -30,7 +31,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('checkscript [env]')
-        .description('run setup commands for all envs')
+        .description('Check local script for syntax errors')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             await argsFunctions.checkScript(env)
@@ -38,7 +39,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('watch [env]')
-        .description('run setup commands for all envs')
+        .description('Start qBuilder in watch mode')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             await argsFunctions.startWatching(program.reload, env)
@@ -46,7 +47,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('build')
-        .description('run setup commands for all envs')
+        .description('Combine the tab script files into one')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             await argsFunctions.buildScript()
@@ -54,7 +55,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('reload [env]')
-        .description('run setup commands for all envs')
+        .description('Set script and reload the target app')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             await argsFunctions.reload(env)
@@ -62,20 +63,24 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('checkupdate')
-        .description('run setup commands for all envs')
+        .description('Check for qBuilder updates')
         .action(async function () {
             await argsFunctions.checkForUpdate()
         });
 
     program
-        .version('0.0.1')
-        .option('-r, --reload', 'Reload the app')
+        .usage(' ')
+        .version(currentVersion)
+        .option('-r, --reload', '(optional) In watch mode - Reload the app on each file change')
+        .option('-s, --set', '(optional) In watch mode - Build and set the script')
 
     program.on('--help', function () {
         console.log('')
         console.log('Examples:');
-        console.log('  $ custom-help --help');
-        console.log('  $ custom-help -h');
+        console.log(' > qbuilder setscript desktop');
+        console.log(' > qbuilder reload desktop');
+        console.log(' > qbuilder watch desktop -r');
+        console.log(' > qbuilder watch desktop -s');
     });
 
     program.parse(process.argv);

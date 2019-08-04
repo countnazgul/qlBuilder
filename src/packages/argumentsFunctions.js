@@ -79,7 +79,7 @@ const checkScript = async function (env, script) {
     spinner.stop(true)
 
     if (scriptResult.length > 0) {
-        console.log(chalk.red('× ') + ` Syntax errors found!`)
+        console.log(chalk.red('✖ ') + ` Syntax errors found!`)
         displayScriptErrors(scriptResult)
     } else {
         console.log(chalk.green('√ ') + 'No syntax errors were found')

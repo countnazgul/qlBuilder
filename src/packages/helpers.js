@@ -117,33 +117,28 @@ const clearLocalScript = async function () {
 
     console.log(chalk.green('√ ') + 'Local script files removed')
 }
+
 const initialChecks = {
     configFile: function () {
-        try {
-            if (fs.existsSync('.\\config.yml')) {
-                return true
-            }
-        } catch (err) {
-            console.log(chalk.red('× ') + `"config.yml" do not exists! I'm running at the correct folder?`)
+        if (fs.existsSync('.\\config.yml')) {
+            return true
+        } else {
+            console.log(chalk.red('✖ ') + `"config.yml" do not exists! I'm running at the correct folder?`)
             process.exit()
         }
     },
     srcFolder: function () {
-        try {
-            if (fs.existsSync('.\\src')) {
-                return true
-            }
-        } catch (err) {
+        if (fs.existsSync('.\\src')) {
+            return true
+        } else {
             console.log(chalk.green('√ ') + `config is present but "src" foder was not and was created`)
             process.exit()
         }
     },
     distFolder: function () {
-        try {
-            if (fs.existsSync('.\\dist')) {
-                return true
-            }
-        } catch (err) {
+        if (fs.existsSync('.\\dist')) {
+            return true
+        } else {
             console.log(chalk.green('√ ') + `config is present but "dist" foder was not and was created`)
             process.exit()
         }
