@@ -39,7 +39,47 @@ const setScript = async function (script, env) {
         await session.close()
 
         spinner.stop(true)
-        console.log( chalk.hex('#00FF00')('\u2713 ') + 'Script was set and document was saved')
+        console.log(chalk.hex('#00FF00')('\u2713 ') + 'Script was set and document was saved')
+    } catch (e) {
+        console.log(e.message)
+        process.exit(0)
+    }
+}
+
+const getScriptFromApp = async function (env) {
+    let envDetails = helpers.getEnvDetails(env)[0];
+
+    let qsEnt = {}
+    if (envDetails.certificates) {
+        qsEnt = {
+            ca: [helpers.readCert(envDetails.certificates, 'root.pem')],
+            key: helpers.readCert(envDetails.certificates, 'client_key.pem'),
+            cert: helpers.readCert(envDetails.certificates, 'client.pem'),
+            headers: {
+                'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.user.domain)}; UserId=${encodeURIComponent(envDetails.user.name)}`,
+            },
+        }
+    }
+
+    const session = enigma.create({
+        schema,
+        url: `${envDetails.host}/app/engineData`,
+        createSocket: url => new WebSocket(url, qsEnt)
+    });
+
+    try {
+        let spinner = new Spinner('Getting script ..');
+        spinner.setSpinnerString('☱☲☴');
+        spinner.start();
+
+        let global = await session.open()
+        let doc = await global.openDoc(envDetails.appId)
+        let qScript = await doc.getScript()
+        await session.close()
+
+        spinner.stop(true)
+        console.log(chalk.hex('#00FF00')('\u2713 ') + 'Script was received')
+        return qScript
     } catch (e) {
         console.log(e.message)
         process.exit(0)
@@ -213,8 +253,11 @@ function reloadAndGetProgress({ global, doc }) {
     })
 }
 
+
+
 module.exports = {
     setScript,
     checkScriptSyntax,
-    reloadApp
+    reloadApp,
+    getScriptFromApp
 }

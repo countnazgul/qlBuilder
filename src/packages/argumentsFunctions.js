@@ -39,6 +39,16 @@ const setScript = async function (env) {
     await qlikComm.setScript(script, env)
 }
 
+const getScript = async function (env) {
+    let getScriptFromApp = await qlikComm.getScriptFromApp(env)
+    let scriptTabs = getScriptFromApp.split('///$tab ')
+
+    helpers.clearLocalScript()
+    writeScriptToFiles(scriptTabs)
+
+    console.log(chalk.hex('#00FF00')('\u2713 ') + 'Local script files were created')
+}
+
 const checkScript = async function (env, script) {
     let spinner = new Spinner('Checking for syntax errors ...');
     spinner.setSpinnerString('☱☲☴');
@@ -172,7 +182,21 @@ Line: ${scriptError.qLineInTab}
 Code: ${tabScript[scriptError.qLineInTab - 1]}`)
     }
 
-    
+
+}
+
+function writeScriptToFiles(scriptTabs) {
+    for (let tab of scriptTabs) {
+        let a = 1
+        if (tab.length > 0) {
+            let rows = tab.split('\r\n')
+            let tabName = rows[0]
+
+            let scriptContent = rows.slice(1, rows.length).join('\r\n')
+
+            fs.writeFileSync(`.\\src\\${tabName}.qvs`, scriptContent)
+        }
+    }
 }
 
 module.exports = {
@@ -182,5 +206,6 @@ module.exports = {
     checkScript,
     reload,
     startWatching,
-    checkForUpdate
+    checkForUpdate,
+    getScript
 }

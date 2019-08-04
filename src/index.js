@@ -18,6 +18,13 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             await argsFunctions.setScript(env)
         });
 
+        program
+        .command('getscript [env]')
+        .description('run setup commands for all envs')
+        .action(async function (env, options) {
+            await argsFunctions.getScript(env)
+        });        
+
     program
         .command('checkscript [env]')
         .description('run setup commands for all envs')

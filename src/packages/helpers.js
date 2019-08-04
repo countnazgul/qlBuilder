@@ -1,6 +1,8 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 const os = require('os');
+const path = require('path');
+const chalk = require('chalk');
 
 const getEnvDetails = function (env) {
     let config = ''
@@ -104,9 +106,21 @@ const readCert = function (certPath, filename) {
     return fs.readFileSync(`${certPath}/${filename}`);
 }
 
-const checkForConfig = function() {
+const checkForConfig = function () {
 
     process.exit()
+}
+
+const clearLocalScript = async function () {
+    let directory = './src'
+
+    let files = fs.readdirSync(directory)
+
+    for (let file of files) {
+        fs.unlinkSync(path.join(directory, file));
+    }
+
+    console.log(chalk.hex('#00FF00')('\u2713 ') + 'Local script files removed')
 }
 
 module.exports = {
@@ -117,5 +131,6 @@ module.exports = {
     buildLoadScript,
     writeLoadScript,
     setScript,
-    readCert
+    readCert,
+    clearLocalScript
 }
