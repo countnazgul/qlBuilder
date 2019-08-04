@@ -103,7 +103,7 @@ In some cases the Prod environment app can be without the original (full) script
 
 ## In use
 
-[](https://github.com/countnazgul/qBuilder/blob/master/images/qBuilder_Demo.gif?raw=true)
+![Usage](https://github.com/countnazgul/qBuilder/blob/master/images/qBuilder_Demo.gif?raw=true)
 
 ---
 
