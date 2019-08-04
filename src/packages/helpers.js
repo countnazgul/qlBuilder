@@ -115,7 +115,7 @@ const clearLocalScript = async function () {
         fs.unlinkSync(path.join(directory, file));
     }
 
-    console.log(chalk.hex('#00FF00')('\u2713 ') + 'Local script files removed')
+    console.log(chalk.green('√ ') + 'Local script files removed')
 }
 const initialChecks = {
     configFile: function () {
@@ -124,7 +124,7 @@ const initialChecks = {
                 return true
             }
         } catch (err) {
-            console.log(chalk.red('\u2716 ') + `"config.yml" do not exists! I'm running at the correct folder?`)
+            console.log(chalk.red('× ') + `"config.yml" do not exists! I'm running at the correct folder?`)
             process.exit()
         }
     },
@@ -134,7 +134,7 @@ const initialChecks = {
                 return true
             }
         } catch (err) {
-            console.log(chalk.red('\u2713 ') + `config is present but "src" foder was not and was created`)
+            console.log(chalk.green('√ ') + `config is present but "src" foder was not and was created`)
             process.exit()
         }
     },
@@ -144,7 +144,7 @@ const initialChecks = {
                 return true
             }
         } catch (err) {
-            console.log(chalk.red('\u2713 ') + `config is present but "dist" foder was not and was created`)
+            console.log(chalk.green('√ ') + `config is present but "dist" foder was not and was created`)
             process.exit()
         }
     },

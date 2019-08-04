@@ -21,7 +21,7 @@ const setScript = async function (script, env) {
         await session.close()
 
         spinner.stop(true)
-        console.log(chalk.hex('#00FF00')('\u2713 ') + 'Script was set and document was saved')
+        console.log(chalk.green('√ ') + 'Script was set and document was saved')
     } catch (e) {
         console.log(e.message)
         process.exit(0)
@@ -43,7 +43,7 @@ const getScriptFromApp = async function (env) {
         await session.close()
 
         spinner.stop(true)
-        console.log(chalk.hex('#00FF00')('\u2713 ') + 'Script was received')
+        console.log(chalk.green('√ ') + 'Script was received')
         return qScript
     } catch (e) {
         console.log(e.message)
@@ -127,6 +127,11 @@ function reloadAndGetProgress({ global, doc }) {
 
                         let timestamp = new Date().toLocaleString("en-US", timestampOptions)
 
+                        if (msg.qErrorData.length > 0) {
+                            reloaded = true
+                            scriptError = true
+                        }
+
                         if (msg.qPersistentProgress && msg.qTransientProgress) {
                             persistentProgress = msg.qPersistentProgress
                             if (persistentProgress.split('\n').length > 1) {
@@ -149,10 +154,7 @@ function reloadAndGetProgress({ global, doc }) {
                             console.log(`${timestamp}: ${msg.qPersistentProgress}`)
                         }
 
-                        if (msg.qPersistentProgress.indexOf('Script Error. ') > -1) {
-                            reloaded = true
-                            scriptError = true
-                        }
+
                     })
             } else {
                 clearInterval(progress)

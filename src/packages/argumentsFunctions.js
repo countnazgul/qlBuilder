@@ -5,6 +5,8 @@ const compareVersions = require('compare-versions');
 const axios = require('axios');
 const chalk = require('chalk');
 const Spinner = require('cli-spinner').Spinner;
+const prompts = require('prompts');
+
 const currentVersion = require('..\\..\\package.json').version
 
 const helpers = require('./helpers');
@@ -22,17 +24,17 @@ const create = async function (project) {
         helpers.createInitialScriptFiles(project)
         helpers.createInitConfig(project)
         spinner.stop(true)
-        console.log(chalk.hex('#00FF00')('\u2713 ') + 'All set')
+        console.log(chalk.green('√ ') + 'All set')
     } else {
         spinner.stop(true)
-        console.log(chalk.red('\u2716 ') + ` Folder "${project}" already exists`)
+        console.log(chalk.red('✖ ') + ` Folder "${project}" already exists`)
     }
 }
 
 const buildScript = async function () {
     let loadScript = helpers.buildLoadScript()
     helpers.writeLoadScript(loadScript)
-    console.log(chalk.hex('#00FF00')('\u2713 ') + 'Load script created')
+    console.log(chalk.green('√ ') + 'Load script created')
     return loadScript
 }
 
@@ -42,13 +44,25 @@ const setScript = async function (env) {
 }
 
 const getScript = async function (env) {
-    let getScriptFromApp = await qlikComm.getScriptFromApp(env)
-    let scriptTabs = getScriptFromApp.split('///$tab ')
 
-    helpers.clearLocalScript()
-    writeScriptToFiles(scriptTabs)
+    const response = await prompts({
+        type: 'confirm',
+        name: 'value',
+        message: 'This will overwrite all local files. Are you sure?',
+        initial: false
+    })
 
-    console.log(chalk.hex('#00FF00')('\u2713 ') + 'Local script files were created')
+    if (response.value == true) {
+        let getScriptFromApp = await qlikComm.getScriptFromApp(env)
+        let scriptTabs = getScriptFromApp.split('///$tab ')
+
+        helpers.clearLocalScript()
+        writeScriptToFiles(scriptTabs)
+
+        console.log(chalk.green('√ ') + 'Local script files were created')
+    } else {
+        console.log('Nothing was changed')
+    }
 }
 
 const checkScript = async function (env, script) {
@@ -65,10 +79,10 @@ const checkScript = async function (env, script) {
     spinner.stop(true)
 
     if (scriptResult.length > 0) {
-        console.log(chalk.red('\u2716 ') + ` Syntax errors found!`)
+        console.log(chalk.red('× ') + ` Syntax errors found!`)
         displayScriptErrors(scriptResult)
     } else {
-        console.log(chalk.hex('#00FF00')('\u2713 ') + 'No syntax errors were found')
+        console.log(chalk.green('√ ') + 'No syntax errors were found')
     }
 
 
@@ -123,7 +137,7 @@ You know ... just saying :)`)
             let script = await buildScript()
 
 
-            console.log(chalk.hex('#00FF00')('\u2713 ') + 'Script build')
+            console.log(chalk.green('√ ') + 'Script build')
             await qlikComm.setScript(script, env)
         }
     })
