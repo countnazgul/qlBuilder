@@ -42,7 +42,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .description('Start qBuilder in watch mode')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
-            await argsFunctions.startWatching(program.reload, env)
+            await argsFunctions.startWatching(program.reload, program.set, env)
         });
 
     program

@@ -2,6 +2,7 @@ const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.20.0.json');
 const Spinner = require('cli-spinner').Spinner;
+Spinner.setDefaultSpinnerDelay(200)
 const chalk = require('chalk');
 
 const helpers = require('./helpers')
@@ -17,10 +18,16 @@ const setScript = async function (script, env) {
         let global = await session.open()
         let doc = await global.openDoc(envDetails.appId)
         await doc.setScript(script)
-        await doc.doSave()
+        spinner.stop(true)
+
+        let spinnerSave = new Spinner('Saving ...');
+        spinnerSave.setSpinnerString('◐◓◑◒');
+        spinnerSave.start();  
+
+        await doc.doSave()        
         await session.close()
 
-        spinner.stop(true)
+        spinnerSave.stop(true)
         console.log(chalk.green('√ ') + 'Script was set and document was saved')
     } catch (e) {
         console.log(e.message)
@@ -75,7 +82,16 @@ const reloadApp = async function (env) {
         let global = await session.open()
         let doc = await global.openDoc(envDetails.appId)
         await reloadAndGetProgress({ global, doc })
+
+        let spinner = new Spinner('Saving ...');
+        spinner.setSpinnerString('◐◓◑◒');
+        spinner.start();
+
+        await doc.doSave()
         await session.close()
+
+        spinner.stop(true);
+        console.log(chalk.green('√ ') + 'App was reloaded and document was saved')
 
     } catch (e) {
         console.log(e.message)

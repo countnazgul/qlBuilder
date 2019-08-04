@@ -5,6 +5,7 @@ const compareVersions = require('compare-versions');
 const axios = require('axios');
 const chalk = require('chalk');
 const Spinner = require('cli-spinner').Spinner;
+Spinner.setDefaultSpinnerDelay(200)
 const prompts = require('prompts');
 
 const currentVersion = require('..\\..\\package.json').version
@@ -89,7 +90,7 @@ const checkScript = async function (env, script) {
     return scriptResult
 }
 
-const startWatching = async function (reload, env) {
+const startWatching = async function (reload, setScript, env) {
 
     console.log(`\nCommands during watch mode:
 - set script: s or set
@@ -111,6 +112,8 @@ Each succesful build will trigger:
    
 You know ... just saying :)`)
     }
+
+
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -148,18 +151,19 @@ You know ... just saying :)`)
         .on('change', async function (path) {
             let script = await buildScript()
             await checkScript(env, script)
-            // let scriptErrors = await qlikComm.checkScriptSyntax(script, env)
-
-            // // console.log('Checking for syntax errors ...')
-            // if (scriptErrors.length > 0) {
-            //     displayScriptErrors(scriptErrors)
-            // } else {
-            //     // console.log('No syntax errors were found')
-            // }
 
             if (reload) {
                 await qlikComm.setScript(script, env)
                 await qlikComm.reloadApp(env)
+            }
+
+            if (reload && setScript) {
+                await qlikComm.setScript(script, env)
+                await qlikComm.reloadApp(env)
+            }            
+
+            if (!reload && setScript) {
+                await qlikComm.setScript(script, env)
             }
         })
 }

@@ -1,6 +1,6 @@
 {
   "name": "qbuilder",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "CLI helper tool for Qlik Sense developers to allow write script locally and update in remove app",
   "author": "Stefan Stoichev <@countnazgul> (https://sstoichev.eu)",
   "main": "./src/index.js",
@@ -16,7 +16,13 @@
     "type": "git",
     "url": "https://github.com/countnazgul/qBuilder.git"
   },
-  "keywords": [],
+  "keywords": [
+    "qlik",
+    "sense",
+    "build",
+    "script",
+    "reload"
+  ],
   "license": "MIT",
   "dependencies": {
     "axios": "^0.19.0",
