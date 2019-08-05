@@ -2,44 +2,43 @@
 
 ## Motivation
 
-`qBuilder` is a CLI tool from command prompt (or PowerShell) by providing the required arguments. The tool allows Qlik Sense developers to write their Qlik script on the local machine and set this script in Qlik app and reload the app from within Qlik Sense. 
+`qlbuilder` is a CLI tool from command prompt (or PowerShell) by providing the required arguments. The tool allows Qlik Sense developers to write their Qlik script on the local machine and set this script in Qlik app and reload the app from within Qlik Sense. 
 
 ## Installation
 
-**(not published yet but this will be the way)**
-> npm install -g qBuilder
+> npm install -g qlbuilder
 
-Once the global package is installed you can use `qbuilder` command from anywhere
+Once the global package is installed you can use `qlbuilder` command from anywhere
 
 ## How to use?
 
 Run one of the following commands from CMD/PowerShell
 
-* `qBuilder create [name]` - create the initial folders and files in the current folder. `name` is used as root folder name
+* `qlbuilder create [name]` - create the initial folders and files in the current folder. `name` is used as root folder name
 
-* `qBuilder build`
+* `qlbuilder build`
     * builds the full load script from `/src/*.qvs` files. The produced script is saved in `dist` folder (`LoadScript.qvs`)
 
-* `qBuilder checkscript [env]`
+* `qlbuilder checkscript [env]`
     * builds the script (from `/src/*.qvs` files)
     * connects to Qlik and checks the script for syntax errors - `env` is the environment name from `config.yml`
 
-* `qBuilder reload [env]`
-    * connects to Qlik and reload the app - `env` is the environment name from `config.yml`. Once the reload has started `qBuilder` will display the progress in the same console (check the video below to see it in action)
+* `qlbuilder reload [env]`
+    * connects to Qlik and reload the app - `env` is the environment name from `config.yml`. Once the reload has started `qlbuilder` will display the progress in the same console (check the video below to see it in action)
 
-* `qBuilder setscript [env]`
+* `qlbuilder setscript [env]`
     * builds the script (from `/src/*.qvs` files)
     * connects to Qlik and checks the script for syntax errors - `env` is the environment name from `config.yml`
     * sets the new script
     * saves the app
 
-* `qBuilder getscript [env]` - (the opposite of `setscript`) get the remote script, split it to tabs and save the files to `scr` folder. `config.yml` should present to indicate from which env/app to extract the script
+* `qlbuilder getscript [env]` - (the opposite of `setscript`) get the remote script, split it to tabs and save the files to `scr` folder. `config.yml` should present to indicate from which env/app to extract the script
     * connects to Qlik and get the script from desired app - `env` is the environment name from `config.yml`
     * split the script into tabs/files
     * saves the `qvs` files into `src` folder
 
 
-* `qBuilder watch [env]` - enters in watch mode. The default behavior is to build and check the script syntax on any `*.qvs` file inside `src` folder. Can accept two additional flags:
+* `qlbuilder watch [env]` - enters in watch mode. The default behavior is to build and check the script syntax on any `*.qvs` file inside `src` folder. Can accept two additional flags:
 
     * `-r` - reloads the script on any `qvs` file change
     * `-s` - sets the script (and save the app) on any `qvs` file change
@@ -51,24 +50,24 @@ Run one of the following commands from CMD/PowerShell
     * `c` or `clr` - clear console
     * `x` - exit 
 
-* `qBuilder checkupdate` - compares the current version number to the remote one
+* `qlbuilder checkupdate` - compares the current version number to the remote one
 
 ## config.yml
 
 The `create` command is creates few folders and `config.yml` file. The config file is pre-populated with example values. This file specifies Qlik environments (dev, test, prod etc.)
 
-At the moment `qBuilder` support non-authentication environments (desktop or Core). Certificates connections to QSE is in wip
+At the moment `qlbuilder` support non-authentication environments (desktop or Core). Certificates connections to QSE is in wip
 
-The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `ws://localhost:4848` and the app that we will target there is `qBuilder Test.qvf`
+The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `ws://localhost:4848` and the app that we will target there is `qlbuilder Test.qvf`
 
 ```
 qlik-environments:
   - name: desktop
     host: ws://localhost:4848
-    appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qBuilder Test.qvf
+    appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
 ```    
 
-You can have as many environments as you want (will make more sense when its possible to connect to QSE). Make sure that the application ids are correct in each environment. `qBuilder` will not create app if it cant find it and will throw an error.
+You can have as many environments as you want (will make more sense when its possible to connect to QSE). Make sure that the application ids are correct in each environment. `qlbuilder` will not create app if it cant find it and will throw an error.
 
 The environment name is used as an command argument (so try not to have spaces in the environment names)
 
@@ -92,7 +91,7 @@ For example having the following files:
 
 Will result in the following tabs in Qlik
 
-![Tab View](https://github.com/countnazgul/qBuilder/blob/master/images/tab_names.png?raw=true)
+![Tab View](https://github.com/countnazgul/qlbuilder/blob/master/images/tab_names.png?raw=true)
 
 ## Extra
 
@@ -109,4 +108,4 @@ In some cases the Prod environment app can be without the original (full) script
 
 ---
 
-If you have any issues, comments, suggestions etc please use the [GitHub issue tracker](https://github.com/countnazgul/qBuilder/issues)
+If you have any issues, comments, suggestions etc please use the [GitHub issue tracker](https://github.com/countnazgul/qlbuilder/issues)
