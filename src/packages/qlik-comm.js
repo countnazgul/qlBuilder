@@ -22,15 +22,16 @@ const setScript = async function (script, env) {
 
         let spinnerSave = new Spinner('Saving ...');
         spinnerSave.setSpinnerString('◐◓◑◒');
-        spinnerSave.start();  
+        spinnerSave.start();
 
-        await doc.doSave()        
+        await doc.doSave()
         await session.close()
 
         spinnerSave.stop(true)
         console.log(chalk.green('√ ') + 'Script was set and document was saved')
     } catch (e) {
-        console.log(e.message)
+        console.log('')
+        console.log(chalk.red('✖ ') + `${e.message}`)
         process.exit(0)
     }
 }
@@ -53,7 +54,8 @@ const getScriptFromApp = async function (env) {
         console.log(chalk.green('√ ') + 'Script was received')
         return qScript
     } catch (e) {
-        console.log(e.message)
+        console.log('')
+        console.log(chalk.red('✖ ') + `${e.message}`)
         process.exit(0)
     }
 }
@@ -70,7 +72,8 @@ const checkScriptSyntax = async function (script, env) {
 
         return syntaxCheck
     } catch (e) {
-        console.log(e.message)
+        console.log('')
+        console.log(chalk.red('✖ ') + `${e.message}`)
         process.exit(0)
     }
 }
@@ -94,7 +97,8 @@ const reloadApp = async function (env) {
         console.log(chalk.green('√ ') + 'App was reloaded and document was saved')
 
     } catch (e) {
-        console.log(e.message)
+        console.log('')
+        console.log(chalk.red('✖ ') + `${e.message}`)
         process.exit(0)
     }
 }
@@ -194,13 +198,18 @@ function createQlikSession(env) {
         }
     }
 
-    const session = enigma.create({
-        schema,
-        url: `${envDetails.host}/app/engineData`,
-        createSocket: url => new WebSocket(url, qsEnt)
-    });
+    try {
+        const session = enigma.create({
+            schema,
+            url: `${envDetails.host}/app/engineData`,
+            createSocket: url => new WebSocket(url, qsEnt)
+        });
 
-    return { session, envDetails }
+        return { session, envDetails }
+    } catch (e) {
+        console.log('')
+        console.log(chalk.red('✖ ') + `${e.message}`)
+    }
 }
 
 module.exports = {

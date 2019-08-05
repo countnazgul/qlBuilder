@@ -184,11 +184,13 @@ const checkForUpdate = async function () {
             console.log('To install it run:')
             console.log('npm install -g qBuilder')
         } else {
-            console.log('Lastest version is already installed')
+            
+            console.log('Latest version is already installed')
         }
 
     } catch (e) {
-        console.log(`Unable to get the remote version number :'(`)
+        console.log('')
+        console.log(chalk.red('✖ ') + `Unable to get the remote version number :'(`)
     }
 }
 
