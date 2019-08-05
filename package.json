@@ -1,20 +1,20 @@
 {
-  "name": "qbuilder",
-  "version": "0.1.7",
+  "name": "qlbuilder",
+  "version": "0.1.8",
   "description": "CLI helper tool for Qlik Sense developers to allow write script locally and update in remove app",
   "author": "Stefan Stoichev <@countnazgul> (https://sstoichev.eu)",
   "main": "./src/index.js",
   "preferGlobal": true,
   "bin": {
-    "qBuilder": "./bin/qBuilder.js"
+    "qlbuilder": "./bin/qlbuilder.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified ... yet\" && exit 1"
   },
-  "homepage": "https://github.com/countnazgul/qBuilder",
+  "homepage": "https://github.com/countnazgul/qlbuilder",
   "repository": {
     "type": "git",
-    "url": "https://github.com/countnazgul/qBuilder.git"
+    "url": "https://github.com/countnazgul/qlbuilder.git"
   },
   "keywords": [
     "qlik",

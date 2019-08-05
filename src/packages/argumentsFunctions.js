@@ -174,7 +174,7 @@ const reload = async function (env) {
 
 const checkForUpdate = async function () {
     try {
-        let getGitData = await axios.get('https://raw.githubusercontent.com/countnazgul/qBuilder/master/package.json')
+        let getGitData = await axios.get('https://raw.githubusercontent.com/countnazgul/qluilder/master/package.json')
         let gitVersion = getGitData.data.version
 
         if (compareVersions(gitVersion, currentVersion, '>')) {
@@ -182,7 +182,7 @@ const checkForUpdate = async function () {
             console.log(`Current version: ${currentVersion}`)
             console.log(`Remote version: ${gitVersion}`)
             console.log('To install it run:')
-            console.log('npm install -g qBuilder')
+            console.log('npm install -g qlbuilder')
         } else {
             
             console.log('Latest version is already installed')

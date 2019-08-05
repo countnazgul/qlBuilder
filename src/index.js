@@ -42,7 +42,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('watch [env]')
-        .description('Start qBuilder in watch mode')
+        .description('Start qlBuilder in watch mode')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             helpers.initialChecks.environment(env)
@@ -69,7 +69,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('checkupdate')
-        .description('Check for qBuilder updates')
+        .description('Check for qlBuilder updates')
         .action(async function () {
             await argsFunctions.checkForUpdate()
         });
@@ -83,10 +83,10 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program.on('--help', function () {
         console.log('')
         console.log('Examples:');
-        console.log(' > qbuilder setscript desktop');
-        console.log(' > qbuilder reload desktop');
-        console.log(' > qbuilder watch desktop -r');
-        console.log(' > qbuilder watch desktop -s');
+        console.log(' > qlbuilder setscript desktop');
+        console.log(' > qlbuilder reload desktop');
+        console.log(' > qlbuilder watch desktop -r');
+        console.log(' > qlbuilder watch desktop -s');
     });
 
     program.parse(process.argv);
