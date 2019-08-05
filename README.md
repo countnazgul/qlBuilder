@@ -103,6 +103,7 @@ In some cases the Prod environment app can be without the original (full) script
 ## Roadmap
 
 * QSE support (certificates, header etc)
+* Tests - proper tests should be written!
 * `include` and `must_include` - (option) parse the script and get the content of the script that are included and get the content of these files as a separate tabs. This way the script will not be dependant on external files
 * different logic how to name the script files - instead of naming convention why not specify the other in the config file?
 
