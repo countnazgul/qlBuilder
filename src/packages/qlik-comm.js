@@ -62,7 +62,6 @@ const getScriptFromApp = async function (env) {
 
 const checkScriptSyntax = async function (script, env) {
     let { session, envDetails } = createQlikSession(env)
-
     try {
         let global = await session.open()
         let doc = await global.createSessionApp()
@@ -74,7 +73,7 @@ const checkScriptSyntax = async function (script, env) {
     } catch (e) {
         console.log('')
         console.log(chalk.red('✖ ') + `${e.message}`)
-        process.exit(0)
+        process.exit(1)
     }
 }
 
@@ -187,14 +186,20 @@ function createQlikSession(env) {
     let envDetails = helpers.getEnvDetails(env)[0];
 
     let qsEnt = {}
-    if (envDetails.certificates) {
-        qsEnt = {
-            ca: [helpers.readCert(envDetails.certificates, 'root.pem')],
-            key: helpers.readCert(envDetails.certificates, 'client_key.pem'),
-            cert: helpers.readCert(envDetails.certificates, 'client.pem'),
-            headers: {
-                'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.user.domain)}; UserId=${encodeURIComponent(envDetails.user.name)}`,
-            },
+
+    if (envDetails.authentication.type == 'certificates') {
+        try {
+            qsEnt = {
+                ca: [helpers.readCert(envDetails.authentication.certLocation, 'root.pem')],
+                key: helpers.readCert(envDetails.authentication.certLocation, 'client_key.pem'),
+                cert: helpers.readCert(envDetails.authentication.certLocation, 'client.pem'),
+                headers: {
+                    'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.authentication.user.split('\\')[0])}; UserId=${encodeURIComponent(envDetails.authentication.user.split('\\')[1])}`,
+                },
+            }
+        } catch (e) {
+            console.log(chalk.red('✖ ') + ` ${e.message}`)
+            process.exit(1)
         }
     }
 

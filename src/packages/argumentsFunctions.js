@@ -72,12 +72,21 @@ const checkScript = async function (env, script) {
     spinner.start();
 
     if (!script) {
+        console.log('')
         var script = await buildScript()
     }
 
-    let scriptResult = await qlikComm.checkScriptSyntax(script, env)
+    let scriptResult = ''
 
-    spinner.stop(true)
+    try {
+        scriptResult = await qlikComm.checkScriptSyntax(script, env)
+    } catch (e) {
+        console.log(e.message)
+    }
+    finally {
+        spinner.stop(true)
+    }
+
 
     if (scriptResult.length > 0) {
         console.log(chalk.red('✖ ') + ` Syntax errors found!`)
@@ -160,7 +169,7 @@ You know ... just saying :)`)
             if (reload && setScript) {
                 await qlikComm.setScript(script, env)
                 await qlikComm.reloadApp(env)
-            }            
+            }
 
             if (!reload && setScript) {
                 await qlikComm.setScript(script, env)
@@ -184,7 +193,7 @@ const checkForUpdate = async function () {
             console.log('To install it run:')
             console.log('npm install -g qlbuilder')
         } else {
-            
+
             console.log('Latest version is already installed')
         }
 
