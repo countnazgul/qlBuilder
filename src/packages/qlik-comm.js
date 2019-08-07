@@ -1,6 +1,6 @@
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
-const schema = require('enigma.js/schemas/12.20.0.json');
+const schema = require('enigma.js/schemas/12.170.2.json');
 const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
 const chalk = require('chalk');
