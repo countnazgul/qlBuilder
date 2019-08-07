@@ -60,9 +60,14 @@ const createInitConfig = function (project) {
                 "appId": `C:\\Users\\${os.userInfo().username}\\Documents\\Qlik\\Sense\\Apps\\test.qvf`
             },
             {
-                "name": "core",
-                "host": "ws://localhost:9076",
-                "appId": 456
+                "name": "qse",
+                "host": "wss://my-qs-engine-host:4747",
+                "appId": "12345678-1234-1234-1234-12345678901",
+                "authentication": {
+                    "type": "certificates",
+                    "certLocation": "C:\\path\\to\\cert\\folder",
+                    "user": "DOMAIN\\username"
+                }
             }
         ]
     }

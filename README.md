@@ -60,12 +60,24 @@ At the moment `qlbuilder` support non-authentication environments (desktop or Co
 
 The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `ws://localhost:4848` and the app that we will target there is `qlbuilder Test.qvf`
 
-```
+```yaml
 qlik-environments:
   - name: desktop
     host: ws://localhost:4848
     appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
 ```    
+
+For `QSE` at the moment only connection with certificates is available. The config will be:
+
+```yaml
+  - name: prod
+    host: wss://192.168.0.100:4747 # ip/FQDN of QS engine (central node)
+    appId: 12345678-1234-1234-1234-12345678901 # app ID
+    authentication:
+      type: certificates
+      certLocation: C:\path\to\cert\folder # the folder where the exported certificates are
+      user: DOMAN\UserName # domain or machine name + username
+```
 
 You can have as many environments as you want (will make more sense when its possible to connect to QSE). Make sure that the application ids are correct in each environment. `qlbuilder` will not create app if it cant find it and will throw an error.
 
@@ -101,7 +113,7 @@ In some cases the Prod environment app can be without the original (full) script
 
 ## Roadmap
 
-* QSE support (certificates, header etc)
+* Additioinal QSE auth support (at the moment only certificates are suppored)
 * Tests - proper tests should be written!
 * `include` and `must_include` - (option) parse the script and get the content of the script that are included and get the content of these files as a separate tabs. This way the script will not be dependant on external files
 * different logic how to name the script files - instead of naming convention why not specify the other in the config file?
