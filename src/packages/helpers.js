@@ -89,7 +89,7 @@ const buildLoadScript = function (initProject) {
         let tabName = file.replace('.qvs', '').split('--')[1]
         let fileContent = fs.readFileSync(`./${projectFolder}src/${file}`)
 
-        buildScript.push(`///$tab ${tabName}\n${fileContent}`)
+        buildScript.push(`///$tab ${tabName}\r\n${fileContent}`)
     }
 
     return buildScript.join('\n\n')
@@ -112,15 +112,17 @@ const readCert = function (certPath, filename) {
 }
 
 const clearLocalScript = async function () {
-    let directory = './src'
+    try {
+        let directory = './src'
 
-    let files = fs.readdirSync(directory)
+        let files = fs.readdirSync(directory)
 
-    for (let file of files) {
-        fs.unlinkSync(path.join(directory, file));
-    }
+        for (let file of files) {
+            fs.unlinkSync(path.join(directory, file));
+        }
 
-    console.log(chalk.green('√ ') + 'Local script files removed')
+        console.log(chalk.green('√ ') + 'Local script files removed')
+    } catch(e) {}
 }
 
 const initialChecks = {

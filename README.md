@@ -12,6 +12,8 @@ Once the global package is installed you can use `qlbuilder` command from anywhe
 
 ## How to use?
 
+(To list all commands run `qlbuilder --help`)
+
 Run one of the following commands from CMD/PowerShell
 
 * `qlbuilder create [name]` - create the initial folders and files in the current folder. `name` is used as root folder name

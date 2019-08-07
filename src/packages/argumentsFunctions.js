@@ -225,16 +225,20 @@ Code: ${tabScript[scriptError.qLineInTab - 1]}`)
 }
 
 function writeScriptToFiles(scriptTabs) {
-    for (let [i, tab] of scriptTabs.entries()) {
+    try {
+        for (let [i, tab] of scriptTabs.entries()) {
 
-        if (tab.length > 0) {
-            let rows = tab.split('\r\n')
-            let tabName = rows[0]
+            if (tab.length > 0) {
+                let rows = tab.split('\r\n')
+                let tabName = rows[0]
 
-            let scriptContent = rows.slice(1, rows.length).join('\r\n')
+                let scriptContent = rows.slice(1, rows.length).join('\r\n')
 
-            fs.writeFileSync(`.\\src\\${i}--${tabName}.qvs`, scriptContent)
+                fs.writeFileSync(`.\\src\\${i}--${tabName}.qvs`, scriptContent)
+            }
         }
+    } catch (e) {
+        console.log(chalk.red('✖ ') + `${e.message}`)
     }
 }
 
