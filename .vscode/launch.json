@@ -9,6 +9,7 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}\\src\\index.js",
+            "console": "externalTerminal",
             "cwd": "${workspaceFolder}\\test",
             "args": [
                 // "checkupdate"
@@ -17,7 +18,7 @@
                 // "checkscript", "desktop"
                 // "watch", "QSE",
                 // "reload", "desktop",
-                "setscript", "test"
+                "watch", "test"
                 // "-r"
                 // "create", "test"
             ]

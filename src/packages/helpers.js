@@ -80,6 +80,7 @@ const buildLoadScript = function (initProject) {
     if (initProject) {
         projectFolder = `${initProject}/`
     }
+    
     let scriptFiles = fs.readdirSync(`./${projectFolder}src`).filter(function (f) {
         return f.indexOf('.qvs') > -1
     })

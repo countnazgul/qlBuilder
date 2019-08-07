@@ -145,7 +145,7 @@ You know ... just saying :)`)
             console.log('Still here :)')
         }
 
-        if (line.toLowerCase() === "s" || line.toLocaleLowerCase() == "set") {
+        if (line.toLowerCase() === "s" || line.toLowerCase() == "set") {
             let script = await buildScript()
 
 
