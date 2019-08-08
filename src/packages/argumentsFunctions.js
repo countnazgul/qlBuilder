@@ -3,6 +3,7 @@ const chokidar = require('chokidar');
 const readline = require('readline');
 const compareVersions = require('compare-versions');
 const axios = require('axios');
+const filenamify = require('filenamify');
 const chalk = require('chalk');
 const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
@@ -231,10 +232,11 @@ function writeScriptToFiles(scriptTabs) {
             if (tab.length > 0) {
                 let rows = tab.split('\r\n')
                 let tabName = rows[0]
+                let tabNameSafe = filenamify(tabName, { replacement: '' });
 
                 let scriptContent = rows.slice(1, rows.length).join('\r\n')
 
-                fs.writeFileSync(`.\\src\\${i}--${tabName}.qvs`, scriptContent)
+                fs.writeFileSync(`.\\src\\${i}--${tabNameSafe}.qvs`, scriptContent)
             }
         }
     } catch (e) {
