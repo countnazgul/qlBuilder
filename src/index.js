@@ -89,6 +89,11 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         console.log(' > qlbuilder watch desktop -s');
     });
 
+    program.on('command:*', function () {
+        console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));
+        process.exit(1);
+    });
+
     program.parse(process.argv);
 })()
 

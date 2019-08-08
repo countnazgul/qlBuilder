@@ -111,11 +111,11 @@ Will result in the following tabs in Qlik
 
 Having the script files as local files allows to put them in version control. This will put the `src`, `dist` and `config.yml` files in the repository. 
 
-In some cases the Prod environment app can be without the original (full) script and just include (via REST API call) the final load script (the one in `dist` folder) from Git's master branch. This was technically you don't need to touch the Prod app in case of script change ... this is just an idea how to benefit from this approach
+In some cases the Prod environment app can be without the original (full) script and just include (via REST API call) the final load script (the one in `dist` folder) from Git master branch. This was technically you don't need to touch the Prod app in case of script change ... this is just an idea how to benefit from this approach
 
 ## Roadmap
 
-* Additioinal QSE auth support (at the moment only certificates are suppored)
+* Additional QSE auth support (at the moment only certificates are supported)
 * Tests - proper tests should be written!
 * `include` and `must_include` - (option) parse the script and get the content of the script that are included and get the content of these files as a separate tabs. This way the script will not be dependant on external files
 * different logic how to name the script files - instead of naming convention why not specify the other in the config file?

@@ -1,3 +1,4 @@
+const path = require("path");
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.170.2.json');
@@ -200,6 +201,15 @@ function createQlikSession(env) {
         } catch (e) {
             console.log(chalk.red('✖ ') + ` ${e.message}`)
             process.exit(1)
+        }
+    }
+
+    if (envDetails.authentication.type == 'jwt') {
+        let tokenPath = path.basename(envDetails.authentication.tokenLocation);
+        let tokenFileName = path.dirname(envDetails.authentication.tokenLocation);
+
+        qsEnt = {
+            headers: { Authorization: `Bearer ${readCert(tokenPath, tokenFileName)}` },
         }
     }
 
