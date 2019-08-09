@@ -205,11 +205,16 @@ function createQlikSession(env) {
     }
 
     if (envDetails.authentication.type == 'jwt') {
-        let tokenPath = path.basename(envDetails.authentication.tokenLocation);
-        let tokenFileName = path.dirname(envDetails.authentication.tokenLocation);
+        try {
+            let tokenFileName = path.basename(envDetails.authentication.tokenLocation);
+            let tokenPath = path.dirname(envDetails.authentication.tokenLocation);
 
-        qsEnt = {
-            headers: { Authorization: `Bearer ${readCert(tokenPath, tokenFileName)}` },
+            qsEnt = {
+                headers: { Authorization: `Bearer ${helpers.readCert(tokenPath, tokenFileName)}` },
+            }
+        } catch (e) {
+            console.log(chalk.red('✖ ') + ` ${e.message}`)
+            process.exit(1)
         }
     }
 
