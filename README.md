@@ -56,9 +56,7 @@ Run one of the following commands from CMD/PowerShell
 
 ## config.yml
 
-The `create` command is creates few folders and `config.yml` file. The config file is pre-populated with example values. This file specifies Qlik environments (dev, test, prod etc.)
-
-At the moment `qlbuilder` support non-authentication environments (desktop or Core). Certificates connections to QSE is in wip
+The `create` command will create few folders and `config.yml` file. The config file is pre-populated with example values. This file specifies Qlik environments (dev, test, prod etc.)
 
 The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `ws://localhost:4848` and the app that we will target there is `qlbuilder Test.qvf`
 
@@ -69,11 +67,11 @@ qlik-environments:
     appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
 ```    
 
-For `QSE` at the moment only connection with certificates is available. The config will be:
+For `QSE` with certificates the config will be:
 
 ```yaml
   - name: prod
-    host: wss://192.168.0.100:4747 # ip/FQDN of QS engine (central node)
+    host: wss://192.168.0.100:4747 # IP/FQDN of QS engine (central node)
     appId: 12345678-1234-1234-1234-12345678901 # app ID
     authentication:
       type: certificates
@@ -81,7 +79,21 @@ For `QSE` at the moment only connection with certificates is available. The conf
       user: DOMAN\UserName # domain or machine name + username
 ```
 
-You can have as many environments as you want (will make more sense when its possible to connect to QSE). Make sure that the application ids are correct in each environment. `qlbuilder` will not create app if it cant find it and will throw an error.
+For `QSE` with `JWT` the config will be:
+
+```yaml
+  - name: jwt
+    host: wss://192.168.0.100/virtual-proxy-prefix  # IP/FQDN with of the virtual proxy (see below)
+    appId: 12345678-1234-1234-1234-12345678901a # app ID
+    authentication:
+      type: jwt
+      tokenLocation: C:\path\to\jwt\file\location # full path location to the file where the jwt file is
+```
+
+When working with `jwt` port is not required. If `JWt` is not the main method for authentication then the Virtual Proxy prefix need to be provided. For more information how to set this please check this  
+[Qlik Support article](https://support.qlik.com/articles/000034966)
+
+You can have as many environments as you want (will make more sense when working with `QSE`). Make sure that the application ids are correct in each environment. `qlbuilder` will not create app if it cant find it and will throw an error.
 
 The environment name is used as an command argument (so try not to have spaces in the environment names)
 
@@ -115,7 +127,6 @@ In some cases the Prod environment app can be without the original (full) script
 
 ## Roadmap
 
-* Additional QSE auth support (at the moment only certificates are supported)
 * Tests - proper tests should be written!
 * `include` and `must_include` - (option) parse the script and get the content of the script that are included and get the content of these files as a separate tabs. This way the script will not be dependant on external files
 * different logic how to name the script files - instead of naming convention why not specify the other in the config file?

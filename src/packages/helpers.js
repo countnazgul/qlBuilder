@@ -57,7 +57,7 @@ const createInitConfig = function (project) {
             {
                 "name": "desktop",
                 "host": `ws://localhost:4848`,
-                "appId": `C:\\Users\\${os.userInfo().username}\\Documents\\Qlik\\Sense\\Apps\\test.qvf`
+                "appId": `C:/Users/${os.userInfo().username}/Documents/Qlik/Sense/Apps/test.qvf`
             },
             {
                 "name": "qse",
@@ -65,10 +65,20 @@ const createInitConfig = function (project) {
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "authentication": {
                     "type": "certificates",
-                    "certLocation": "C:\\path\\to\\cert\\folder",
+                    "certLocation": "C:/path/to/cert/folder",
                     "user": "DOMAIN\\username"
                 }
-            }
+            },
+            ,
+            {
+                "name": "jwt",
+                "host": "wss://my-qs-engine-host/virtual-proxy-prefix",
+                "appId": "12345678-1234-1234-1234-12345678901",
+                "authentication": {
+                    "type": "jwt",
+                    "tokenLocation": "C:/path/to/jwt/file/location"
+                }
+            }            
         ]
     }
 
