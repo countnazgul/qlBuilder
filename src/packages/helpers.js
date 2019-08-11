@@ -3,6 +3,10 @@ const yaml = require('js-yaml');
 const os = require('os');
 const path = require('path');
 const chalk = require('chalk');
+const axios = require('axios');
+const querystring = require('querystring');
+
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 const getEnvDetails = function (env) {
     let config = ''
@@ -78,7 +82,7 @@ const createInitConfig = function (project) {
                     "type": "jwt",
                     "tokenLocation": "C:/path/to/jwt/file/location"
                 }
-            }            
+            }
         ]
     }
 
@@ -90,7 +94,7 @@ const buildLoadScript = function (initProject) {
     if (initProject) {
         projectFolder = `${initProject}/`
     }
-    
+
     let scriptFiles = fs.readdirSync(`./${projectFolder}src`).filter(function (f) {
         return f.indexOf('.qvs') > -1
     })
@@ -133,7 +137,7 @@ const clearLocalScript = async function () {
         }
 
         console.log(chalk.green('√ ') + 'Local script files removed')
-    } catch(e) {}
+    } catch (e) { }
 }
 
 const initialChecks = {
@@ -179,6 +183,52 @@ const initialChecks = {
 
 }
 
+const winFormSession = {
+    firstRequest = async function (config) {
+        try {
+            let firstRequest = await axios.get(`https://${config.host}/qrs/about?xrfkey=${config.xrfkey}`, {
+                headers: {
+                    "x-qlik-xrfkey": config.xrfkey,
+                    'User-Agent': 'Form'
+                },
+                maxRedirects: 0,
+                validateStatus: null
+            })
+
+            return firstRequest.headers.location
+        } catch (e) {
+            console.log(e.message)
+        }
+    },
+    secondRequest = async function (config) {
+
+        let credentialsData = querystring.stringify({
+            username: config.username,
+            pwd: config.password
+        });
+
+        let reqOptions = {
+            
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "x-qlik-xrfkey": config.xrfkey
+            }
+        }
+
+        try {
+            let secondRequest = await axios.post(config.authLocation, credentialsData, reqOptions)
+
+            let cookieSessionId = secondRequest.headers['set-cookie'].filter(function (c) {
+                return c.indexOf(config.sessionHeaderName) > -1
+            })[0].split(';')[0].split(`${config.sessionHeaderName}=`)[1]
+
+            return cookieSessionId
+        } catch (e) {
+            console.log(e.message)
+        }
+    }
+}
+
 module.exports = {
     getEnvDetails,
     createInitFolders,
@@ -189,5 +239,6 @@ module.exports = {
     setScript,
     readCert,
     clearLocalScript,
-    initialChecks
+    initialChecks,
+    winFormSession
 }

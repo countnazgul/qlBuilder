@@ -186,37 +186,13 @@ function reloadAndGetProgress({ global, doc }) {
 function createQlikSession(env) {
     let envDetails = helpers.getEnvDetails(env)[0];
 
-    let qsEnt = {}
+    let authenticationType = 'desktop'
 
-    if (envDetails.authentication.type == 'certificates') {
-        try {
-            qsEnt = {
-                ca: [helpers.readCert(envDetails.authentication.certLocation, 'root.pem')],
-                key: helpers.readCert(envDetails.authentication.certLocation, 'client_key.pem'),
-                cert: helpers.readCert(envDetails.authentication.certLocation, 'client.pem'),
-                headers: {
-                    'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.authentication.user.split('\\')[0])}; UserId=${encodeURIComponent(envDetails.authentication.user.split('\\')[1])}`,
-                },
-            }
-        } catch (e) {
-            console.log(chalk.red('✖ ') + ` ${e.message}`)
-            process.exit(1)
-        }
+    if (envDetails.authentication) {
+        authenticationType = envDetails.authentication.type
     }
 
-    if (envDetails.authentication.type == 'jwt') {
-        try {
-            let tokenFileName = path.basename(envDetails.authentication.tokenLocation);
-            let tokenPath = path.dirname(envDetails.authentication.tokenLocation);
-
-            qsEnt = {
-                headers: { Authorization: `Bearer ${helpers.readCert(tokenPath, tokenFileName)}` },
-            }
-        } catch (e) {
-            console.log(chalk.red('✖ ') + ` ${e.message}`)
-            process.exit(1)
-        }
-    }
+    let qsEnt = await handleAuthenticationType[authenticationType]
 
     try {
         const session = enigma.create({
@@ -229,6 +205,46 @@ function createQlikSession(env) {
     } catch (e) {
         console.log('')
         console.log(chalk.red('✖ ') + `${e.message}`)
+    }
+}
+
+const handleAuthenticationType = {
+    desktop: async function () {
+        return {}
+    },
+    certificates: async function (envDetails) {
+        try {
+            return {
+                ca: [helpers.readCert(envDetails.authentication.certLocation, 'root.pem')],
+                key: helpers.readCert(envDetails.authentication.certLocation, 'client_key.pem'),
+                cert: helpers.readCert(envDetails.authentication.certLocation, 'client.pem'),
+                headers: {
+                    'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.authentication.user.split('\\')[0])}; UserId=${encodeURIComponent(envDetails.authentication.user.split('\\')[1])}`,
+                },
+            }
+        } catch (e) {
+            console.log(chalk.red('✖ ') + ` ${e.message}`)
+            process.exit(1)
+        }
+    },
+    jwt: async function (envDetails) {
+        try {
+            let tokenFileName = path.basename(envDetails.authentication.tokenLocation);
+            let tokenPath = path.dirname(envDetails.authentication.tokenLocation);
+
+            return {
+                headers: { Authorization: `Bearer ${helpers.readCert(tokenPath, tokenFileName)}` },
+            }
+        } catch (e) {
+            console.log(chalk.red('✖ ') + ` ${e.message}`)
+            process.exit(1)
+        }
+    },
+    winform: async function (envDetails) {
+
+    },
+    purewin: async function (envDetails) {
+
     }
 }
 
