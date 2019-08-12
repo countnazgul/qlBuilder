@@ -184,9 +184,14 @@ const initialChecks = {
 }
 
 const winFormSession = {
-    firstRequest = async function (config) {
+    firstRequest: async function (config) {
+
+        config.xrfkey = generateXrfkey(16);
+
+        config.host = config.host.replace('wss://', 'https://').replace('ws://', 'http://')
+
         try {
-            let firstRequest = await axios.get(`https://${config.host}/qrs/about?xrfkey=${config.xrfkey}`, {
+            let firstRequest = await axios.get(`${config.host}/qrs/about?xrfkey=${config.xrfkey}`, {
                 headers: {
                     "x-qlik-xrfkey": config.xrfkey,
                     'User-Agent': 'Form'
@@ -200,15 +205,17 @@ const winFormSession = {
             console.log(e.message)
         }
     },
-    secondRequest = async function (config) {
+    secondRequest: async function (config, credentialsData) {
 
-        let credentialsData = querystring.stringify({
-            username: config.username,
-            pwd: config.password
-        });
+        // let credentialsData = querystring.stringify({
+        //     username: config.username,
+        //     pwd: config.password
+        // });
+
+
 
         let reqOptions = {
-            
+
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "x-qlik-xrfkey": config.xrfkey
@@ -224,9 +231,14 @@ const winFormSession = {
 
             return cookieSessionId
         } catch (e) {
+            console.log(`Error parsing the response for Session ID. Most likely the session header is not correctly set`)
             console.log(e.message)
         }
     }
+}
+
+const generateXrfkey = function (length) {
+    return [...Array(length)].map(i => (~~(Math.random() * 36)).toString(36)).join('')
 }
 
 module.exports = {
@@ -240,5 +252,6 @@ module.exports = {
     readCert,
     clearLocalScript,
     initialChecks,
-    winFormSession
+    winFormSession,
+    generateXrfkey
 }

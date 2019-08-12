@@ -2,6 +2,7 @@ const path = require("path");
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.170.2.json');
+const querystring = require('querystring');
 const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
 const chalk = require('chalk');
@@ -9,7 +10,7 @@ const chalk = require('chalk');
 const helpers = require('./helpers')
 
 const setScript = async function (script, env) {
-    let { session, envDetails } = createQlikSession(env)
+    let { session, envDetails } = await createQlikSession(env)
 
     try {
         let spinner = new Spinner('Setting script ..');
@@ -183,7 +184,7 @@ function reloadAndGetProgress({ global, doc }) {
     })
 }
 
-function createQlikSession(env) {
+async function createQlikSession(env) {
     let envDetails = helpers.getEnvDetails(env)[0];
 
     let authenticationType = 'desktop'
@@ -192,7 +193,7 @@ function createQlikSession(env) {
         authenticationType = envDetails.authentication.type
     }
 
-    let qsEnt = await handleAuthenticationType[authenticationType]
+    let qsEnt = await handleAuthenticationType[authenticationType](envDetails)
 
     try {
         const session = enigma.create({
@@ -242,15 +243,50 @@ const handleAuthenticationType = {
     },
     winform: async function (envDetails) {
 
+        let credentials = getEnvCredentials(envDetails);
+        let queryCredentials = querystring.stringify({
+            username: credentials.user,
+            pwd: credentials.pwd
+        })
+
+        envDetails.authLocation = await helpers.winFormSession.firstRequest(envDetails)
+
+        if (!envDetails.sessionHeaderName) {
+            envDetails.sessionHeaderName = 'X-Qlik-Session'
+            console.log(chalk.yellow('\u26A0 ') + `Session Header not specified. Will try and use the default one ("X-Qlik-Session")`)
+        }
+
+        let sessionId = await helpers.winFormSession.secondRequest(envDetails, queryCredentials)
+
+        return {
+            headers: {
+                'Cookie': `${envDetails.sessionHeaderName}=${sessionId}`,
+            }
+        }
     },
     purewin: async function (envDetails) {
 
     }
 }
 
+function getEnvCredentials() {
+    if (!process.env.QLIK_USER) {
+        console.log(`"QLIK_USER" variable is not set!`)
+        process.exit()
+    }
+
+    if (!process.env.QLIK_PASSWORD) {
+        console.log(`"QLIK_PASSWORD" variable is not set!`)
+        process.exit()
+    }
+
+    return { user: process.env.QLIK_USER, pwd: process.env.QLIK_PASSWORD }
+}
+
 module.exports = {
     setScript,
     checkScriptSyntax,
     reloadApp,
-    getScriptFromApp
+    getScriptFromApp,
+    handleAuthenticationType
 }

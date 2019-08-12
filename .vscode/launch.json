@@ -11,6 +11,10 @@
             "program": "${workspaceFolder}\\src\\index.js",
             "console": "externalTerminal",
             "cwd": "${workspaceFolder}\\test",
+            "env": {
+                "QLIK_USER": "QLIK-SENSE\\Stefan",
+                "QLIK_PASSWORD": "s-sQlikGuy123!"
+            },
             "args": [
                 // "checkupdate"
                 // "build"
@@ -18,7 +22,7 @@
                 // "checkscript", "desktop"
                 // "watch", "QSE",
                 // "reload", "desktop",
-                "watch", "test"
+                "watch", "winform"
                 // "-r"
                 // "create", "test"
             ]
