@@ -5,6 +5,7 @@ const path = require('path');
 const chalk = require('chalk');
 const axios = require('axios');
 const querystring = require('querystring');
+const url = require('url');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
@@ -207,32 +208,32 @@ const winFormSession = {
     },
     secondRequest: async function (config, credentialsData) {
 
-        // let credentialsData = querystring.stringify({
-        //     username: config.username,
-        //     pwd: config.password
-        // });
-
-
+        let urlParams = url.parse(config.authLocation, { parseQueryString: true }).query
 
         let reqOptions = {
-
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "x-qlik-xrfkey": config.xrfkey
+                "x-qlik-xrfkey": urlParams.xrfkey
             }
         }
 
-        try {
-            let secondRequest = await axios.post(config.authLocation, credentialsData, reqOptions)
+        let secondRequest = ''
 
+        try {
+            secondRequest = await axios.post(config.authLocation, credentialsData, reqOptions)
+        } catch (e) {
+            console.log(chalk.red('✖ ') + e.message)
+            process.exit(1)
+        }
+        try {
             let cookieSessionId = secondRequest.headers['set-cookie'].filter(function (c) {
                 return c.indexOf(config.sessionHeaderName) > -1
             })[0].split(';')[0].split(`${config.sessionHeaderName}=`)[1]
 
             return cookieSessionId
         } catch (e) {
-            console.log(`Error parsing the response for Session ID. Most likely the session header is not correctly set`)
-            console.log(e.message)
+            console.log(chalk.red('✖ ') + `Error parsing the response for Session ID. Most likely the session header is not correctly set`)
+            process.exit(1)
         }
     }
 }

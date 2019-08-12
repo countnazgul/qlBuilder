@@ -271,12 +271,12 @@ const handleAuthenticationType = {
 
 function getEnvCredentials() {
     if (!process.env.QLIK_USER) {
-        console.log(`"QLIK_USER" variable is not set!`)
+        console.log(chalk.red('✖ ') + `"QLIK_USER" variable is not set!`)
         process.exit()
     }
 
     if (!process.env.QLIK_PASSWORD) {
-        console.log(`"QLIK_PASSWORD" variable is not set!`)
+        console.log(chalk.red('✖ ') + `"QLIK_PASSWORD" variable is not set!`)
         process.exit()
     }
 

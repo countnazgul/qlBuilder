@@ -12,8 +12,7 @@
             "console": "externalTerminal",
             "cwd": "${workspaceFolder}\\test",
             "env": {
-                "QLIK_USER": "QLIK-SENSE\\Stefan",
-                "QLIK_PASSWORD": "s-sQlikGuy123!"
+
             },
             "args": [
                 // "checkupdate"
@@ -22,7 +21,7 @@
                 // "checkscript", "desktop"
                 // "watch", "QSE",
                 // "reload", "desktop",
-                "watch", "winform"
+                "watch", "qse"
                 // "-r"
                 // "create", "test"
             ]
