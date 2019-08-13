@@ -82,7 +82,7 @@ const checkScript = async function (env, script) {
     try {
         scriptResult = await qlikComm.checkScriptSyntax(script, env)
     } catch (e) {
-        console.log(e.message)
+        console.log(chalk.red('✖ ') + e.message)
     }
     finally {
         spinner.stop(true)
@@ -113,7 +113,7 @@ const startWatching = async function (reload, setScript, env) {
 
     if (reload) {
         console.log(`Reload is set to "true"! 
-Each succesful build will trigger:
+Each successful build will trigger:
     - set script
     - check the script for syntax errors
       - if error - stop here. The app is not saved and the script is not updated

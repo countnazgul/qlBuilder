@@ -2,6 +2,7 @@ const path = require("path");
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.170.2.json');
+const querystring = require('querystring');
 const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
 const chalk = require('chalk');
@@ -9,7 +10,7 @@ const chalk = require('chalk');
 const helpers = require('./helpers')
 
 const setScript = async function (script, env) {
-    let { session, envDetails } = createQlikSession(env)
+    let { session, envDetails } = await createQlikSession(env)
 
     try {
         let spinner = new Spinner('Setting script ..');
@@ -183,40 +184,16 @@ function reloadAndGetProgress({ global, doc }) {
     })
 }
 
-function createQlikSession(env) {
+async function createQlikSession(env) {
     let envDetails = helpers.getEnvDetails(env)[0];
 
-    let qsEnt = {}
+    let authenticationType = 'desktop'
 
-    if (envDetails.authentication.type == 'certificates') {
-        try {
-            qsEnt = {
-                ca: [helpers.readCert(envDetails.authentication.certLocation, 'root.pem')],
-                key: helpers.readCert(envDetails.authentication.certLocation, 'client_key.pem'),
-                cert: helpers.readCert(envDetails.authentication.certLocation, 'client.pem'),
-                headers: {
-                    'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.authentication.user.split('\\')[0])}; UserId=${encodeURIComponent(envDetails.authentication.user.split('\\')[1])}`,
-                },
-            }
-        } catch (e) {
-            console.log(chalk.red('✖ ') + ` ${e.message}`)
-            process.exit(1)
-        }
+    if (envDetails.authentication) {
+        authenticationType = envDetails.authentication.type
     }
 
-    if (envDetails.authentication.type == 'jwt') {
-        try {
-            let tokenFileName = path.basename(envDetails.authentication.tokenLocation);
-            let tokenPath = path.dirname(envDetails.authentication.tokenLocation);
-
-            qsEnt = {
-                headers: { Authorization: `Bearer ${helpers.readCert(tokenPath, tokenFileName)}` },
-            }
-        } catch (e) {
-            console.log(chalk.red('✖ ') + ` ${e.message}`)
-            process.exit(1)
-        }
-    }
+    let qsEnt = await handleAuthenticationType[authenticationType](envDetails)
 
     try {
         const session = enigma.create({
@@ -232,9 +209,84 @@ function createQlikSession(env) {
     }
 }
 
+const handleAuthenticationType = {
+    desktop: async function () {
+        return {}
+    },
+    certificates: async function (envDetails) {
+        try {
+            return {
+                ca: [helpers.readCert(envDetails.authentication.certLocation, 'root.pem')],
+                key: helpers.readCert(envDetails.authentication.certLocation, 'client_key.pem'),
+                cert: helpers.readCert(envDetails.authentication.certLocation, 'client.pem'),
+                headers: {
+                    'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.authentication.user.split('\\')[0])}; UserId=${encodeURIComponent(envDetails.authentication.user.split('\\')[1])}`,
+                },
+            }
+        } catch (e) {
+            console.log(chalk.red('✖ ') + ` ${e.message}`)
+            process.exit(1)
+        }
+    },
+    jwt: async function (envDetails) {
+        try {
+            let tokenFileName = path.basename(envDetails.authentication.tokenLocation);
+            let tokenPath = path.dirname(envDetails.authentication.tokenLocation);
+
+            return {
+                headers: { Authorization: `Bearer ${helpers.readCert(tokenPath, tokenFileName)}` },
+            }
+        } catch (e) {
+            console.log(chalk.red('✖ ') + ` ${e.message}`)
+            process.exit(1)
+        }
+    },
+    winform: async function (envDetails) {
+
+        let credentials = getEnvCredentials(envDetails);
+        let queryCredentials = querystring.stringify({
+            username: credentials.user,
+            pwd: credentials.pwd
+        })
+
+        envDetails.authLocation = await helpers.winFormSession.firstRequest(envDetails)
+
+        if (!envDetails.sessionHeaderName) {
+            envDetails.sessionHeaderName = 'X-Qlik-Session'
+            console.log(chalk.yellow('\u26A0 ') + `Session Header not specified. Will try and use the default one ("X-Qlik-Session")`)
+        }
+
+        let sessionId = await helpers.winFormSession.secondRequest(envDetails, queryCredentials)
+
+        return {
+            headers: {
+                'Cookie': `${envDetails.sessionHeaderName}=${sessionId}`,
+            }
+        }
+    },
+    purewin: async function (envDetails) {
+
+    }
+}
+
+function getEnvCredentials() {
+    if (!process.env.QLIK_USER) {
+        console.log(chalk.red('✖ ') + `"QLIK_USER" variable is not set!`)
+        process.exit()
+    }
+
+    if (!process.env.QLIK_PASSWORD) {
+        console.log(chalk.red('✖ ') + `"QLIK_PASSWORD" variable is not set!`)
+        process.exit()
+    }
+
+    return { user: process.env.QLIK_USER, pwd: process.env.QLIK_PASSWORD }
+}
+
 module.exports = {
     setScript,
     checkScriptSyntax,
     reloadApp,
-    getScriptFromApp
+    getScriptFromApp,
+    handleAuthenticationType
 }
