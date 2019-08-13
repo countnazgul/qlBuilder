@@ -89,9 +89,31 @@ For `QSE` with `JWT` the config will be:
       type: jwt
       tokenLocation: C:\path\to\jwt\file\location # full path location to the file where the jwt file is
 ```
-
 When working with `jwt` port is not required. If `JWt` is not the main method for authentication then the Virtual Proxy prefix need to be provided. For more information how to set this please check this  
 [Qlik Support article](https://support.qlik.com/articles/000034966)
+
+For `QSE` with Windows/Form the config will be:
+
+```yaml
+  - name: uat
+    host: wss://192.168.0.100/virtual-proxy-prefix  # IP/FQDN with of the virtual proxy (if needed)
+    appId: 12345678-1234-1234-1234-12345678901a # app ID
+    authentication:
+      type: winform
+      sessionHeaderName: X-Qlik-Session-Win # (optional) see below
+```
+
+`sessionHeaderName` - each Virtual Proxy should have a unique session cookie header name. The default value is `X-Qlik-Session`. If the default VP is used then this config value is not needed. `qlBuilder` will show warning message and will try to connect to Qlik with the default value. 
+
+Another point, when connecting with Window/Form method, is that username and password must be provided as environment variables (for now. I'm thinking of changing this part a bit) and these variables should be set before executing `qlBuilder` commands. The environment variables are:
+
+* `QLIK_USER` - in format DOMAIN\username
+* `QLIK_PASSWORD`
+
+To set env variables:
+
+* in CMD - `set QLIK_USER=DOMAIN\UserName`
+* in PowerShell - `$env:QLIK_PASSWORD="my_password"`
 
 You can have as many environments as you want (will make more sense when working with `QSE`). Make sure that the application ids are correct in each environment. `qlbuilder` will not create app if it cant find it and will throw an error.
 
