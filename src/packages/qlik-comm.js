@@ -40,7 +40,7 @@ const setScript = async function (script, env) {
 
 const getScriptFromApp = async function (env) {
 
-    let { session, envDetails } = createQlikSession(env)
+    let { session, envDetails } = await createQlikSession(env)
 
     try {
         let spinner = new Spinner('Getting script ..');
@@ -63,7 +63,7 @@ const getScriptFromApp = async function (env) {
 }
 
 const checkScriptSyntax = async function (script, env) {
-    let { session, envDetails } = createQlikSession(env)
+    let { session, envDetails } = await createQlikSession(env)
     try {
         let global = await session.open()
         let doc = await global.createSessionApp()
@@ -80,7 +80,7 @@ const checkScriptSyntax = async function (script, env) {
 }
 
 const reloadApp = async function (env) {
-    let { session, envDetails } = createQlikSession(env)
+    let { session, envDetails } = await createQlikSession(env)
 
     try {
         let global = await session.open()
