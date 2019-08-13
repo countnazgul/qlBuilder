@@ -82,7 +82,7 @@ const checkScript = async function (env, script) {
     try {
         scriptResult = await qlikComm.checkScriptSyntax(script, env)
     } catch (e) {
-        console.log(e.message)
+        console.log(chalk.red('✖ ') + e.message)
     }
     finally {
         spinner.stop(true)

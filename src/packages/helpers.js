@@ -4,7 +4,6 @@ const os = require('os');
 const path = require('path');
 const chalk = require('chalk');
 const axios = require('axios');
-const querystring = require('querystring');
 const url = require('url');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
@@ -14,7 +13,7 @@ const getEnvDetails = function (env) {
     try {
         config = yaml.safeLoad(fs.readFileSync('./config.yml'))
     } catch (e) {
-        console.log(`"config.yml" not found in the current directory`)
+        console.log(chalk.red('✖ ') + `"config.yml" not found in the current directory`)
         process.exit()
     }
 
@@ -203,7 +202,7 @@ const winFormSession = {
 
             return firstRequest.headers.location
         } catch (e) {
-            console.log(e.message)
+            console.log(chalk.red('✖ ') + e.message)
         }
     },
     secondRequest: async function (config, credentialsData) {
