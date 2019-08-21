@@ -16,12 +16,13 @@
             },
             "args": [
                 // "checkupdate"
-                // "build"
+                // "build", "desktop"
+                "buildFull", "desktop"
                 // "setscript", "QSE"
                 // "checkscript", "desktop"
                 // "watch", "QSE",
                 // "reload", "desktop",
-                "watch", "qse"
+                // "watch", "qse"
                 // "-r"
                 // "create", "test"
             ]

@@ -6,6 +6,8 @@ const chalk = require('chalk');
 const axios = require('axios');
 const url = require('url');
 
+const qlikComm = require('./qlik-comm')
+
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 const getEnvDetails = function (env) {
@@ -122,6 +124,57 @@ const setScript = async function () {
 
 }
 
+const getIncludeScriptLines = async function (env) {
+    let script = buildLoadScript();
+    let includeLines = script.split('\r\n').filter(function (l) {
+        return (
+            l.toLowerCase().indexOf('$(include=') > -1
+            || l.toLowerCase().indexOf('$(must_include=') > -1
+        ) && !isLineCommented(l)
+    })
+
+    let includeScripts = prepareIncludeScripts(includeLines)
+    let includeScriptsContent = await getIncludeScriptsContent(includeScripts, env)
+    let a = 1;
+}
+
+function isLineCommented(line) {
+    let result = false
+
+    if (line.trim().substr(0, 2) == '//') {
+        result = true
+    }
+
+    return result
+}
+
+function prepareIncludeScripts(lines) {
+    // (?<=Include=)?\[(.*)(?=\)\;)?\] --> needs work for [lib://]
+    // (?<=Include=)(.*)(?=\)\;)
+
+    let reg = new RegExp(/(?<=include=)(.*)(?=\)\;)/gmi)
+    let includeScriptStatements = lines.map(function (l) {
+        let lib = l.match(reg)[0]
+        return { lib: lib, fileName: lib.substr(lib.lastIndexOf('\\') + 1) }
+    })
+
+    return includeScriptStatements
+}
+
+async function getIncludeScriptsContent(includeScripts, env) {
+    // for (let lib of includeScripts) {
+    //     let a = await qlikComm.getIncludeScriptContent(lib, env)
+    // }
+
+    // let a = await Promise.all(includeScripts.map(async function (lib) {
+    //     return await qlikComm.getIncludeScriptContent(lib.lib, env)
+    // }))
+
+    let a = await qlikComm.getIncludeScriptContent(includeScripts, env)
+    let b = 1
+
+}
+
 const readCert = function (certPath, filename) {
     return fs.readFileSync(`${certPath}/${filename}`);
 }
@@ -153,7 +206,7 @@ const initialChecks = {
         if (fs.existsSync('.\\src')) {
             return true
         } else {
-            console.log(chalk.green('√ ') + `config is present but "src" foder was not and was created`)
+            console.log(chalk.green('√ ') + `config is present but "src" folder was not and was created`)
             process.exit()
         }
     },
@@ -161,7 +214,7 @@ const initialChecks = {
         if (fs.existsSync('.\\dist')) {
             return true
         } else {
-            console.log(chalk.green('√ ') + `config is present but "dist" foder was not and was created`)
+            console.log(chalk.green('√ ') + `config is present but "dist" folder was not and was created`)
             process.exit()
         }
     },
@@ -249,6 +302,7 @@ module.exports = {
     buildLoadScript,
     writeLoadScript,
     setScript,
+    getIncludeScriptLines,
     readCert,
     clearLocalScript,
     initialChecks,

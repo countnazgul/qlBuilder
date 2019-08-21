@@ -1,6 +1,6 @@
 const fs = require('fs');
-const chokidar = require('chokidar');
 const readline = require('readline');
+const chokidar = require('chokidar');
 const compareVersions = require('compare-versions');
 const axios = require('axios');
 const filenamify = require('filenamify');
@@ -38,6 +38,11 @@ const buildScript = async function () {
     helpers.writeLoadScript(loadScript)
     console.log(chalk.green('√ ') + 'Load script created')
     return loadScript
+}
+
+const buildScriptWithInclude = async function (env) {
+    let includeScripts = await helpers.getIncludeScriptLines(env)
+    // let t = await qlikComm.getIncludeContent(env)
 }
 
 const setScript = async function (env) {
@@ -252,5 +257,6 @@ module.exports = {
     reload,
     startWatching,
     checkForUpdate,
-    getScript
+    getScript,
+    buildScriptWithInclude
 }

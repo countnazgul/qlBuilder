@@ -59,6 +59,15 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         });
 
     program
+        .command('buildFull [env]')
+        .description('Combine the tab script files into one. Include and Must_Include scripts are extracted as separate tabs')
+        .action(async function (env, options) {
+            helpers.initialChecks.combined()
+            helpers.initialChecks.environment(env)
+            await argsFunctions.buildScriptWithInclude(env)
+        });
+
+    program
         .command('reload [env]')
         .description('Set script and reload the target app')
         .action(async function (env, options) {

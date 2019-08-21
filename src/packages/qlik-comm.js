@@ -7,7 +7,8 @@ const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
 const chalk = require('chalk');
 
-const helpers = require('./helpers')
+const helpers = require('./helpers');
+const test = require('./env-details');
 
 const setScript = async function (script, env) {
     let { session, envDetails } = await createQlikSession(env)
@@ -60,6 +61,15 @@ const getScriptFromApp = async function (env) {
         console.log(chalk.red('✖ ') + `${e.message}`)
         process.exit(0)
     }
+}
+
+const getIncludeContent = async function (env) {
+    let line = `[lib://Documents/Info.txt]`
+    let { session, envDetails } = await createQlikSession(env)
+    let global = await session.open()
+    let qDoc = await global.openDoc(envDetails.appId)
+    let test = await qDoc.getIncludeFileContent(line)
+    let a = 1
 }
 
 const checkScriptSyntax = async function (script, env) {
@@ -185,7 +195,8 @@ function reloadAndGetProgress({ global, doc }) {
 }
 
 async function createQlikSession(env) {
-    let envDetails = helpers.getEnvDetails(env)[0];
+    // let envDetails = helpers.getEnvDetails(env)[0];
+    let envDetails = test.getEnvDetails(env)[0];
 
     let authenticationType = 'desktop'
 
@@ -198,7 +209,7 @@ async function createQlikSession(env) {
     try {
         const session = enigma.create({
             schema,
-            url: `${envDetails.host}/app/engineData`,
+            url: `${envDetails.host}/app/engineData/identity/${+new Date()}`,
             createSocket: url => new WebSocket(url, qsEnt)
         });
 
@@ -269,6 +280,25 @@ const handleAuthenticationType = {
     }
 }
 
+const getIncludeScriptContent = async function (libs, env) {
+    let { session, envDetails } = await createQlikSession(env)
+    let global = await session.open()
+    // let qDoc = await global.openDoc("C:\\Users\\Lenovo-Yoga-260\\Documents\\Qlik\\Sense\\Apps\\qBuilder Test.qvf")
+    let qDoc = await global.createSessionApp()
+    let a = await qDoc.getIncludeFileContent({ qPath: '[lib://Documents/Info.txt]' }).catch(function (e) {
+        console.log(e.message)
+    })
+    // let scriptContent = await Promise.all(libs.map(async function (lib) {
+    //     let a = await qDoc.getIncludeFileContent({ qPath: `[${lib.lib}]` })
+    //     return
+    //     // return await qlikComm.getIncludeScriptContent(lib.lib, env)
+    // }))
+
+    // let scriptContenqt = await qDoc.getIncludeFileContent(lib)
+    await session.close()
+    return scriptContent
+}
+
 function getEnvCredentials() {
     if (!process.env.QLIK_USER) {
         console.log(chalk.red('✖ ') + `"QLIK_USER" variable is not set!`)
@@ -288,5 +318,7 @@ module.exports = {
     checkScriptSyntax,
     reloadApp,
     getScriptFromApp,
-    handleAuthenticationType
+    handleAuthenticationType,
+    getIncludeContent,
+    getIncludeScriptContent
 }
