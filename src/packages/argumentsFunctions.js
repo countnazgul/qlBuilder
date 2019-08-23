@@ -4,7 +4,6 @@ const readline = require('readline');
 const compareVersions = require('compare-versions');
 const axios = require('axios');
 const filenamify = require('filenamify');
-const chalk = require('chalk');
 const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
 const prompts = require('prompts');
@@ -13,30 +12,34 @@ const currentVersion = require('..\\..\\package.json').version
 
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
-
+const common = require('./common')
 
 const create = async function (project) {
 
-    let spinner = new Spinner('Creating ...');
-    spinner.setSpinnerString('◐◓◑◒');
-    spinner.start();
+    if (project) {
+        let spinner = new Spinner('Creating ...');
+        spinner.setSpinnerString('◐◓◑◒');
+        spinner.start();
 
-    if (!fs.existsSync(`./${project}`)) {
-        helpers.createInitFolders(project)
-        helpers.createInitialScriptFiles(project)
-        helpers.createInitConfig(project)
-        spinner.stop(true)
-        console.log(chalk.green('√ ') + 'All set')
+        if (!fs.existsSync(`${process.cwd()}/${project}`)) {
+            helpers.createInitFolders(project)
+            helpers.createInitialScriptFiles(project)
+            helpers.createInitConfig(project)
+            spinner.stop(true)
+            common.writeLog('ok', 'All set', false)
+        } else {
+            spinner.stop(true)
+            common.writeLog('err', `Folder "${project}" already exists`, false)
+        }
     } else {
-        spinner.stop(true)
-        console.log(chalk.red('✖ ') + ` Folder "${project}" already exists`)
+        common.writeLog('err', `Please specify project name`, true)
     }
 }
 
 const buildScript = async function () {
     let loadScript = helpers.buildLoadScript()
     helpers.writeLoadScript(loadScript)
-    console.log(chalk.green('√ ') + 'Load script created')
+    common.writeLog('ok', 'Load script created', false)
     return loadScript
 }
 
@@ -61,7 +64,7 @@ const getScript = async function (env) {
         helpers.clearLocalScript()
         writeScriptToFiles(scriptTabs)
 
-        console.log(chalk.green('√ ') + 'Local script files were created')
+        common.writeLog('ok', 'Local script files were created', false)
     } else {
         console.log('Nothing was changed')
     }
@@ -82,7 +85,7 @@ const checkScript = async function (env, script) {
     try {
         scriptResult = await qlikComm.checkScriptSyntax(script, env)
     } catch (e) {
-        console.log(chalk.red('✖ ') + e.message)
+        common.writeLog('err', e.message, false)
     }
     finally {
         spinner.stop(true)
@@ -90,10 +93,10 @@ const checkScript = async function (env, script) {
 
 
     if (scriptResult.length > 0) {
-        console.log(chalk.red('✖ ') + ` Syntax errors found!`)
+        common.writeLog('err', `Syntax errors found!`, false)
         displayScriptErrors(scriptResult)
     } else {
-        console.log(chalk.green('√ ') + 'No syntax errors were found')
+        common.writeLog('ok', 'No syntax errors were found', false)
     }
 
 
@@ -149,8 +152,7 @@ You know ... just saying :)`)
         if (line.toLowerCase() === "s" || line.toLowerCase() == "set") {
             let script = await buildScript()
 
-
-            console.log(chalk.green('√ ') + 'Script build')
+            common.writeLog('ok', 'Script was build', false)
             await qlikComm.setScript(script, env)
         }
     })
@@ -200,7 +202,7 @@ const checkForUpdate = async function () {
 
     } catch (e) {
         console.log('')
-        console.log(chalk.red('✖ ') + `Unable to get the remote version number :'(`)
+        common.writeLog('err', `Unable to get the remote version number :'(`, false)
     }
 }
 
@@ -236,11 +238,11 @@ function writeScriptToFiles(scriptTabs) {
 
                 let scriptContent = rows.slice(1, rows.length).join('\r\n')
 
-                fs.writeFileSync(`.\\src\\${i}--${tabNameSafe}.qvs`, scriptContent)
+                fs.writeFileSync(`${process.cwd}\\src\\${i}--${tabNameSafe}.qvs`, scriptContent)
             }
         }
     } catch (e) {
-        console.log(chalk.red('✖ ') + `${e.message}`)
+        common.writeLog('err', e.message, false)
     }
 }
 

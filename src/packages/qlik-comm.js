@@ -5,9 +5,9 @@ const schema = require('enigma.js/schemas/12.170.2.json');
 const querystring = require('querystring');
 const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
-const chalk = require('chalk');
 
 const helpers = require('./helpers')
+const common = require('./common')
 
 const setScript = async function (script, env) {
     let { session, envDetails } = await createQlikSession(env)
@@ -30,11 +30,10 @@ const setScript = async function (script, env) {
         await session.close()
 
         spinnerSave.stop(true)
-        console.log(chalk.green('√ ') + 'Script was set and document was saved')
+        common.writeLog('ok', 'Script was set and document was saved', false)
     } catch (e) {
         console.log('')
-        console.log(chalk.red('✖ ') + `${e.message}`)
-        process.exit(0)
+        common.writeLog('err', e.message, true)
     }
 }
 
@@ -53,12 +52,11 @@ const getScriptFromApp = async function (env) {
         await session.close()
 
         spinner.stop(true)
-        console.log(chalk.green('√ ') + 'Script was received')
+        common.writeLog('ok', 'Script was received', false)
         return qScript
     } catch (e) {
         console.log('')
-        console.log(chalk.red('✖ ') + `${e.message}`)
-        process.exit(0)
+        common.writeLog('err', e.message, true)
     }
 }
 
@@ -74,8 +72,7 @@ const checkScriptSyntax = async function (script, env) {
         return syntaxCheck
     } catch (e) {
         console.log('')
-        console.log(chalk.red('✖ ') + `${e.message}`)
-        process.exit(1)
+        common.writeLog('err', e.message, true)
     }
 }
 
@@ -95,12 +92,11 @@ const reloadApp = async function (env) {
         await session.close()
 
         spinner.stop(true);
-        console.log(chalk.green('√ ') + 'App was reloaded and document was saved')
+        common.writeLog('ok', 'App was reloaded and document was saved', false)
 
     } catch (e) {
         console.log('')
-        console.log(chalk.red('✖ ') + `${e.message}`)
-        process.exit(0)
+        common.writeLog('err', e.message, true)
     }
 }
 
@@ -205,7 +201,7 @@ async function createQlikSession(env) {
         return { session, envDetails }
     } catch (e) {
         console.log('')
-        console.log(chalk.red('✖ ') + `${e.message}`)
+        common.writeLog('err', e.message, false)
     }
 }
 
@@ -224,8 +220,7 @@ const handleAuthenticationType = {
                 },
             }
         } catch (e) {
-            console.log(chalk.red('✖ ') + ` ${e.message}`)
-            process.exit(1)
+            common.writeLog('err', e.message, true)
         }
     },
     jwt: async function (envDetails) {
@@ -237,8 +232,7 @@ const handleAuthenticationType = {
                 headers: { Authorization: `Bearer ${helpers.readCert(tokenPath, tokenFileName)}` },
             }
         } catch (e) {
-            console.log(chalk.red('✖ ') + ` ${e.message}`)
-            process.exit(1)
+            common.writeLog('err', e.message, true)
         }
     },
     winform: async function (envDetails) {
@@ -253,7 +247,7 @@ const handleAuthenticationType = {
 
         if (!envDetails.sessionHeaderName) {
             envDetails.sessionHeaderName = 'X-Qlik-Session'
-            console.log(chalk.yellow('\u26A0 ') + `Session Header not specified. Will try and use the default one ("X-Qlik-Session")`)
+            common.writeLog('warn', `Session Header not specified. Will try and use the default one ("X-Qlik-Session")`, false)
         }
 
         let sessionId = await helpers.winFormSession.secondRequest(envDetails, queryCredentials)
@@ -271,13 +265,11 @@ const handleAuthenticationType = {
 
 function getEnvCredentials() {
     if (!process.env.QLIK_USER) {
-        console.log(chalk.red('✖ ') + `"QLIK_USER" variable is not set!`)
-        process.exit()
+        common.writeLog('err', `"QLIK_USER" variable is not set!`, true)
     }
 
     if (!process.env.QLIK_PASSWORD) {
-        console.log(chalk.red('✖ ') + `"QLIK_PASSWORD" variable is not set!`)
-        process.exit()
+        common.writeLog('err', `"QLIK_PASSWORD" variable is not set!`, true)
     }
 
     return { user: process.env.QLIK_USER, pwd: process.env.QLIK_PASSWORD }

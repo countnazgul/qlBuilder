@@ -2,9 +2,10 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const os = require('os');
 const path = require('path');
-const chalk = require('chalk');
 const axios = require('axios');
 const url = require('url');
+
+const common = require('./common');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
@@ -13,8 +14,7 @@ const getEnvDetails = function (env) {
     try {
         config = yaml.safeLoad(fs.readFileSync('./config.yml'))
     } catch (e) {
-        console.log(chalk.red('✖ ') + `"config.yml" not found in the current directory`)
-        process.exit()
+        common.writeLog('err', '`"config.yml" not found in the current directory`', true)
     }
 
     try {
@@ -60,7 +60,7 @@ const createInitConfig = function (project) {
         "qlik-environments": [
             {
                 "name": "desktop",
-                "host": `ws://localhost:4848`,
+                "host": "ws://localhost:4848",
                 "appId": `C:/Users/${os.userInfo().username}/Documents/Qlik/Sense/Apps/test.qvf`
             },
             {
@@ -85,8 +85,11 @@ const createInitConfig = function (project) {
             }
         ]
     }
-
-    fs.writeFileSync(`./${project}/config.yml`, yaml.safeDump(defaultConfig))
+    try {
+        fs.writeFileSync(`./${project}/config.yml`, yaml.dump(defaultConfig))
+    } catch (e) {
+        common.writeLog('err', e.message, true)
+    }
 }
 
 const buildLoadScript = function (initProject) {
@@ -136,33 +139,30 @@ const clearLocalScript = async function () {
             fs.unlinkSync(path.join(directory, file));
         }
 
-        console.log(chalk.green('√ ') + 'Local script files removed')
+        common.writeLog('ok', 'Local script files removed', false)
     } catch (e) { }
 }
 
 const initialChecks = {
     configFile: function () {
-        if (fs.existsSync('.\\config.yml')) {
+        if (fs.existsSync(`${process.cwd()}/config.yml`)) {
             return true
         } else {
-            console.log(chalk.red('✖ ') + `"config.yml" do not exists! I'm running at the correct folder?`)
-            process.exit()
+            common.writeLog('err', `"config.yml" do not exists! I'm running at the correct folder?`, true)
         }
     },
     srcFolder: function () {
-        if (fs.existsSync('.\\src')) {
+        if (fs.existsSync(`${process.cwd()}/src`)) {
             return true
         } else {
-            console.log(chalk.green('√ ') + `config is present but "src" foder was not and was created`)
-            process.exit()
+            common.writeLog('ok', `config is present but "src" folder was not and was created`, true)
         }
     },
     distFolder: function () {
-        if (fs.existsSync('.\\dist')) {
+        if (fs.existsSync(`${process.cwd()}/dist`)) {
             return true
         } else {
-            console.log(chalk.green('√ ') + `config is present but "dist" foder was not and was created`)
-            process.exit()
+            common.writeLog('ok', `config is present but "dist" folder was not and was created`, true)
         }
     },
     environment: function (env) {
@@ -170,8 +170,7 @@ const initialChecks = {
         if (envDetails.length > 0) {
             return true
         } else {
-            console.log(chalk.red('✖ ') + `Environment "${env}" was not found in the "config.yml"! Typo?`)
-            process.exit()
+            common.writeLog('err', `Environment "${env}" was not found in the "config.yml"! Typo?`, true)
         }
 
     },
@@ -202,7 +201,7 @@ const winFormSession = {
 
             return firstRequest.headers.location
         } catch (e) {
-            console.log(chalk.red('✖ ') + e.message)
+            common.writeLog('err', e.message, false)
         }
     },
     secondRequest: async function (config, credentialsData) {
@@ -221,8 +220,7 @@ const winFormSession = {
         try {
             secondRequest = await axios.post(config.authLocation, credentialsData, reqOptions)
         } catch (e) {
-            console.log(chalk.red('✖ ') + e.message)
-            process.exit(1)
+            common.writeLog('err', e.message, true)
         }
         try {
             let cookieSessionId = secondRequest.headers['set-cookie'].filter(function (c) {
@@ -231,8 +229,7 @@ const winFormSession = {
 
             return cookieSessionId
         } catch (e) {
-            console.log(chalk.red('✖ ') + `Error parsing the response for Session ID. Most likely the session header is not correctly set`)
-            process.exit(1)
+            common.writeLog('err', `Error parsing the response for Session ID. Most likely the session header is not correctly set`, true)
         }
     }
 }
