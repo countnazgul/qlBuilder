@@ -1,4 +1,3 @@
-test/
 test1/
 test2/
 dist/
@@ -65,3 +64,4 @@ typings/
 # next.js build output
 .next
 .vscode/launch.json
+test/config.yml

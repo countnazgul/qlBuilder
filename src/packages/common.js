@@ -7,6 +7,11 @@ const writeLog = function (type, message, exit) {
         ok: chalk.green('√')
     }
 
+    if (!symbol[type]) {
+        console.log('FATAL! Log type not found!')
+        process.exit(1)
+    }
+
     let logMessage = `${symbol[type]} ${message}`
 
     console.log(logMessage)

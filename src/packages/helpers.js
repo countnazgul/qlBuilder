@@ -12,7 +12,7 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 const getEnvDetails = function (env) {
     let config = ''
     try {
-        config = yaml.safeLoad(fs.readFileSync('./config.yml'))
+        config = yaml.safeLoad(fs.readFileSync(`${process.cwd()}\\config.yml`))
     } catch (e) {
         common.writeLog('err', '`"config.yml" not found in the current directory`', true)
     }

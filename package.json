@@ -9,7 +9,7 @@
     "qlbuilder": "./bin/qlbuilder.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified ... yet\" && exit 1"
+    "test": "jest"
   },
   "homepage": "https://github.com/countnazgul/qlbuilder",
   "repository": {
@@ -40,5 +40,8 @@
   },
   "engines": {
     "node": ">=8"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0"
   }
 }
