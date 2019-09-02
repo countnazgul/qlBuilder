@@ -28,9 +28,9 @@ const getEnvDetails = function (env) {
 }
 
 const createInitFolders = function (project) {
-    fs.mkdirSync(`./${project}`)
-    fs.mkdirSync(`./${project}/src`)
-    fs.mkdirSync(`./${project}/dist`)
+    fs.mkdirSync(`${process.cwd()}/${project}`)
+    fs.mkdirSync(`${process.cwd()}/${project}/src`)
+    fs.mkdirSync(`${process.cwd()}/${project}/dist`)
 }
 
 const createInitialScriptFiles = function (project) {

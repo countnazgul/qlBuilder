@@ -11,9 +11,7 @@
             "program": "${workspaceFolder}\\src\\index.js",
             "console": "externalTerminal",
             "cwd": "${workspaceFolder}\\test",
-            "env": {
-
-            },
+            "env": {},
             "args": [
                 // "checkupdate"
                 // "build"
@@ -21,10 +19,28 @@
                 // "checkscript", "desktop"
                 // "watch", "QSE",
                 // "reload", "desktop",
-                "watch", "qse"
+                "watch",
+                "qse"
                 // "-r"
                 // "create", "test"
             ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest All",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": [
+                "--runInBand",
+                "helpers.test.js"
+            ],
+            "cwd": "${workspaceFolder}/test",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            }
         }
     ]
 }
