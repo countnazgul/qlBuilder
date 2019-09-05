@@ -238,7 +238,7 @@ function writeScriptToFiles(scriptTabs) {
 
                 let scriptContent = rows.slice(1, rows.length).join('\r\n')
 
-                fs.writeFileSync(`${process.cwd}\\src\\${i}--${tabNameSafe}.qvs`, scriptContent)
+                fs.writeFileSync(`${process.cwd()}\\src\\${i}--${tabNameSafe}.qvs`, scriptContent)
             }
         }
     } catch (e) {

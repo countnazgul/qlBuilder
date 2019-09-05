@@ -245,16 +245,20 @@ const handleAuthenticationType = {
 
         envDetails.authLocation = await helpers.winFormSession.firstRequest(envDetails)
 
+        let sessionHeaderName = "X-Qlik-Session"
+
         if (!envDetails.sessionHeaderName) {
-            envDetails.sessionHeaderName = 'X-Qlik-Session'
+            // envDetails.sessionHeaderName = 'X-Qlik-Session'
             common.writeLog('warn', `Session Header not specified. Will try and use the default one ("X-Qlik-Session")`, false)
+        } else {
+            sessionHeaderName = envDetails.sessionHeaderName
         }
 
         let sessionId = await helpers.winFormSession.secondRequest(envDetails, queryCredentials)
 
         return {
             headers: {
-                'Cookie': `${envDetails.sessionHeaderName}=${sessionId}`,
+                'Cookie': `${sessionHeaderName}=${sessionId}`,
             }
         }
     },

@@ -28,9 +28,13 @@ const getEnvDetails = function (env) {
 }
 
 const createInitFolders = function (project) {
-    fs.mkdirSync(`./${project}`)
-    fs.mkdirSync(`./${project}/src`)
-    fs.mkdirSync(`./${project}/dist`)
+    try {
+        fs.mkdirSync(`./${project}`)
+        fs.mkdirSync(`./${project}/src`)
+        fs.mkdirSync(`./${project}/dist`)
+    } catch (e) {
+        common.writeLog('err', e.message, true)
+    }
 }
 
 const createInitialScriptFiles = function (project) {
@@ -73,14 +77,24 @@ const createInitConfig = function (project) {
                     "user": "DOMAIN\\username"
                 }
             },
-            ,
             {
                 "name": "jwt",
                 "host": "wss://my-qs-engine-host/virtual-proxy-prefix",
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "authentication": {
                     "type": "jwt",
-                    "tokenLocation": "C:/path/to/jwt/file/location"
+                    "tokenLocation": "C:/path/to/jwt/file/location",
+                    "sessionHeaderName": "X-Qlik-Session"
+                }
+            },
+            {
+                "name": "winform",
+                "host": "wss://my-qs-proxy",
+                "appId": "12345678-1234-1234-1234-12345678901",
+                "parseInclude": true,
+                "authentication": {
+                    "type": "winform",
+                    "sessionHeaderName": "X-Qlik-Session"
                 }
             }
         ]

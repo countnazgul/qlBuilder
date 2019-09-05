@@ -6,6 +6,8 @@ const currentVersion = require('..\\package.json').version
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 (async function () {
+    program.version(currentVersion, '-v, --version', 'Output the current version');
+
     program
         .command('create [name]')
         .description('Create new project folder structure')
@@ -73,12 +75,6 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .action(async function () {
             await argsFunctions.checkForUpdate()
         });
-
-    program
-        .usage(' ')
-        .version(currentVersion)
-        .option('-r, --reload', '(optional) In watch mode - Reload the app on each file change')
-        .option('-s, --set', '(optional) In watch mode - Build and set the script')
 
     program.on('--help', function () {
         console.log('')
