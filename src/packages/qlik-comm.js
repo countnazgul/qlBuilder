@@ -3,6 +3,8 @@ const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.170.2.json');
 const querystring = require('querystring');
+const qAuth = require('qlik-sense-authenticate');
+
 const Spinner = require('cli-spinner').Spinner;
 Spinner.setDefaultSpinnerDelay(200)
 
@@ -191,6 +193,11 @@ async function createQlikSession(env) {
 
     let qsEnt = await handleAuthenticationType[authenticationType](envDetails)
 
+    if (qsEnt.error) {
+        console.log('')
+        common.writeLog('err', e.message, true)
+    }
+
     try {
         const session = enigma.create({
             schema,
@@ -201,7 +208,7 @@ async function createQlikSession(env) {
         return { session, envDetails }
     } catch (e) {
         console.log('')
-        common.writeLog('err', e.message, false)
+        common.writeLog('err', e.message, true)
     }
 }
 
@@ -237,28 +244,28 @@ const handleAuthenticationType = {
     },
     winform: async function (envDetails) {
 
-        let credentials = getEnvCredentials(envDetails);
-        let queryCredentials = querystring.stringify({
-            username: credentials.user,
-            pwd: credentials.pwd
-        })
+        let credentials = getEnvCredentials()
 
-        envDetails.authLocation = await helpers.winFormSession.firstRequest(envDetails)
-
-        let sessionHeaderName = "X-Qlik-Session"
-
-        if (!envDetails.sessionHeaderName) {
-            // envDetails.sessionHeaderName = 'X-Qlik-Session'
-            common.writeLog('warn', `Session Header not specified. Will try and use the default one ("X-Qlik-Session")`, false)
-        } else {
-            sessionHeaderName = envDetails.sessionHeaderName
+        let auth_config = {
+            type: 'win',
+            props: {
+                url: envDetails.host.replace('wss', 'https').replace('ws', 'http'),
+                proxy: '',
+                username: credentials.user,
+                password: credentials.pwd,
+                header: envDetails.authentication.sessionHeaderName
+            }
         }
 
-        let sessionId = await helpers.winFormSession.secondRequest(envDetails, queryCredentials)
+        let sessionId = await qAuth.login(auth_config)
+
+        if (sessionId.error) {
+            return sessionId
+        }
 
         return {
             headers: {
-                'Cookie': `${sessionHeaderName}=${sessionId}`,
+                'Cookie': `${envDetails.authentication.sessionHeaderName}=${sessionId.message}`,
             }
         }
     },
@@ -270,6 +277,10 @@ const handleAuthenticationType = {
 function getEnvCredentials() {
     if (!process.env.QLIK_USER) {
         common.writeLog('err', `"QLIK_USER" variable is not set!`, true)
+    }
+
+    if(process.env.QLIK_USER.indexOf('\\') == -1) {
+        common.writeLog('err', `The username should in format DOMAIN\\USER`, true)
     }
 
     if (!process.env.QLIK_PASSWORD) {

@@ -2,8 +2,6 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const os = require('os');
 const path = require('path');
-const axios = require('axios');
-const url = require('url');
 
 const common = require('./common');
 
@@ -196,58 +194,6 @@ const initialChecks = {
 
 }
 
-const winFormSession = {
-    firstRequest: async function (config) {
-
-        config.xrfkey = generateXrfkey(16);
-
-        config.host = config.host.replace('wss://', 'https://').replace('ws://', 'http://')
-
-        try {
-            let firstRequest = await axios.get(`${config.host}/qrs/about?xrfkey=${config.xrfkey}`, {
-                headers: {
-                    "x-qlik-xrfkey": config.xrfkey,
-                    'User-Agent': 'Form'
-                },
-                maxRedirects: 0,
-                validateStatus: null
-            })
-
-            return firstRequest.headers.location
-        } catch (e) {
-            common.writeLog('err', e.message, false)
-        }
-    },
-    secondRequest: async function (config, credentialsData) {
-
-        let urlParams = url.parse(config.authLocation, { parseQueryString: true }).query
-
-        let reqOptions = {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "x-qlik-xrfkey": urlParams.xrfkey
-            }
-        }
-
-        let secondRequest = ''
-
-        try {
-            secondRequest = await axios.post(config.authLocation, credentialsData, reqOptions)
-        } catch (e) {
-            common.writeLog('err', e.message, true)
-        }
-        try {
-            let cookieSessionId = secondRequest.headers['set-cookie'].filter(function (c) {
-                return c.indexOf(config.sessionHeaderName) > -1
-            })[0].split(';')[0].split(`${config.sessionHeaderName}=`)[1]
-
-            return cookieSessionId
-        } catch (e) {
-            common.writeLog('err', `Error parsing the response for Session ID. Most likely the session header is not correctly set`, true)
-        }
-    }
-}
-
 const generateXrfkey = function (length) {
     return [...Array(length)].map(i => (~~(Math.random() * 36)).toString(36)).join('')
 }
@@ -263,6 +209,5 @@ module.exports = {
     readCert,
     clearLocalScript,
     initialChecks,
-    winFormSession,
     generateXrfkey
 }
