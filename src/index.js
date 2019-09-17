@@ -29,7 +29,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .description('Get the script from the target Qlik app and overwrite the local script')
         .action(async function (env, options) {
             helpers.initialChecks.combined()
-            helpers.initialChecks.environment(env)
+            let envDetails = helpers.initialChecks.environment(env)
+            helpers.initialChecks.environmentVariables(envDetails.message)
             await argsFunctions.getScript(env)
         });
 

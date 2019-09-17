@@ -2,7 +2,6 @@ const path = require("path");
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.170.2.json');
-const querystring = require('querystring');
 const qAuth = require('qlik-sense-authenticate');
 
 const Spinner = require('cli-spinner').Spinner;
@@ -275,11 +274,15 @@ const handleAuthenticationType = {
 }
 
 function getEnvCredentials() {
+
+}
+
+function getEnvVariableCredentials() {
     if (!process.env.QLIK_USER) {
         common.writeLog('err', `"QLIK_USER" variable is not set!`, true)
     }
 
-    if(process.env.QLIK_USER.indexOf('\\') == -1) {
+    if (process.env.QLIK_USER.indexOf('\\') == -1) {
         common.writeLog('err', `The username should in format DOMAIN\\USER`, true)
     }
 
@@ -289,6 +292,8 @@ function getEnvCredentials() {
 
     return { user: process.env.QLIK_USER, pwd: process.env.QLIK_PASSWORD }
 }
+
+
 
 module.exports = {
     setScript,
