@@ -44,7 +44,7 @@ const writeLog = function (type, message, exit) {
 
 const envVariablesCheck = {
     auth_config: {
-        win: ['QLIK_USER', 'QLIK_PASSWORD'],
+        winform: ['QLIK_USER', 'QLIK_PASSWORD'],
         noVar: []
     },
     homeConfig: function (environment) {
@@ -60,7 +60,7 @@ const envVariablesCheck = {
 
         return { error: false, message: config[environment] }
     },
-    homeConfigEnvironments: function (auth_type, config) {
+    homeConfigEnvironmentsCheck: function (auth_type, homeVariables) {
         if (!envVariablesCheck.auth_config[auth_type]) {
             return { error: true, message: 'the required type was not found' }
         }
@@ -71,8 +71,8 @@ const envVariablesCheck = {
 
         let variablesContent = { error: false, message: {} }
 
-        for (let eVar of config[auth_type]) {
-            if (!process.env[eVar]) {
+        for (let eVar of envVariablesCheck.auth_config[auth_type]) {
+            if (!homeVariables[eVar]) {
                 variablesContent = { error: true, message: `${eVar} is not set` }
                 break;
             }
@@ -108,21 +108,39 @@ const envVariablesCheck = {
         return variablesContent
     },
     combined: function (envConfig) {
-        let homeConfig = envVariablesCheck.homeConfig()
-        let envVariables = envVariablesCheck.variables(auth_type)
+        let homeConfig = envVariablesCheck.homeConfig(envConfig.name)
+        let envVariables = envVariablesCheck.variables(envConfig.authentication.type)
 
+        // both env var and home config are in error
         if (homeConfig.error && envVariables.error) {
-            return { error: true, message: 'Neither env variables are set or config is found' }
+            return {
+                error: true,
+                message: {
+                    global: 'Neither env variables are set or config is found',
+                    envVariables: envVariables.message,
+                    homeConfig: homeConfig.message
+                }
+            }
         }
 
-        if (homeConfig.error) {
+        // only home config exists
+        if (!homeConfig.error && envVariables.error) {
+            return envVariablesCheck.homeConfigEnvironmentsCheck(homeConfig.message)
+        }
+
+        // only env variables exists
+        if (homeConfig.error && !envVariables.error) {
+            return envVariables
+        }
+
+        // if both are ok:
+        // check if the home config variables are ok. 
+        //   yes - return home config
+        //   no  - return env variables
+        let homeConfigCheck = envVariablesCheck.homeConfigEnvironmentsCheck(envConfig.authentication.type, homeConfig.message)
+
+        if (!homeConfigCheck.error) {
             return homeConfig
-        }
-
-        let homeConfigEnvironments = envVariablesCheck.homeConfigEnvironments(auth_type, homeConfig.message)
-
-        if (homeConfigEnvironments.error) {
-            return homeConfigEnvironments
         }
 
         return envVariables

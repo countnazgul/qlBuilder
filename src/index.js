@@ -1,6 +1,7 @@
 const program = require('commander');
 const argsFunctions = require('./packages/argumentsFunctions');
-const helpers = require('./packages/helpers')
+const helpers = require('./packages/helpers');
+const common = require('./packages/common');
 const currentVersion = require('..\\package.json').version
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
@@ -30,7 +31,13 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .action(async function (env, options) {
             helpers.initialChecks.combined()
             let envDetails = helpers.initialChecks.environment(env)
-            helpers.initialChecks.environmentVariables(envDetails.message)
+            let envVariables = helpers.initialChecks.environmentVariables(envDetails.message)
+
+            if (envVariables.error) {
+                common.writeLog('err', envVariables.message, true)
+            }
+
+            env = { name: env, variables: envVariables.message }
             await argsFunctions.getScript(env)
         });
 

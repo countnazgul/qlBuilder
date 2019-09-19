@@ -187,7 +187,7 @@ const initialChecks = {
 
     },
     environmentVariables: function (env) {
-        let allEnvVariables = common.envVariablesCheck.combined(env)
+        let allEnvVariables = common.envVariablesCheck.combined(env[0])
 
         return allEnvVariables
     },
