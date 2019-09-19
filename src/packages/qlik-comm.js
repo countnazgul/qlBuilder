@@ -38,9 +38,10 @@ const setScript = async function (script, env) {
     }
 }
 
-const getScriptFromApp = async function (env) {
+const getScriptFromApp = async function ({ environment, variables }) {
 
-    let { session, envDetails } = await createQlikSession(env)
+    // TODO: change createQlikSession to accept the full env detail and not to return it
+    let session = await createQlikSession({ environment, variables })
 
     try {
         let spinner = new Spinner('Getting script ..');
@@ -48,7 +49,8 @@ const getScriptFromApp = async function (env) {
         spinner.start();
 
         let global = await session.open()
-        let doc = await global.openDoc(envDetails.appId)
+        //?????????????
+        let doc = await global.openDoc(environment.appId)
         let qScript = await doc.getScript()
         await session.close()
 
@@ -181,16 +183,17 @@ function reloadAndGetProgress({ global, doc }) {
     })
 }
 
-async function createQlikSession(env) {
-    let envDetails = helpers.getEnvDetails(env)[0];
+async function createQlikSession({ environment, variables }) {
+    // let envDetails = helpers.getEnvDetails(env);
+    // if (envDetails.error) return envDetails
 
     let authenticationType = 'desktop'
 
-    if (envDetails.authentication) {
-        authenticationType = envDetails.authentication.type
+    if (environment.authentication) {
+        authenticationType = environment.authentication.type
     }
 
-    let qsEnt = await handleAuthenticationType[authenticationType](envDetails)
+    let qsEnt = await handleAuthenticationType[authenticationType]({ environment, variables })
 
     if (qsEnt.error) {
         console.log('')
@@ -200,11 +203,11 @@ async function createQlikSession(env) {
     try {
         const session = enigma.create({
             schema,
-            url: `${envDetails.host}/app/engineData`,
+            url: `${environment.host}/app/engineData`,
             createSocket: url => new WebSocket(url, qsEnt)
         });
 
-        return { session, envDetails }
+        return session
     } catch (e) {
         console.log('')
         common.writeLog('err', e.message, true)
@@ -241,18 +244,22 @@ const handleAuthenticationType = {
             common.writeLog('err', e.message, true)
         }
     },
-    winform: async function (envDetails) {
+    winform: async function ({ environment, variables }) {
 
-        let credentials = getEnvCredentials()
+        // let credentials = getEnvCredentials()
+        let sessionHeaderName = 'X-Qlik-Session'
+        if(environment.authentication.sessionHeaderName) {
+            sessionHeaderName = environment.authentication.sessionHeaderName
+        }
 
         let auth_config = {
             type: 'win',
             props: {
-                url: envDetails.host.replace('wss', 'https').replace('ws', 'http'),
+                url: environment.host.replace('wss', 'https').replace('ws', 'http'),
                 proxy: '',
-                username: credentials.user,
-                password: credentials.pwd,
-                header: envDetails.authentication.sessionHeaderName
+                username: variables.QLIK_USER,
+                password: variables.QLIK_PASSWORD,
+                header: sessionHeaderName
             }
         }
 
@@ -264,17 +271,13 @@ const handleAuthenticationType = {
 
         return {
             headers: {
-                'Cookie': `${envDetails.authentication.sessionHeaderName}=${sessionId.message}`,
+                'Cookie': `${sessionHeaderName}=${sessionId.message}`,
             }
         }
     },
     purewin: async function (envDetails) {
 
     }
-}
-
-function getEnvCredentials() {
-
 }
 
 function getEnvVariableCredentials() {

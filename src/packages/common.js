@@ -77,8 +77,7 @@ const envVariablesCheck = {
                 break;
             }
 
-            variablesContent.message[eVar] = process.env[eVar]
-
+            variablesContent.message[eVar] = homeVariables[eVar]
         }
 
         return variablesContent
@@ -115,17 +114,14 @@ const envVariablesCheck = {
         if (homeConfig.error && envVariables.error) {
             return {
                 error: true,
-                message: {
-                    global: 'Neither env variables are set or config is found',
-                    envVariables: envVariables.message,
-                    homeConfig: homeConfig.message
-                }
+                message: `Environment variables: ${envVariables.message}\r\nHome config: ${homeConfig.message}`
             }
         }
 
+
         // only home config exists
         if (!homeConfig.error && envVariables.error) {
-            return envVariablesCheck.homeConfigEnvironmentsCheck(homeConfig.message)
+            return envVariablesCheck.homeConfigEnvironmentsCheck(envConfig.authentication.type, homeConfig.message)
         }
 
         // only env variables exists

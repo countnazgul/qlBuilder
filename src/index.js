@@ -28,17 +28,22 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('getscript [env]')
         .description('Get the script from the target Qlik app and overwrite the local script')
-        .action(async function (env, options) {
-            helpers.initialChecks.combined()
-            let envDetails = helpers.initialChecks.environment(env)
-            let envVariables = helpers.initialChecks.environmentVariables(envDetails.message)
+        .action(async function (envName, options) {
+            // if local config exists; src and dist folders exists
+            let initialChecks = helpers.initialChecks.combined()
+            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
 
-            if (envVariables.error) {
-                common.writeLog('err', envVariables.message, true)
-            }
+            // if the specificed environment exists in the local config 
+            let envDetails = helpers.initialChecks.environment(envName)
+            if (envDetails.error) common.writeLog('err', envDetails.message, true)
 
-            env = { name: env, variables: envVariables.message }
-            await argsFunctions.getScript(env)
+            // if the required environment variables exists OR
+            // the .qlbuilder exists in the home folder
+            // if both exists - home folder config is returned
+            let envVariables = helpers.initialChecks.environmentVariables(envDetails.message[0])
+            if (envVariables.error) common.writeLog('err', envVariables.message, true)
+
+            await argsFunctions.getScript({ environment: envDetails.message[0], variables: envVariables.message })
         });
 
     program

@@ -48,7 +48,7 @@ const setScript = async function (env) {
     await qlikComm.setScript(script, env)
 }
 
-const getScript = async function (env) {
+const getScript = async function ({ environment, variables }) {
 
     const response = await prompts({
         type: 'confirm',
@@ -58,7 +58,7 @@ const getScript = async function (env) {
     })
 
     if (response.value == true) {
-        let getScriptFromApp = await qlikComm.getScriptFromApp(env)
+        let getScriptFromApp = await qlikComm.getScriptFromApp({ environment, variables })
         let scriptTabs = getScriptFromApp.split('///$tab ')
 
         helpers.clearLocalScript()

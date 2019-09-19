@@ -12,16 +12,16 @@ const getEnvDetails = function (env) {
     try {
         config = yaml.safeLoad(fs.readFileSync(`${process.cwd()}/config.yml`))
     } catch (e) {
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 
     try {
         let envDetails = config["qlik-environments"].filter(function (e) {
             return e.name.toLowerCase() == env.toLowerCase()
         })
-        return envDetails
+        return { error: false, message: envDetails }
     } catch (e) {
-        return false
+        return { error: true, message: e.message }
     }
 }
 
@@ -157,46 +157,55 @@ const clearLocalScript = async function () {
 
 const initialChecks = {
     configFile: function () {
-        if (fs.existsSync(`${process.cwd()}/config.yml`)) {
-            return true
-        } else {
-            common.writeLog('err', `"config.yml" do not exists! I'm running at the correct folder?`, true)
+        if (!fs.existsSync(`${process.cwd()}/config.yml`)) {
+            return { error: true, message: `"config.yml" do not exists! I'm running at the correct folder?` }
         }
+
+        return { error: false, message: 'config.yml was found' }
     },
     srcFolder: function () {
-        if (fs.existsSync(`${process.cwd()}/src`)) {
-            return true
-        } else {
-            common.writeLog('ok', `config is present but "src" folder was not and was created`, true)
+        if (!fs.existsSync(`${process.cwd()}/src`)) {
+            fs.mkdirSync(`${process.cwd()}/src`)
+            return { error: false, message: `config is present but "src" folder was not and was created` }
         }
+
+        return { error: false, message: '"src" folder was found' }
     },
     distFolder: function () {
-        if (fs.existsSync(`${process.cwd()}/dist`)) {
-            return true
-        } else {
-            common.writeLog('ok', `config is present but "dist" folder was not and was created`, true)
+        if (!fs.existsSync(`${process.cwd()}/dist`)) {
+            fs.mkdirSync(`${process.cwd()}/dist`)
+            return { error: false, message: `config is present but "dist" folder was not and was created` }
         }
+
+        return { error: false, message: '"dist" folder was found' }
     },
     environment: function (env) {
         let envDetails = getEnvDetails(env)
-        if (envDetails.length > 0) {
-            return { error: false, message: envDetails }
-        } else {
-            common.writeLog('err', `Environment "${env}" was not found in the "config.yml"! Typo?`, true)
-        }
+        if (envDetails.error) return envDetails
 
+        if (envDetails.message.length == 0) {
+            return { error: true, message: `Environment "${env}" was not found in the "config.yml"` }
+        }
+        return { error: false, message: envDetails.message }
     },
     environmentVariables: function (env) {
-        let allEnvVariables = common.envVariablesCheck.combined(env[0])
+        let allEnvVariables = common.envVariablesCheck.combined(env)
+        if (allEnvVariables.error) return allEnvVariables
 
-        return allEnvVariables
+        return { error: false, message: allEnvVariables.message }
     },
     combined: function (env) {
-        initialChecks.configFile()
-        initialChecks.srcFolder()
-        initialChecks.distFolder()
-    }
+        let configFile = initialChecks.configFile()
+        if (configFile.error) return configFile
 
+        let srcFolder = initialChecks.srcFolder()
+        if (srcFolder.error) return srcFolder
+
+        let distFolder = initialChecks.distFolder()
+        if (distFolder.error) return distFolder
+
+        return { error: false, message: 'all good so far' }
+    }
 }
 
 const generateXrfkey = function (length) {
