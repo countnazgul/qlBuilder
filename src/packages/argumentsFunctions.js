@@ -38,9 +38,11 @@ const create = async function (project) {
 
 const buildScript = async function () {
     let loadScript = helpers.buildLoadScript()
-    helpers.writeLoadScript(loadScript)
-    common.writeLog('ok', 'Load script created', false)
-    return loadScript
+
+    let writeScript = helpers.writeLoadScript(loadScript)
+    if (writeScript.error) return writeScript
+
+    return ({ error: false, message: 'Load script created' })
 }
 
 const setScript = async function (env) {
@@ -59,14 +61,20 @@ const getScript = async function ({ environment, variables }) {
 
     if (response.value == true) {
         let getScriptFromApp = await qlikComm.getScriptFromApp({ environment, variables })
-        let scriptTabs = getScriptFromApp.split('///$tab ')
+        if (getScriptFromApp.error) return getScriptFromApp
 
-        helpers.clearLocalScript()
-        writeScriptToFiles(scriptTabs)
+        let scriptTabs = getScriptFromApp.message.split('///$tab ')
 
-        common.writeLog('ok', 'Local script files were created', false)
+        let clearLocalScript = helpers.clearLocalScript()
+        if (clearLocalScript.error) return clearLocalScript
+        common.writeLog('ok', 'Local script files removed', false)
+
+        let writeScriptFiels = writeScriptToFiles(scriptTabs)
+        if (writeScriptFiels.error) common.writeLog('ok', writeScriptFiels.message, false)
+
+        return { error: false, message: writeScriptFiels.message }
     } else {
-        console.log('Nothing was changed')
+        return { error: false, message: 'Nothing was changed' }
     }
 }
 
@@ -241,8 +249,9 @@ function writeScriptToFiles(scriptTabs) {
                 fs.writeFileSync(`${process.cwd()}\\src\\${i}--${tabNameSafe}.qvs`, scriptContent)
             }
         }
+        return { error: false, message: 'Local script files were created' }
     } catch (e) {
-        common.writeLog('err', e.message, false)
+        return { error: true, message: e.message }
     }
 }
 

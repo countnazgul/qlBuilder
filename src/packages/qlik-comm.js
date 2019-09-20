@@ -43,23 +43,26 @@ const getScriptFromApp = async function ({ environment, variables }) {
     // TODO: change createQlikSession to accept the full env detail and not to return it
     let session = await createQlikSession({ environment, variables })
 
+    if (session.error) return session
+
     try {
         let spinner = new Spinner('Getting script ..');
         spinner.setSpinnerString('☱☲☴');
         spinner.start();
 
-        let global = await session.open()
-        //?????????????
+        let global = await session.message.open()
         let doc = await global.openDoc(environment.appId)
         let qScript = await doc.getScript()
-        await session.close()
+
+        console.log('')
+        common.writeLog('ok', 'Script was received', false)
+        await session.message.close()
 
         spinner.stop(true)
-        common.writeLog('ok', 'Script was received', false)
-        return qScript
+        return { error: false, message: qScript }
     } catch (e) {
         console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 
@@ -207,7 +210,7 @@ async function createQlikSession({ environment, variables }) {
             createSocket: url => new WebSocket(url, qsEnt)
         });
 
-        return session
+        return { error: false, message: session }
     } catch (e) {
         console.log('')
         common.writeLog('err', e.message, true)
@@ -246,10 +249,13 @@ const handleAuthenticationType = {
     },
     winform: async function ({ environment, variables }) {
 
-        // let credentials = getEnvCredentials()
         let sessionHeaderName = 'X-Qlik-Session'
-        if(environment.authentication.sessionHeaderName) {
+        if (environment.authentication.sessionHeaderName) {
             sessionHeaderName = environment.authentication.sessionHeaderName
+        }
+
+        if (variables.QLIK_USER.indexOf('\\') == -1) {
+            return { error: true, message: 'The username should in format DOMAIN\\USER' }
         }
 
         let auth_config = {
@@ -279,24 +285,6 @@ const handleAuthenticationType = {
 
     }
 }
-
-function getEnvVariableCredentials() {
-    if (!process.env.QLIK_USER) {
-        common.writeLog('err', `"QLIK_USER" variable is not set!`, true)
-    }
-
-    if (process.env.QLIK_USER.indexOf('\\') == -1) {
-        common.writeLog('err', `The username should in format DOMAIN\\USER`, true)
-    }
-
-    if (!process.env.QLIK_PASSWORD) {
-        common.writeLog('err', `"QLIK_PASSWORD" variable is not set!`, true)
-    }
-
-    return { user: process.env.QLIK_USER, pwd: process.env.QLIK_PASSWORD }
-}
-
-
 
 module.exports = {
     setScript,

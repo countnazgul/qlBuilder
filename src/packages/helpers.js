@@ -128,8 +128,10 @@ const buildLoadScript = function (initProject) {
 const writeLoadScript = function (script) {
     try {
         fs.writeFileSync('./dist/LoadScript.qvs', script)
+
+        return { error: false, message: 'Script saved' }
     } catch (e) {
-        console.log(e.message)
+        return { error: true, message: e.message }
     }
 }
 
@@ -151,8 +153,10 @@ const clearLocalScript = async function () {
             fs.unlinkSync(path.join(directory, file));
         }
 
-        common.writeLog('ok', 'Local script files removed', false)
-    } catch (e) { }
+        return { error: false, message: 'Local script files removed' }
+    } catch (e) {
+        return { error: true, message: e.message }
+    }
 }
 
 const initialChecks = {
