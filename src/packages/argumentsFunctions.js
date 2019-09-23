@@ -80,37 +80,24 @@ const getScript = async function ({ environment, variables }) {
     }
 }
 
-const checkScript = async function (env, script) {
+const checkScript = async function ({ environment, variables }) {
     let spinner = new Spinner('Checking for syntax errors ...');
     spinner.setSpinnerString('☱☲☴');
     spinner.start();
 
-    if (!script) {
-        console.log('')
-        var script = await buildScript()
+    let script = await buildScript()
+    if (script.error) return script
+
+    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: script.message })
+    if (scriptResult.error) return scriptResult
+
+    spinner.stop(true)
+
+    if (scriptResult.message.length > 0) {
+        displayScriptErrors(scriptResult.message)
+        return { error: true, message: 'Syntax errors found!' }
     }
-
-    let scriptResult = ''
-
-    try {
-        scriptResult = await qlikComm.checkScriptSyntax(script, env)
-    } catch (e) {
-        common.writeLog('err', e.message, false)
-    }
-    finally {
-        spinner.stop(true)
-    }
-
-
-    if (scriptResult.length > 0) {
-        common.writeLog('err', `Syntax errors found!`, false)
-        displayScriptErrors(scriptResult)
-    } else {
-        common.writeLog('ok', 'No syntax errors were found', false)
-    }
-
-
-    return scriptResult
+    return { error: false, message: 'No syntax errors were found' }
 }
 
 const startWatching = async function (reload, setScript, env) {

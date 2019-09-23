@@ -68,19 +68,21 @@ const getScriptFromApp = async function ({ environment, variables }) {
     }
 }
 
-const checkScriptSyntax = async function (script, env) {
-    let { session, envDetails } = await createQlikSession(env)
+const checkScriptSyntax = async function ({ environment, variables, script }) {
+
+    let session = await createQlikSession({ environment, variables })
+    if (session.error) return session
+
     try {
-        let global = await session.open()
+        let global = await session.message.open()
         let doc = await global.createSessionApp()
         await doc.setScript(script)
         let syntaxCheck = await doc.checkScriptSyntax()
-        await session.close()
+        await session.message.close()
 
-        return syntaxCheck
+        return { error: false, message: syntaxCheck }
     } catch (e) {
-        console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 

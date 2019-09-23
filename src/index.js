@@ -41,18 +41,18 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
 
             let script = await argsFunctions.getScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
-            if (script.error) common.writeLog('err', script.message, true)
-
-            common.writeLog('ok', script.message, true)
+            common.writeLog(script.error ? 'err' : 'ok', script.message, true)
         });
 
     program
         .command('checkscript [env]')
         .description('Check local script for syntax errors')
-        .action(async function (env, options) {
-            helpers.initialChecks.combined()
-            helpers.initialChecks.environment(env)
-            await argsFunctions.checkScript(env)
+        .action(async function (envName, options) {
+            let initialChecks = helpers.initialChecks.combined(envName)
+            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+
+            let checkScript = await argsFunctions.checkScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
+            common.writeLog(checkScript.error ? 'err' : 'ok', checkScript.message, true)
         });
 
     program
