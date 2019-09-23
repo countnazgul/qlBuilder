@@ -82,10 +82,12 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('reload [env]')
         .description('Set script and reload the target app')
-        .action(async function (env, options) {
-            helpers.initialChecks.combined()
-            helpers.initialChecks.environment(env)
-            await argsFunctions.reload(env)
+        .action(async function (envName, options) {
+            let initialChecks = helpers.initialChecks.combined(envName)
+            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+
+            let reload = await argsFunctions.reload({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
+            common.writeLog(reload.error ? 'err' : 'ok', reload.message, true)
         });
 
     program

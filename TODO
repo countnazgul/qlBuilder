@@ -6,10 +6,11 @@ Migrate functions:
     ✔ setscript @done(19-09-23 16:20)
     ✔ checkscript @done(19-09-23 16:45)
     ☐ watch
-    ☐ reload
+    ✔ reload @done(19-09-23 18:00)
     ✔ checkupdate @done(19-09-20 08:23)
     ✔ build @done(19-09-20 08:10)
     ✔ getscript @done(19-09-20 08:10)
+    ☐ reloadAndGetProgress?
 
 Other:
     ☐ in the new function structure `writeLog` can accept the return object and print/exit based on the `error`

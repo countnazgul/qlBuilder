@@ -86,12 +86,15 @@ const checkScriptSyntax = async function ({ environment, variables, script }) {
     }
 }
 
-const reloadApp = async function (env) {
-    let { session, envDetails } = await createQlikSession(env)
+const reloadApp = async function ({ environment, variables, script }) {
+    let session = await createQlikSession({ environment, variables })
+    if (session.error) return session
 
     try {
-        let global = await session.open()
-        let doc = await global.openDoc(envDetails.appId)
+        let global = await session.message.open()
+        let doc = await global.openDoc(environment.appId)
+        await doc.setScript(script)
+
         await reloadAndGetProgress({ global, doc })
 
         let spinner = new Spinner('Saving ...');
@@ -99,14 +102,14 @@ const reloadApp = async function (env) {
         spinner.start();
 
         await doc.doSave()
-        await session.close()
+        await session.message.close()
 
         spinner.stop(true);
-        common.writeLog('ok', 'App was reloaded and document was saved', false)
+
+        return { error: false, message: 'App was reloaded and document was saved' }
 
     } catch (e) {
-        console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 

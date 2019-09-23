@@ -177,8 +177,24 @@ You know ... just saying :)`)
         })
 }
 
-const reload = async function (env) {
-    await qlikComm.reloadApp(env)
+const reload = async function ({ environment, variables }) {
+    let script = await buildScript()
+    if (script.error) return script
+
+    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: script.message })
+    if (scriptResult.error) return scriptResult
+
+    if (scriptResult.message.length > 0) {
+        displayScriptErrors(scriptResult.message)
+        return { error: true, message: 'Syntax errors found!' }
+    }
+
+    common.writeLog('ok', 'No syntax errors', false)
+
+    let reloadApp = await qlikComm.reloadApp({ environment, variables, script: script.message })
+    if (reloadApp.error) return reloadApp
+
+    return { error: false, message: reloadApp.message }
 }
 
 const checkForUpdate = async function () {

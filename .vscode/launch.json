@@ -19,9 +19,9 @@
                 // "checkupdate"
                 // "build"
                 // "setscript", "winform"
-                "checkscript", "winform"
+                // "checkscript", "winform"
                 // "watch", "QSE",
-                // "reload", "desktop",
+                "reload", "winform"
                 // "watch", "qse"
                 // "-r"
                 // "create", "test"
