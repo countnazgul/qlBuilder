@@ -20,8 +20,8 @@
                 // "build"
                 // "setscript", "winform"
                 // "checkscript", "winform"
-                // "watch", "QSE",
-                "reload", "winform"
+                "watch", "winform"
+                // "reload", "winform"
                 // "watch", "qse"
                 // "-r"
                 // "create", "test"

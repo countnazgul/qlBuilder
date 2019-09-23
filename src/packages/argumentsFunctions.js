@@ -9,6 +9,7 @@ Spinner.setDefaultSpinnerDelay(200)
 const prompts = require('prompts');
 
 const currentVersion = require('..\\..\\package.json').version
+const messages = require('./messages');
 
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
@@ -100,30 +101,11 @@ const checkScript = async function ({ environment, variables }) {
     return { error: false, message: 'No syntax errors were found' }
 }
 
-const startWatching = async function (reload, setScript, env) {
+const startWatching = async function ({ environment, variables, arguments }) {
 
-    console.log(`\nCommands during watch mode:
-- set script: s or set
-- reload app: r or rl
-- clear console: c or clr
-- exit - x
-(script is checked for syntax errors anytime one of the qvs files is saved)
+    console.log(messages.watch.commands)
 
-    `)
-
-    if (reload) {
-        console.log(`Reload is set to "true"! 
-Each successful build will trigger:
-    - set script
-    - check the script for syntax errors
-      - if error - stop here. The app is not saved and the script is not updated
-    - reload app
-    - save app
-   
-You know ... just saying :)`)
-    }
-
-
+    if (arguments.reload) console.log(messages.watch.reload)
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -131,26 +113,35 @@ You know ... just saying :)`)
     });
 
     rl.on('line', async function (line) {
-        if (line.toLowerCase() === "rl" || line.toLowerCase() === "r") {
-            await qlikComm.reloadApp(env)
-            // console.log('Here goes the reload')
-        }
-
+        // User exit
         if (line.toLowerCase() === "x") {
-            process.exit()
+            return { error: false, message: 'Bye!' }
         }
 
+        // Clear screen
         if (line.toLowerCase() === "c" || line.toLowerCase() === "clr") {
-            // console.clear()
             process.stdout.write("\u001b[2J\u001b[0;0H");
             console.log('Still here :)')
         }
 
+        // Reload app
+        if (line.toLowerCase() === "rl" || line.toLowerCase() === "r") {
+            let script = await buildScript()
+            if (script.error) return script
+
+            let reload = await qlikComm.reloadApp({ environment, variables, script: script.message })
+            if (reload.error) return reload
+        }
+
+        // Set script
         if (line.toLowerCase() === "s" || line.toLowerCase() == "set") {
             let script = await buildScript()
+            if (script.error) return script
 
             common.writeLog('ok', 'Script was build', false)
-            await qlikComm.setScript(script, env)
+
+            let setScript = await qlikComm.setScript({ environment, variables, script })
+            if (setScript.error) return setScript
         }
     })
 
@@ -159,19 +150,27 @@ You know ... just saying :)`)
     watcher
         .on('change', async function (path) {
             let script = await buildScript()
-            await checkScript(env, script)
+            if (script.error) return script
 
-            if (reload) {
+            let checkLoadScript = await checkScript({ environment, variables, script })
+            if (checkLoadScript.error) {
+                common.writeLog('err', checkLoadScript.message, false)
+                // break;
+            }
+
+            common.writeLog('ok', checkLoadScript.message, false)
+            
+            if (arguments.reload) {
                 await qlikComm.setScript(script, env)
                 await qlikComm.reloadApp(env)
             }
 
-            if (reload && setScript) {
+            if (arguments.reload && arguments.setScript) {
                 await qlikComm.setScript(script, env)
                 await qlikComm.reloadApp(env)
             }
 
-            if (!reload && setScript) {
+            if (!arguments.reload && arguments.setScript) {
                 await qlikComm.setScript(script, env)
             }
         })

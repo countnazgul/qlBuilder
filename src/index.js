@@ -58,10 +58,18 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('watch [env]')
         .description('Start qlBuilder in watch mode')
-        .action(async function (env, options) {
-            helpers.initialChecks.combined()
-            helpers.initialChecks.environment(env)
-            await argsFunctions.startWatching(program.reload, program.set, env)
+        .action(async function (envName, options) {
+            let initialChecks = helpers.initialChecks.combined(envName)
+            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+
+            await argsFunctions.startWatching({
+                environment: initialChecks.message.env,
+                variables: initialChecks.message.variables,
+                arguments: {
+                    reload: program.reload,
+                    setScript: program.set,
+                }
+            })
         });
 
     program

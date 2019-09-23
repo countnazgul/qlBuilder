@@ -14,3 +14,8 @@ Migrate functions:
 
 Other:
     ☐ in the new function structure `writeLog` can accept the return object and print/exit based on the `error`
+
+Testing:
+    ☐ Testing
+    ☐ Testing
+    ☐ And more testing! :)
