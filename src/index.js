@@ -13,7 +13,11 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('create [name]')
         .description('Create new project folder structure')
         .action(async function (name, options) {
-            await argsFunctions.create(name)
+            if (!name) common.write.log({ error: true, message: `Please specify project name`, exit: true })
+
+            let init = await argsFunctions.create(name)
+
+            if (init.error) common.writeLog('err', init.message, true)
         });
 
     program
@@ -30,20 +34,20 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .description('Get the script from the target Qlik app and overwrite the local script')
         .action(async function (envName, options) {
             // if local config exists; src and dist folders exists
-            let initialChecks = helpers.initialChecks.combined()
+            let initialChecks = helpers.initialChecks.combined(envName)
             if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
 
-            // if the specificed environment exists in the local config 
-            let envDetails = helpers.initialChecks.environment(envName)
-            if (envDetails.error) common.writeLog('err', envDetails.message, true)
+            // if the specified environment exists in the local config 
+            // let envDetails = helpers.initialChecks.environment(envName)
+            // if (envDetails.error) common.writeLog('err', envDetails.message, true)
 
             // if the required environment variables exists OR
             // the .qlbuilder exists in the home folder
             // if both exists - home folder config is returned
-            let envVariables = helpers.initialChecks.environmentVariables(envDetails.message[0])
-            if (envVariables.error) common.writeLog('err', envVariables.message, true)
+            // let envVariables = helpers.initialChecks.environmentVariables(envDetails.message[0])
+            // if (envVariables.error) common.writeLog('err', envVariables.message, true)
 
-            let script = await argsFunctions.getScript({ environment: envDetails.message[0], variables: envVariables.message })
+            let script = await argsFunctions.getScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
             if (script.error) common.writeLog('err', script.message, true)
 
             common.writeLog('ok', script.message, true)
@@ -75,12 +79,12 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             let initialChecks = helpers.initialChecks.combined()
             if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
 
-            // if the specificed environment exists in the local config 
-            let envDetails = helpers.initialChecks.environment(envName)
-            if (envDetails.error) common.writeLog('err', envDetails.message, true)
+            // if the specified environment exists in the local config 
+            // let envDetails = helpers.initialChecks.environment(envName)
+            // if (envDetails.error) common.writeLog('err', envDetails.message, true)
 
             let buildScript = await argsFunctions.buildScript()
-            if(buildScript.error) common.writeLog('err', buildScript.message, true)
+            if (buildScript.error) common.writeLog('err', buildScript.message, true)
 
             common.writeLog('ok', buildScript.message, true)
         });
@@ -98,7 +102,10 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('checkupdate')
         .description('Check for qlBuilder updates')
         .action(async function () {
-            await argsFunctions.checkForUpdate()
+            let checkUpdate = await argsFunctions.checkForUpdate()
+            if (checkUpdate.error) common.writeLog('err', checkUpdate.message, true)
+
+            common.writeLog('ok', checkUpdate.message, true)
         });
 
     program.on('--help', function () {

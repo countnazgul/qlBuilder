@@ -1,0 +1,15 @@
+Errors:
+    ☐ return nice error message when unable to communicate with QS
+
+Migrate functions:
+    ☐ create
+    ☐ setscript
+    ☐ checkscript
+    ☐ watch
+    ☐ reload
+    ✔ checkupdate @done(19-09-20 08:23)
+    ✔ build @done(19-09-20 08:10)
+    ✔ getscript @done(19-09-20 08:10)
+
+Other:
+    ☐ in the new function structure `writeLog` can accept the return object and print/exit based on the `error`

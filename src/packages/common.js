@@ -4,14 +4,14 @@ const chalk = require('chalk');
 const yaml = require('js-yaml');
 
 const write = {
-    log: function (type, message, exit) {
+    log: function ({ error, message, exit = false }) {
         let symbol = {
-            err: chalk.red('✖'),
+            true: chalk.red('✖'),
             warn: chalk.yellow('\u26A0'),
-            ok: chalk.green('√')
+            false: chalk.green('√')
         }
 
-        let logMessage = `${symbol[type]} ${message}`
+        let logMessage = `${symbol[error.toString()]} ${message}`
 
         console.log(logMessage)
 
@@ -20,6 +20,7 @@ const write = {
         }
 
     },
+
     file: function (path, content) {
         return fs.writeFileSync(path, content)
     }

@@ -15,24 +15,21 @@ const qlikComm = require('./qlik-comm');
 const common = require('./common')
 
 const create = async function (project) {
+    let spinner = new Spinner('Creating ...');
+    spinner.setSpinnerString('◐◓◑◒');
+    spinner.start();
 
-    if (project) {
-        let spinner = new Spinner('Creating ...');
-        spinner.setSpinnerString('◐◓◑◒');
-        spinner.start();
 
-        if (!fs.existsSync(`${process.cwd()}/${project}`)) {
-            helpers.createInitFolders(project)
-            helpers.createInitialScriptFiles(project)
-            helpers.createInitConfig(project)
-            spinner.stop(true)
-            common.writeLog('ok', 'All set', false)
-        } else {
-            spinner.stop(true)
-            common.writeLog('err', `Folder "${project}" already exists`, false)
-        }
+
+    if (!fs.existsSync(`${process.cwd()}/${project}`)) {
+        helpers.createInitFolders(project)
+        helpers.createInitialScriptFiles(project)
+        helpers.createInitConfig(project)
+        spinner.stop(true)
+        common.writeLog('ok', 'All set', false)
     } else {
-        common.writeLog('err', `Please specify project name`, true)
+        spinner.stop(true)
+        return { error: true, message: `Folder "${project}" already exists` }
     }
 }
 
@@ -69,10 +66,10 @@ const getScript = async function ({ environment, variables }) {
         if (clearLocalScript.error) return clearLocalScript
         common.writeLog('ok', 'Local script files removed', false)
 
-        let writeScriptFiels = writeScriptToFiles(scriptTabs)
-        if (writeScriptFiels.error) common.writeLog('ok', writeScriptFiels.message, false)
+        let writeScriptFiles = writeScriptToFiles(scriptTabs)
+        if (writeScriptFiles.error) common.writeLog('ok', writeScriptFiles.message, false)
 
-        return { error: false, message: writeScriptFiels.message }
+        return { error: false, message: writeScriptFiles.message }
     } else {
         return { error: false, message: 'Nothing was changed' }
     }
@@ -194,23 +191,25 @@ const reload = async function (env) {
 
 const checkForUpdate = async function () {
     try {
-        let getGitData = await axios.get('https://raw.githubusercontent.com/countnazgul/qluilder/master/package.json')
+        let getGitData = await axios.get('https://raw.githubusercontent.com/countnazgul/qlBuilder/master/package.json')
         let gitVersion = getGitData.data.version
 
         if (compareVersions(gitVersion, currentVersion, '>')) {
-            console.log('New version is available!')
-            console.log(`Current version: ${currentVersion}`)
-            console.log(`Remote version: ${gitVersion}`)
-            console.log('To install it run:')
-            console.log('npm install -g qlbuilder')
+            let message = `New version is available!
+Current version: ${currentVersion}
+Remote version: ${gitVersion}
+To install it run:
+npm install -g qlbuilder`
+
+            return { error: false, message: message }
         } else {
 
-            console.log('Latest version is already installed')
+            return { error: false, message: 'Latest version is already installed' }
         }
 
     } catch (e) {
         console.log('')
-        common.writeLog('err', `Unable to get the remote version number :'(`, false)
+        return { error: true, message: `Unable to get the remote version number :'(` }
     }
 }
 

@@ -190,7 +190,7 @@ const initialChecks = {
         if (envDetails.message.length == 0) {
             return { error: true, message: `Environment "${env}" was not found in the "config.yml"` }
         }
-        return { error: false, message: envDetails.message }
+        return { error: false, message: envDetails.message[0] }
     },
     environmentVariables: function (env) {
         let allEnvVariables = common.envVariablesCheck.combined(env)
@@ -198,17 +198,30 @@ const initialChecks = {
 
         return { error: false, message: allEnvVariables.message }
     },
-    combined: function (env) {
+    combined: function (envName) {
+        // if the config file exists
         let configFile = initialChecks.configFile()
         if (configFile.error) return configFile
 
+        // if src folder exists - else create it
         let srcFolder = initialChecks.srcFolder()
         if (srcFolder.error) return srcFolder
 
+        // if src dist exists - else create it
         let distFolder = initialChecks.distFolder()
         if (distFolder.error) return distFolder
 
-        return { error: false, message: 'all good so far' }
+        // if the required env setup parameters are present
+        // in the config file
+        let envDetails = initialChecks.environment(envName)
+        if (envDetails.error) return envDetails
+
+        // if the required variables are set
+        // or specified in .qlbuilder file
+        let envVariables = initialChecks.environmentVariables(envDetails.message)
+        if (envVariables.error) return envVariables
+
+        return { error: false, message: { env: envDetails.message, variables: envVariables.message } }
     }
 }
 
