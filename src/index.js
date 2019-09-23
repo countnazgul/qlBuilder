@@ -16,36 +16,29 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if (!name) common.write.log({ error: true, message: `Please specify project name`, exit: true })
 
             let init = await argsFunctions.create(name)
-
-            if (init.error) common.writeLog('err', init.message, true)
+            common.writeLog(init.error ? 'err' : 'ok', init.message, true)
         });
 
     program
         .command('setscript [env]')
         .description('Build and set the script')
-        .action(async function (env, options) {
-            helpers.initialChecks.combined()
-            helpers.initialChecks.environment(env)
-            await argsFunctions.setScript(env)
+        .action(async function (envName, options) {
+            // helpers.initialChecks.combined()
+            // helpers.initialChecks.environment(env)
+
+            let initialChecks = helpers.initialChecks.combined(envName)
+            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+
+            let setScript = await argsFunctions.setScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
+            common.writeLog(setScript.error ? 'err' : 'ok', setScript.message, true)
         });
 
     program
         .command('getscript [env]')
         .description('Get the script from the target Qlik app and overwrite the local script')
         .action(async function (envName, options) {
-            // if local config exists; src and dist folders exists
             let initialChecks = helpers.initialChecks.combined(envName)
             if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
-
-            // if the specified environment exists in the local config 
-            // let envDetails = helpers.initialChecks.environment(envName)
-            // if (envDetails.error) common.writeLog('err', envDetails.message, true)
-
-            // if the required environment variables exists OR
-            // the .qlbuilder exists in the home folder
-            // if both exists - home folder config is returned
-            // let envVariables = helpers.initialChecks.environmentVariables(envDetails.message[0])
-            // if (envVariables.error) common.writeLog('err', envVariables.message, true)
 
             let script = await argsFunctions.getScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
             if (script.error) common.writeLog('err', script.message, true)
@@ -75,18 +68,15 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('build')
         .description('Combine the tab script files into one')
         .action(async function (envName, options) {
-            // if local config exists; src and dist folders exists
-            let initialChecks = helpers.initialChecks.combined()
+            // the full initial checks are not required
+            // just check if src and dist folders are present
+            let initialChecks = helpers.initialChecks.short()
             if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
-
-            // if the specified environment exists in the local config 
-            // let envDetails = helpers.initialChecks.environment(envName)
-            // if (envDetails.error) common.writeLog('err', envDetails.message, true)
 
             let buildScript = await argsFunctions.buildScript()
             if (buildScript.error) common.writeLog('err', buildScript.message, true)
 
-            common.writeLog('ok', buildScript.message, true)
+            common.writeLog('ok', 'Load script created and saved', true)
         });
 
     program

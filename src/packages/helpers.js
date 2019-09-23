@@ -222,6 +222,17 @@ const initialChecks = {
         if (envVariables.error) return envVariables
 
         return { error: false, message: { env: envDetails.message, variables: envVariables.message } }
+    },
+    short: function() {
+        // if src folder exists - else create it
+        let srcFolder = initialChecks.srcFolder()
+        if (srcFolder.error) return srcFolder
+
+        // if src dist exists - else create it
+        let distFolder = initialChecks.distFolder()
+        if (distFolder.error) return distFolder
+
+        return { error: false, message: 'SRC and DIST folders exists' }
     }
 }
 

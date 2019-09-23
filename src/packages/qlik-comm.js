@@ -10,16 +10,17 @@ Spinner.setDefaultSpinnerDelay(200)
 const helpers = require('./helpers')
 const common = require('./common')
 
-const setScript = async function (script, env) {
-    let { session, envDetails } = await createQlikSession(env)
+const setScript = async function ({ environment, variables, script }) {
+    let session = await createQlikSession({ environment, variables })
+    if (session.error) return session
 
     try {
         let spinner = new Spinner('Setting script ..');
         spinner.setSpinnerString('☱☲☴');
         spinner.start();
 
-        let global = await session.open()
-        let doc = await global.openDoc(envDetails.appId)
+        let global = await session.message.open()
+        let doc = await global.openDoc(environment.appId)
         await doc.setScript(script)
         spinner.stop(true)
 
@@ -28,13 +29,14 @@ const setScript = async function (script, env) {
         spinnerSave.start();
 
         await doc.doSave()
-        await session.close()
+        await session.message.close()
 
         spinnerSave.stop(true)
-        common.writeLog('ok', 'Script was set and document was saved', false)
+
+        return { error: false, message: 'Script was set and document was saved' }
     } catch (e) {
         console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 

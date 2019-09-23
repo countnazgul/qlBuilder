@@ -39,12 +39,17 @@ const buildScript = async function () {
     let writeScript = helpers.writeLoadScript(loadScript)
     if (writeScript.error) return writeScript
 
-    return ({ error: false, message: 'Load script created' })
+    return ({ error: false, message: loadScript })
 }
 
-const setScript = async function (env) {
+const setScript = async function ({ environment, variables }) {
     let script = await buildScript()
-    await qlikComm.setScript(script, env)
+    if (script.error) return script
+
+    let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
+    if (setScript.error) return setScript
+
+    return { error: false, message: setScript.message }
 }
 
 const getScript = async function ({ environment, variables }) {

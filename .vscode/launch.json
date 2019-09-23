@@ -18,14 +18,14 @@
             "args": [
                 // "checkupdate"
                 // "build"
-                // "setscript", "QSE"
+                "setscript", "winform"
                 // "checkscript", "desktop"
                 // "watch", "QSE",
                 // "reload", "desktop",
                 // "watch", "qse"
                 // "-r"
                 // "create", "test"
-                "getscript", "winform"
+                // "getscript", "winform"
             ]
         }
     ]
