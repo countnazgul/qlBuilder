@@ -1,8 +1,14 @@
-## **Under development!**
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/T6T0148ZP)
+
+**Kind of still under development. Main development phase is done but more testing is required!**
 
 ## Motivation
 
-`qlbuilder` is a CLI tool from command prompt (or PowerShell) by providing the required arguments. The tool allows Qlik Sense developers to write their Qlik script on the local machine and set this script in Qlik app and reload the app from within Qlik Sense. 
+`qlbuilder` is a CLI tool which is ran from command prompt (or PowerShell). The tool allows Qlik Sense developers to write their Qlik scripts on the local machine and:
+
+* set the build script in Qlik app
+* reload app
+* check for syntax errors while developing without the need to save the whole app
 
 ## Installation
 
