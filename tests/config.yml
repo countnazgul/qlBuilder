@@ -1,0 +1,9 @@
+qlik-environments:
+  - name: desktop
+    host: 'ws://localhost:4848'
+    appId: C:\Users\Home\Documents\Qlik\Sense\Apps\Build TEST.qvf
+  - name: winform
+    host: wss://sense-server
+    appId: 53d4b17f-9e5a-4041-8405-7f45822467a3
+    authentication:
+      type: winform

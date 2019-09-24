@@ -20,13 +20,31 @@
                 // "build"
                 // "setscript", "winform"
                 // "checkscript", "winform"
-                "watch", "winform", "-s"
+                "watch",
+                "winform",
+                "-s"
                 // "reload", "winform"
                 // "watch", "qse"
                 // "-r"
                 // "create", "test"
                 // "getscript", "winform"
             ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Current File",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "cwd": "${workspaceFolder}\\tests",
+            "args": [
+                "${fileBasenameNoExtension}"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            }
         }
     ]
 }
