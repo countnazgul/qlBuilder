@@ -7,7 +7,10 @@ const currentVersion = require('..\\package.json').version
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 (async function () {
-    program.version(currentVersion, '-v, --version', 'Output the current version');
+    program
+        .name("qlbuilder")
+        .usage("command [environment name]")
+        .version(currentVersion, '-v, --version', 'Output the current version');
 
     program
         .command('create [name]')
@@ -58,16 +61,18 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('watch [env]')
         .description('Start qlBuilder in watch mode')
+        .option('-r', 'Reload and save on each file change')
+        .option('-s', 'Set script and save app on each file change')
         .action(async function (envName, options) {
             let initialChecks = helpers.initialChecks.combined(envName)
             if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
 
-            await argsFunctions.startWatching({
+            let watching = await argsFunctions.startWatching({
                 environment: initialChecks.message.env,
                 variables: initialChecks.message.variables,
-                arguments: {
-                    reload: program.reload,
-                    setScript: program.set,
+                args: {
+                    reload: options.R || false,
+                    setScript: options.S || false,
                 }
             })
         });
@@ -115,6 +120,9 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         console.log(' > qlbuilder reload desktop');
         console.log(' > qlbuilder watch desktop -r');
         console.log(' > qlbuilder watch desktop -s');
+        console.log('');
+        console.log('More info: https://github.com/countnazgul/qlBuilder');
+        console.log('');
     });
 
     program.on('command:*', function () {

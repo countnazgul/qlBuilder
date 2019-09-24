@@ -13,21 +13,20 @@ const messages = require('./messages');
 
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
-const common = require('./common')
+const common = require('./common');
 
 const create = async function (project) {
     let spinner = new Spinner('Creating ...');
     spinner.setSpinnerString('◐◓◑◒');
     spinner.start();
 
-
-
     if (!fs.existsSync(`${process.cwd()}/${project}`)) {
         helpers.createInitFolders(project)
         helpers.createInitialScriptFiles(project)
         helpers.createInitConfig(project)
         spinner.stop(true)
-        common.writeLog('ok', 'All set', false)
+        // common.writeLog('ok', 'All set', false)
+        return {error: false, message: 'All set'}
     } else {
         spinner.stop(true)
         return { error: true, message: `Folder "${project}" already exists` }
@@ -81,15 +80,21 @@ const getScript = async function ({ environment, variables }) {
     }
 }
 
-const checkScript = async function ({ environment, variables }) {
+const checkScript = async function ({ environment, variables, script }) {
     let spinner = new Spinner('Checking for syntax errors ...');
     spinner.setSpinnerString('☱☲☴');
     spinner.start();
 
-    let script = await buildScript()
-    if (script.error) return script
+    let loadScript = ''
 
-    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: script.message })
+    if (script) {
+        let script = await buildScript()
+        if (script.error) return script
+
+        loadScript = script.message
+    }
+
+    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: loadScript })
     if (scriptResult.error) return scriptResult
 
     spinner.stop(true)
@@ -101,78 +106,105 @@ const checkScript = async function ({ environment, variables }) {
     return { error: false, message: 'No syntax errors were found' }
 }
 
-const startWatching = async function ({ environment, variables, arguments }) {
+const startWatching = async function ({ environment, variables, args }) {
 
-    console.log(messages.watch.commands)
+    console.log(messages.watch.commands())
 
-    if (arguments.reload) console.log(messages.watch.reload)
+    if (args.reload) console.log(messages.watch.reload())
 
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     });
 
+    rl.setPrompt('qlBuilder> ');
+    rl.prompt();
+
     rl.on('line', async function (line) {
         // User exit
         if (line.toLowerCase() === "x") {
-            return { error: false, message: 'Bye!' }
+            common.writeLog('ok', 'Bye!', true)
         }
 
         // Clear screen
         if (line.toLowerCase() === "c" || line.toLowerCase() === "clr") {
             process.stdout.write("\u001b[2J\u001b[0;0H");
             console.log('Still here :)')
+            rl.prompt();
+            return { error: true, message: 'Bye!' }
         }
 
         // Reload app
         if (line.toLowerCase() === "rl" || line.toLowerCase() === "r") {
             let script = await buildScript()
-            if (script.error) return script
+            if (script.error) common.writeLog('err', script.message, true)
 
             let reload = await qlikComm.reloadApp({ environment, variables, script: script.message })
-            if (reload.error) return reload
+            if (reload.error) {
+                common.writeLog('err', reload.message, false)
+                rl.prompt();
+                return { error: true, message: reload.message }
+            }
         }
 
         // Set script
         if (line.toLowerCase() === "s" || line.toLowerCase() == "set") {
             let script = await buildScript()
-            if (script.error) return script
+            if (script.error) common.writeLog('err', script.message, true)
 
             common.writeLog('ok', 'Script was build', false)
 
-            let setScript = await qlikComm.setScript({ environment, variables, script })
-            if (setScript.error) return setScript
+            let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
+            if (setScript.error) common.writeLog('err', setScript.message, true)
+
+            common.writeLog('ok', setScript.message, false)
         }
+
+        if (line == '?') console.log(messages.watch.commands())
+
+        rl.prompt();
     })
 
     const watcher = chokidar.watch('./src/**/*.qvs');
 
     watcher
-        .on('change', async function (path) {
+        .on('change', async function () {
             let script = await buildScript()
-            if (script.error) return script
+            if (script.error) common.writeLog('err', script.message, false)
 
-            let checkLoadScript = await checkScript({ environment, variables, script })
+            let checkLoadScript = await checkScript({ environment, variables, script: script.message })
             if (checkLoadScript.error) {
                 common.writeLog('err', checkLoadScript.message, false)
-                // break;
+                rl.prompt();
+                return { error: true, message: checkLoadScript.message }
             }
 
             common.writeLog('ok', checkLoadScript.message, false)
-            
-            if (arguments.reload) {
-                await qlikComm.setScript(script, env)
-                await qlikComm.reloadApp(env)
+
+            // if only SetScript is set
+            if (!args.reload && args.setScript) {
+                let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
+                if (setScript.error) {
+                    common.writeLog('err', setScript.message, true)
+                    // return { error: true, message: setScript.message }
+                }
+
+                common.writeLog('ok', setScript.message, false)
             }
 
-            if (arguments.reload && arguments.setScript) {
-                await qlikComm.setScript(script, env)
-                await qlikComm.reloadApp(env)
+            // if Reload is set AND/OR SetScript is set
+            if (args.reload) {
+                let reload = await qlikComm.reloadApp({ environment, variables, script: script.message })
+                if (reload.error) {
+                    common.writeLog('err', reload.message, true)
+                    // rl.prompt();
+                    // return { error: true, message: reload.message }
+                }
+
+                common.writeLog('ok', reload.message, false)
             }
 
-            if (!arguments.reload && arguments.setScript) {
-                await qlikComm.setScript(script, env)
-            }
+            rl.prompt();
         })
 }
 

@@ -115,10 +115,9 @@ const envVariablesCheck = {
         if (homeConfig.error && envVariables.error) {
             return {
                 error: true,
-                message: `Environment variables: ${envVariables.message}\r\nHome config: ${homeConfig.message}`
+                message: `Home config: ${homeConfig.message}\n${chalk.red('✖')} Environment variable: ${envVariables.message}`
             }
         }
-
 
         // only home config exists
         if (!homeConfig.error && envVariables.error) {

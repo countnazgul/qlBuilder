@@ -10,7 +10,7 @@ Spinner.setDefaultSpinnerDelay(200)
 const helpers = require('./helpers')
 const common = require('./common')
 
-const setScript = async function ({ environment, variables, script }) {
+const setScript = async function ({ environment, variables, script, doSave = true }) {
     let session = await createQlikSession({ environment, variables })
     if (session.error) return session
 
@@ -28,7 +28,10 @@ const setScript = async function ({ environment, variables, script }) {
         spinnerSave.setSpinnerString('◐◓◑◒');
         spinnerSave.start();
 
-        await doc.doSave()
+        if (doSave) {
+            await doc.doSave()
+        }
+
         await session.message.close()
 
         spinnerSave.stop(true)
@@ -82,6 +85,7 @@ const checkScriptSyntax = async function ({ environment, variables, script }) {
 
         return { error: false, message: syntaxCheck }
     } catch (e) {
+        await session.message.close()
         return { error: true, message: e.message }
     }
 }
@@ -95,11 +99,17 @@ const reloadApp = async function ({ environment, variables, script }) {
         let doc = await global.openDoc(environment.appId)
         await doc.setScript(script)
 
-        await reloadAndGetProgress({ global, doc })
+        let reloadResult = await reloadAndGetProgress({ global, doc })
 
         let spinner = new Spinner('Saving ...');
         spinner.setSpinnerString('◐◓◑◒');
         spinner.start();
+
+        if (reloadResult.error) {
+            spinner.stop(true);
+            await session.message.close()
+            return { error: true, message: 'Error during reload' }
+        }
 
         await doc.doSave()
         await session.message.close()
@@ -134,10 +144,12 @@ function reloadAndGetProgress({ global, doc }) {
                     console.log('')
 
                     resolve({
-                        success: result.qSuccess,
-                        log: result.qScriptLogFile,
-                        script: scriptResult,
-                        scriptError: scriptError
+                        error: scriptError, message: {
+                            success: result.qSuccess,
+                            log: result.qScriptLogFile,
+                            script: scriptResult,
+                            scriptError: scriptError
+                        }
                     })
                 }, 1000)
             })
@@ -157,7 +169,7 @@ function reloadAndGetProgress({ global, doc }) {
 
                         let timestamp = new Date().toLocaleString("en-US", timestampOptions)
 
-                        if (msg.qErrorData.length > 0) {
+                        if (msg.qErrorData.length > 0 || msg.qPersistentProgress.toLowerCase().indexOf('script error.') > -1) {
                             reloaded = true
                             scriptError = true
                         }
@@ -213,7 +225,7 @@ async function createQlikSession({ environment, variables }) {
     try {
         const session = enigma.create({
             schema,
-            url: `${environment.host}/app/engineData`,
+            url: `${environment.host}/app/engineData/identity/${+new Date()}`,
             createSocket: url => new WebSocket(url, qsEnt)
         });
 
