@@ -219,7 +219,7 @@ async function createQlikSession({ environment, variables }) {
 
     if (qsEnt.error) {
         console.log('')
-        common.writeLog('err', e.message, true)
+        common.writeLog('err', qsEnt.message, true)
     }
 
     try {
