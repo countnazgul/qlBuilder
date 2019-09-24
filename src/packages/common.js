@@ -109,7 +109,13 @@ const envVariablesCheck = {
     },
     combined: function (envConfig) {
         let homeConfig = envVariablesCheck.homeConfig(envConfig.name)
-        let envVariables = envVariablesCheck.variables(envConfig.authentication.type)
+
+        let envVariables = { error: false, message: 'No environment variables are required. QS desktop' }
+
+        if (envConfig.host.indexOf(':4848') == -1) {
+            // its not QS desktop
+            envVariables = envVariablesCheck.variables(envConfig.authentication.type)
+        }
 
         // both env var and home config are in error
         if (homeConfig.error && envVariables.error) {
@@ -143,9 +149,6 @@ const envVariablesCheck = {
     }
 }
 
-const read = {
-
-}
 
 module.exports = {
     writeLog,

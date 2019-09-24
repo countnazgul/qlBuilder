@@ -1,6 +1,6 @@
 {
   "name": "qlbuilder",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "description": "CLI helper tool for Qlik Sense developers to allow write script locally and update in remote app",
   "author": "Stefan Stoichev <@countnazgul> (https://sstoichev.eu)",
   "main": "./src/index.js",
@@ -41,5 +41,11 @@
   },
   "engines": {
     "node": ">=8"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

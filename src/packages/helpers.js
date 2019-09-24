@@ -19,6 +19,11 @@ const getEnvDetails = function (env) {
         let envDetails = config["qlik-environments"].filter(function (e) {
             return e.name.toLowerCase() == env.toLowerCase()
         })
+
+        if (envDetails.length == 0) {
+            return { error: true, message: `The specified environment (${env}) do not exists in the config` }
+        }
+
         return { error: false, message: envDetails }
     } catch (e) {
         return { error: true, message: e.message }
@@ -169,16 +174,16 @@ const initialChecks = {
     },
     srcFolder: function () {
         if (!fs.existsSync(`${process.cwd()}/src`)) {
-            fs.mkdirSync(`${process.cwd()}/src`)
-            return { error: false, message: `config is present but "src" folder was not and was created` }
+            // fs.mkdirSync(`${process.cwd()}/src`)
+            return { error: true, message: `config is present but "src" folder was not` }
         }
 
         return { error: false, message: '"src" folder was found' }
     },
     distFolder: function () {
         if (!fs.existsSync(`${process.cwd()}/dist`)) {
-            fs.mkdirSync(`${process.cwd()}/dist`)
-            return { error: false, message: `config is present but "dist" folder was not and was created` }
+            // fs.mkdirSync(`${process.cwd()}/dist`)
+            return { error: true, message: `config is present but "dist" folder was not` }
         }
 
         return { error: false, message: '"dist" folder was found' }
@@ -223,7 +228,7 @@ const initialChecks = {
 
         return { error: false, message: { env: envDetails.message, variables: envVariables.message } }
     },
-    short: function() {
+    short: function () {
         // if src folder exists - else create it
         let srcFolder = initialChecks.srcFolder()
         if (srcFolder.error) return srcFolder
