@@ -10,20 +10,22 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}\\src\\index.js",
             "console": "externalTerminal",
-            "cwd": "${workspaceFolder}\\test",
+            "cwd": "${workspaceFolder}\\test1",
             "env": {
-
+                "QLIK_USER": ".\\stefan",
+                "QLIK_PASSWORD": "s-sQlikGuy123!"
             },
             "args": [
                 // "checkupdate"
                 // "build"
-                // "setscript", "QSE"
-                // "checkscript", "desktop"
-                // "watch", "QSE",
-                // "reload", "desktop",
-                "watch", "qse"
+                // "setscript", "winform"
+                // "checkscript", "winform"
+                "watch", "winform", "-s"
+                // "reload", "winform"
+                // "watch", "qse"
                 // "-r"
                 // "create", "test"
+                // "getscript", "winform"
             ]
         }
     ]

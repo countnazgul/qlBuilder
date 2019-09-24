@@ -2,7 +2,6 @@ const path = require("path");
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.170.2.json');
-const querystring = require('querystring');
 const qAuth = require('qlik-sense-authenticate');
 
 const Spinner = require('cli-spinner').Spinner;
@@ -11,16 +10,17 @@ Spinner.setDefaultSpinnerDelay(200)
 const helpers = require('./helpers')
 const common = require('./common')
 
-const setScript = async function (script, env) {
-    let { session, envDetails } = await createQlikSession(env)
+const setScript = async function ({ environment, variables, script, doSave = true }) {
+    let session = await createQlikSession({ environment, variables })
+    if (session.error) return session
 
     try {
         let spinner = new Spinner('Setting script ..');
         spinner.setSpinnerString('☱☲☴');
         spinner.start();
 
-        let global = await session.open()
-        let doc = await global.openDoc(envDetails.appId)
+        let global = await session.message.open()
+        let doc = await global.openDoc(environment.appId)
         await doc.setScript(script)
         spinner.stop(true)
 
@@ -28,77 +28,98 @@ const setScript = async function (script, env) {
         spinnerSave.setSpinnerString('◐◓◑◒');
         spinnerSave.start();
 
-        await doc.doSave()
-        await session.close()
+        if (doSave) {
+            await doc.doSave()
+        }
+
+        await session.message.close()
 
         spinnerSave.stop(true)
-        common.writeLog('ok', 'Script was set and document was saved', false)
+
+        return { error: false, message: 'Script was set and document was saved' }
     } catch (e) {
         console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 
-const getScriptFromApp = async function (env) {
+const getScriptFromApp = async function ({ environment, variables }) {
 
-    let { session, envDetails } = await createQlikSession(env)
+    // TODO: change createQlikSession to accept the full env detail and not to return it
+    let session = await createQlikSession({ environment, variables })
+
+    if (session.error) return session
 
     try {
         let spinner = new Spinner('Getting script ..');
         spinner.setSpinnerString('☱☲☴');
         spinner.start();
 
-        let global = await session.open()
-        let doc = await global.openDoc(envDetails.appId)
+        let global = await session.message.open()
+        let doc = await global.openDoc(environment.appId)
         let qScript = await doc.getScript()
-        await session.close()
+
+        console.log('')
+        common.writeLog('ok', 'Script was received', false)
+        await session.message.close()
 
         spinner.stop(true)
-        common.writeLog('ok', 'Script was received', false)
-        return qScript
+        return { error: false, message: qScript }
     } catch (e) {
         console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 
-const checkScriptSyntax = async function (script, env) {
-    let { session, envDetails } = await createQlikSession(env)
+const checkScriptSyntax = async function ({ environment, variables, script }) {
+
+    let session = await createQlikSession({ environment, variables })
+    if (session.error) return session
+
     try {
-        let global = await session.open()
+        let global = await session.message.open()
         let doc = await global.createSessionApp()
         await doc.setScript(script)
         let syntaxCheck = await doc.checkScriptSyntax()
-        await session.close()
+        await session.message.close()
 
-        return syntaxCheck
+        return { error: false, message: syntaxCheck }
     } catch (e) {
-        console.log('')
-        common.writeLog('err', e.message, true)
+        await session.message.close()
+        return { error: true, message: e.message }
     }
 }
 
-const reloadApp = async function (env) {
-    let { session, envDetails } = await createQlikSession(env)
+const reloadApp = async function ({ environment, variables, script }) {
+    let session = await createQlikSession({ environment, variables })
+    if (session.error) return session
 
     try {
-        let global = await session.open()
-        let doc = await global.openDoc(envDetails.appId)
-        await reloadAndGetProgress({ global, doc })
+        let global = await session.message.open()
+        let doc = await global.openDoc(environment.appId)
+        await doc.setScript(script)
+
+        let reloadResult = await reloadAndGetProgress({ global, doc })
 
         let spinner = new Spinner('Saving ...');
         spinner.setSpinnerString('◐◓◑◒');
         spinner.start();
 
+        if (reloadResult.error) {
+            spinner.stop(true);
+            await session.message.close()
+            return { error: true, message: 'Error during reload' }
+        }
+
         await doc.doSave()
-        await session.close()
+        await session.message.close()
 
         spinner.stop(true);
-        common.writeLog('ok', 'App was reloaded and document was saved', false)
+
+        return { error: false, message: 'App was reloaded and document was saved' }
 
     } catch (e) {
-        console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 
@@ -123,10 +144,12 @@ function reloadAndGetProgress({ global, doc }) {
                     console.log('')
 
                     resolve({
-                        success: result.qSuccess,
-                        log: result.qScriptLogFile,
-                        script: scriptResult,
-                        scriptError: scriptError
+                        error: scriptError, message: {
+                            success: result.qSuccess,
+                            log: result.qScriptLogFile,
+                            script: scriptResult,
+                            scriptError: scriptError
+                        }
                     })
                 }, 1000)
             })
@@ -146,7 +169,7 @@ function reloadAndGetProgress({ global, doc }) {
 
                         let timestamp = new Date().toLocaleString("en-US", timestampOptions)
 
-                        if (msg.qErrorData.length > 0) {
+                        if (msg.qErrorData.length > 0 || msg.qPersistentProgress.toLowerCase().indexOf('script error.') > -1) {
                             reloaded = true
                             scriptError = true
                         }
@@ -182,16 +205,17 @@ function reloadAndGetProgress({ global, doc }) {
     })
 }
 
-async function createQlikSession(env) {
-    let envDetails = helpers.getEnvDetails(env)[0];
+async function createQlikSession({ environment, variables }) {
+    // let envDetails = helpers.getEnvDetails(env);
+    // if (envDetails.error) return envDetails
 
     let authenticationType = 'desktop'
 
-    if (envDetails.authentication) {
-        authenticationType = envDetails.authentication.type
+    if (environment.authentication) {
+        authenticationType = environment.authentication.type
     }
 
-    let qsEnt = await handleAuthenticationType[authenticationType](envDetails)
+    let qsEnt = await handleAuthenticationType[authenticationType]({ environment, variables })
 
     if (qsEnt.error) {
         console.log('')
@@ -201,11 +225,11 @@ async function createQlikSession(env) {
     try {
         const session = enigma.create({
             schema,
-            url: `${envDetails.host}/app/engineData`,
+            url: `${environment.host}/app/engineData/identity/${+new Date()}`,
             createSocket: url => new WebSocket(url, qsEnt)
         });
 
-        return { session, envDetails }
+        return { error: false, message: session }
     } catch (e) {
         console.log('')
         common.writeLog('err', e.message, true)
@@ -242,18 +266,25 @@ const handleAuthenticationType = {
             common.writeLog('err', e.message, true)
         }
     },
-    winform: async function (envDetails) {
+    winform: async function ({ environment, variables }) {
 
-        let credentials = getEnvCredentials()
+        let sessionHeaderName = 'X-Qlik-Session'
+        if (environment.authentication.sessionHeaderName) {
+            sessionHeaderName = environment.authentication.sessionHeaderName
+        }
+
+        if (variables.QLIK_USER.indexOf('\\') == -1) {
+            return { error: true, message: 'The username should in format DOMAIN\\USER' }
+        }
 
         let auth_config = {
             type: 'win',
             props: {
-                url: envDetails.host.replace('wss', 'https').replace('ws', 'http'),
+                url: environment.host.replace('wss', 'https').replace('ws', 'http'),
                 proxy: '',
-                username: credentials.user,
-                password: credentials.pwd,
-                header: envDetails.authentication.sessionHeaderName
+                username: variables.QLIK_USER,
+                password: variables.QLIK_PASSWORD,
+                header: sessionHeaderName
             }
         }
 
@@ -265,29 +296,13 @@ const handleAuthenticationType = {
 
         return {
             headers: {
-                'Cookie': `${envDetails.authentication.sessionHeaderName}=${sessionId.message}`,
+                'Cookie': `${sessionHeaderName}=${sessionId.message}`,
             }
         }
     },
     purewin: async function (envDetails) {
 
     }
-}
-
-function getEnvCredentials() {
-    if (!process.env.QLIK_USER) {
-        common.writeLog('err', `"QLIK_USER" variable is not set!`, true)
-    }
-
-    if(process.env.QLIK_USER.indexOf('\\') == -1) {
-        common.writeLog('err', `The username should in format DOMAIN\\USER`, true)
-    }
-
-    if (!process.env.QLIK_PASSWORD) {
-        common.writeLog('err', `"QLIK_PASSWORD" variable is not set!`, true)
-    }
-
-    return { user: process.env.QLIK_USER, pwd: process.env.QLIK_PASSWORD }
 }
 
 module.exports = {

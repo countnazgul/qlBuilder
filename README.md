@@ -50,6 +50,7 @@ Run one of the following commands from CMD/PowerShell
     * `s` or `set` - build, syntax check and set script
     * `r` or `rl` - build and set the script, reload the app and save. If any syntax error (during the build and set) the reload is not triggered
     * `c` or `clr` - clear console
+    * `?` - print these commands
     * `x` - exit 
 
 * `qlbuilder checkupdate` - compares the current version number to the remote one
@@ -76,7 +77,7 @@ For `QSE` with certificates the config will be:
     authentication:
       type: certificates
       certLocation: C:\path\to\cert\folder # the folder where the exported certificates are
-      user: DOMAN\UserName # domain or machine name + username
+      user: DOMAIN\UserName # domain or machine name + username
 ```
 
 For `QSE` with `JWT` the config will be:
@@ -105,15 +106,29 @@ For `QSE` with Windows/Form the config will be:
 
 `sessionHeaderName` - each Virtual Proxy should have a unique session cookie header name. The default value is `X-Qlik-Session`. If the default VP is used then this config value is not needed. `qlBuilder` will show warning message and will try to connect to Qlik with the default value. 
 
-Another point, when connecting with Window/Form method, is that username and password must be provided as environment variables (for now. I'm thinking of changing this part a bit) and these variables should be set before executing `qlBuilder` commands. The environment variables are:
+When connecting with Windows/Form method, then username and password must be provided. There are two way of providing these:
 
-* `QLIK_USER` - in format DOMAIN\username
-* `QLIK_PASSWORD`
+* `Windows` environment variables - set the variables before start running `qlbuilder` commands (see below how to set these)
 
-To set env variables:
+  * `QLIK_USER` - in format DOMAIN\username
+  * `QLIK_PASSWORD`
 
-* in CMD - `set QLIK_USER=DOMAIN\UserName`
-* in PowerShell - `$env:QLIK_PASSWORD="my_password"`
+  To set env variables:
+
+  * in CMD - `set QLIK_USER=DOMAIN\UserName`
+  * in PowerShell - `$env:QLIK_PASSWORD="my_password"`
+
+* `.qlbuilder.yml` config file - this file should be placed in your home folder (`c:\users\my-username`). The file contains the credentials for the Qlik environments. The name of the environments should match the ones in the local `config.yml`
+
+```
+dev:
+  QLIK_USER: DOMAIN\my-dev-user
+  QLIK_PASSWORD: my-dev-password
+prod:
+  QLIK_USER: DOMAIN\my-prod-user
+  QLIK_PASSWORD: my-prod-password
+...
+```
 
 You can have as many environments as you want (will make more sense when working with `QSE`). Make sure that the application ids are correct in each environment. `qlbuilder` will not create app if it cant find it and will throw an error.
 
@@ -151,7 +166,7 @@ In some cases the Prod environment app can be without the original (full) script
 
 * Tests - proper tests should be written!
 * `include` and `must_include` - (option) parse the script and get the content of the script that are included and get the content of these files as a separate tabs. This way the script will not be dependant on external files
-* different logic how to name the script files - instead of naming convention why not specify the other in the config file?
+* different logic how to name the script files - instead of naming convention why not specify the order in the config file?
 
 ---
 
