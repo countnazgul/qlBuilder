@@ -68,3 +68,5 @@ typings/
 launch.json
 .vscode/launch.json
 .vscode/launch.json
+src/test.js
+src/test.yml
