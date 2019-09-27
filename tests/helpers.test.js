@@ -1,7 +1,15 @@
 const helpers = require('../src/packages/helpers');
+const initialChecks = require('../src/packages/initialChecks');
 
 process.env.QLIK_USER = '.\test'
 process.env.QLIK_PASSWORD = 'my-password'
+
+test('initial checks', () => {
+    let envDetails = initialChecks.getEnvDetails('desktop')
+    expect(envDetails.error).toBe(false)
+});
+
+
 
 describe('Config environment', () => {
     test('Config file exists', () => {

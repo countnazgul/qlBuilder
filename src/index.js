@@ -2,7 +2,9 @@ const program = require('commander');
 const argsFunctions = require('./packages/argumentsFunctions');
 const helpers = require('./packages/helpers');
 const common = require('./packages/common');
+const initialChecks = require('./packages/initialChecks');
 const currentVersion = require('..\\package.json').version
+
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
@@ -26,10 +28,10 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('setscript [env]')
         .description('Build and set the script')
         .action(async function (envName) {
-            let initialChecks = helpers.initialChecks.combined(envName)
-            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+            let checks = initialChecks.combined(envName)
+            if (checks.error) common.writeLog('err', checks.message, true)
 
-            let setScript = await argsFunctions.setScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
+            let setScript = await argsFunctions.setScript({ environment: checks.message.env, variables: checks.message.variables })
             common.writeLog(setScript.error ? 'err' : 'ok', setScript.message, true)
         });
 
@@ -37,10 +39,10 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('getscript [env]')
         .description('Get the script from the target Qlik app and overwrite the local script')
         .action(async function (envName) {
-            let initialChecks = helpers.initialChecks.combined(envName)
-            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+            let checks = initialChecks.combined(envName)
+            if (checks.error) common.writeLog('err', checks.message, true)
 
-            let script = await argsFunctions.getScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
+            let script = await argsFunctions.getScript({ environment: checks.message.env, variables: checks.message.variables })
             common.writeLog(script.error ? 'err' : 'ok', script.message, true)
         });
 
@@ -48,10 +50,10 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('checkscript [env]')
         .description('Check local script for syntax errors')
         .action(async function (envName) {
-            let initialChecks = helpers.initialChecks.combined(envName)
-            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+            let checks = initialChecks.combined(envName)
+            if (checks.error) common.writeLog('err', checks.message, true)
 
-            let checkScript = await argsFunctions.checkScript({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
+            let checkScript = await argsFunctions.checkScript({ environment: checks.message.env, variables: checks.message.variables })
             common.writeLog(checkScript.error ? 'err' : 'ok', checkScript.message, true)
         });
 
@@ -61,12 +63,12 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .option('-r', 'Reload and save on each file change')
         .option('-s', 'Set script and save app on each file change')
         .action(async function (envName, options) {
-            let initialChecks = helpers.initialChecks.combined(envName)
-            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+            let checks = initialChecks.combined(envName)
+            if (checks.error) common.writeLog('err', checks.message, true)
 
             let watching = await argsFunctions.startWatching({
-                environment: initialChecks.message.env,
-                variables: initialChecks.message.variables,
+                environment: checks.message.env,
+                variables: checks.message.variables,
                 args: {
                     reload: options.R || false,
                     setScript: options.S || false,
@@ -80,8 +82,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .action(async function () {
             // the full initial checks are not required
             // just check if src and dist folders are present
-            let initialChecks = helpers.initialChecks.short()
-            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+            let checks = helpers.initialChecks.short()
+            if (checks.error) common.writeLog('err', checks.message, true)
 
             let buildScript = await argsFunctions.buildScript()
             if (buildScript.error) common.writeLog('err', buildScript.message, true)
@@ -93,10 +95,10 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('reload [env]')
         .description('Set script and reload the target app')
         .action(async function (envName) {
-            let initialChecks = helpers.initialChecks.combined(envName)
-            if (initialChecks.error) common.writeLog('err', initialChecks.message, true)
+            let checks = initialChecks.combined(envName)
+            if (checks.error) common.writeLog('err', checks.message, true)
 
-            let reload = await argsFunctions.reload({ environment: initialChecks.message.env, variables: initialChecks.message.variables })
+            let reload = await argsFunctions.reload({ environment: checks.message.env, variables: checks.message.variables })
             common.writeLog(reload.error ? 'err' : 'ok', reload.message, true)
         });
 

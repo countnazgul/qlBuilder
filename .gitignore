@@ -1,6 +1,7 @@
 test/
 test1/
 test2/
+test3/
 # dist/
 
 # Logs
@@ -67,4 +68,7 @@ typings/
 .vscode/launch.json
 launch.json
 .vscode/launch.json
+.vscode/launch.json
+src/test.js
+src/test.yml
 .vscode/launch.json

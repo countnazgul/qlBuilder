@@ -14,8 +14,11 @@ Migrate functions:
 
 Other:
     ✔ in the new function structure `writeLog` can accept the return object and print/exit based on the `error` @done(19-09-24 07:53)
+    ✔ move the initial checks part in separate module @done(19-09-26 23:01)
+    ✔ check initial checks functions. Seems that there might be duplicates and/or unused code there @done(19-09-27 09:04)
+    ✔ (thinking about Git) at the moment when creating a project the process will stop if the folder exists. If repo is cloned then the folder should exists and project should be created. @done(19-09-27 09:04)
 
 Testing:
-    ☐ Testing
+    ✔ Testing @done(19-09-26 23:03)
     ☐ Testing
     ☐ And more testing! :)

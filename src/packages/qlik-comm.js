@@ -206,8 +206,6 @@ function reloadAndGetProgress({ global, doc }) {
 }
 
 async function createQlikSession({ environment, variables }) {
-    // let envDetails = helpers.getEnvDetails(env);
-    // if (envDetails.error) return envDetails
 
     let authenticationType = 'desktop'
 
