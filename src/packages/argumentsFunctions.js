@@ -16,20 +16,43 @@ const qlikComm = require('./qlik-comm');
 const common = require('./common');
 
 const create = async function (project) {
-    let spinner = new Spinner('Creating ...');
-    spinner.setSpinnerString('◐◓◑◒');
-    spinner.start();
 
     if (!fs.existsSync(`${process.cwd()}/${project}`)) {
-        helpers.createInitFolders(project)
-        helpers.createInitialScriptFiles(project)
-        helpers.createInitConfig(project)
-        spinner.stop(true)
-        // common.writeLog('ok', 'All set', false)
-        return {error: false, message: 'All set'}
+        let folders = helpers.createInitFolders(project)
+        if (folders.error) return folders
+
+        let initScript = helpers.createInitialScriptFiles(project)
+        if (initScript.error) return initScript
+
+        let initConfig = helpers.createInitConfig(project)
+        if (initConfig.error) return initConfig
+
+        return { error: false, message: 'All set' }
+    }
+
+    const response = await prompts({
+        type: 'confirm',
+        name: 'value',
+        message: `Folder "${project}" already exists. Do you want to overwrite the SRC and DIST folders and config.yml (if they exists)?`,
+        initial: false
+    })
+
+    if (response.value == true) {
+        let reCreateSrc = helpers.reCreateFolders.src(project)
+        if (reCreateSrc.error) return reCreateSrc
+
+        let reCreateDist = helpers.reCreateFolders.dist(project)
+        if (reCreateDist.error) return reCreateDist
+
+        let writeScriptFiles = helpers.createInitialScriptFiles(project)
+        if (writeScriptFiles.error) return writeScriptFiles
+
+        let writeConfig = helpers.createInitConfig(project)
+        if (writeConfig.error) return writeConfig
+
+        return { error: false, message: 'All re-created' }
     } else {
-        spinner.stop(true)
-        return { error: true, message: `Folder "${project}" already exists` }
+        return { error: false, message: 'Ok. Nothing is performed' }
     }
 }
 
@@ -121,12 +144,10 @@ const startWatching = async function ({ environment, variables, args }) {
     rl.prompt();
 
     rl.on('line', async function (line) {
-        // User exit
         if (line.toLowerCase() === "x") {
             common.writeLog('ok', 'Bye!', true)
         }
 
-        // Clear screen
         if (line.toLowerCase() === "c" || line.toLowerCase() === "clr") {
             process.stdout.write("\u001b[2J\u001b[0;0H");
             console.log('Still here :)')
@@ -234,11 +255,7 @@ const checkForUpdate = async function () {
         let gitVersion = getGitData.data.version
 
         if (compareVersions(gitVersion, currentVersion, '>')) {
-            let message = `New version is available!
-Current version: ${currentVersion}
-Remote version: ${gitVersion}
-To install it run:
-npm install -g qlbuilder`
+            let message = messages.newVersion(currentVersion, gitVersion)
 
             return { error: false, message: message }
         } else {

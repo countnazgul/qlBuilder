@@ -2,8 +2,10 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const os = require('os');
 const path = require('path');
+const rimraf = require('rimraf');
 
 const common = require('./common');
+const messages = require('./messages');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
@@ -12,76 +14,35 @@ const createInitFolders = function (project) {
         fs.mkdirSync(`./${project}`)
         fs.mkdirSync(`./${project}/src`)
         fs.mkdirSync(`./${project}/dist`)
+
+        return { error: false, message: 'All folders were created' }
     } catch (e) {
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 
 const createInitialScriptFiles = function (project) {
-    let initialScriptContent = `SET ThousandSep=',';
-SET DecimalSep='.';
-SET MoneyThousandSep=',';
-SET MoneyDecimalSep='.';
-SET MoneyFormat='$#,##0.00;($#,##0.00)';
-SET TimeFormat='h:mm:ss TT';
-SET DateFormat='M/D/YYYY';
-SET TimestampFormat='M/D/YYYY h:mm:ss[.fff] TT';
-SET MonthNames='Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sep;Oct;Nov;Dec';
-SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';        
-    `
-    let changeLogContent = `// Script changes
-    
-//${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}: Automated: Script created 
-    `
-    fs.writeFileSync(`./${project}/src/0--Main.qvs`, initialScriptContent)
-    fs.writeFileSync(`./${project}/src/1--ChangeLog.qvs`, changeLogContent)
-    fs.writeFileSync(`./${project}/dist/LoadScript.qvs`, buildLoadScript(project))
+    try {
+        fs.writeFileSync(`./${project}/src/0--Main.qvs`, messages.script())
+        fs.writeFileSync(`./${project}/dist/LoadScript.qvs`, buildLoadScript(project))
+
+        return { error: false, message: 'Initial script files were generated' }
+
+    } catch (e) {
+        return { error: true, message: e.message }
+    }
 }
 
 const createInitConfig = function (project) {
 
-    let defaultConfig = [
-        {
-            "name": "desktop",
-            "host": "ws://localhost:4848",
-            "appId": `C:/Users/${os.userInfo().username}/Documents/Qlik/Sense/Apps/test.qvf`
-        },
-        {
-            "name": "qse",
-            "host": "wss://my-qs-engine-host:4747",
-            "appId": "12345678-1234-1234-1234-12345678901",
-            "authentication": {
-                "type": "certificates",
-                "certLocation": "C:/path/to/cert/folder",
-                "user": "DOMAIN\\username"
-            }
-        },
-        {
-            "name": "jwt",
-            "host": "wss://my-qs-engine-host/virtual-proxy-prefix",
-            "appId": "12345678-1234-1234-1234-12345678901",
-            "authentication": {
-                "type": "jwt",
-                "tokenLocation": "C:/path/to/jwt/file/location",
-                "sessionHeaderName": "X-Qlik-Session"
-            }
-        },
-        {
-            "name": "winform",
-            "host": "wss://my-qs-proxy",
-            "appId": "12345678-1234-1234-1234-12345678901",
-            "parseInclude": true,
-            "authentication": {
-                "type": "winform",
-                "sessionHeaderName": "X-Qlik-Session"
-            }
-        }
-    ]
+    let defaultConfig = messages.defaultConfig()
 
     try {
         fs.writeFileSync(`./${project}/config.yml`, yaml.dump(defaultConfig))
+
+        return { error: false, message: 'config.yml was created and populated with the default values' }
     } catch (e) {
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 
@@ -136,10 +97,56 @@ const clearLocalScript = async function () {
     }
 }
 
-
-
 const generateXrfkey = function (length) {
     return [...Array(length)].map(i => (~~(Math.random() * 36)).toString(36)).join('')
+}
+
+const reCreateFolders = {
+    src: function (project) {
+        let srcFolder = `./${project}/src`
+
+        if (!fs.existsSync(srcFolder)) {
+            try {
+                fs.mkdirSync(srcFolder)
+                return { error: false, message: 'SRC folder was created' }
+            } catch (e) {
+                return { error: true, message: e.message }
+            }
+        }
+
+        try {
+            rimraf.sync(srcFolder)
+            fs.mkdirSync(srcFolder)
+            return { error: false, message: 'SRC folder was re-created' }
+        } catch (e) {
+            return { error: true, message: e.message }
+        }
+    },
+    dist: function (project) {
+        let distFolder = `./${project}/dist`
+
+        if (!fs.existsSync(distFolder)) {
+            try {
+                fs.mkdirSync(distFolder)
+                return { error: false, message: 'DIST folder was created' }
+            } catch (e) {
+                return { error: true, message: e.message }
+            }
+        }
+
+        try {
+            rimraf.sync(distFolder)
+            fs.mkdirSync(distFolder)
+            return { error: false, message: 'DIST folder was re-created' }
+        } catch (e) {
+            return { error: true, message: e.message }
+        }
+    }
+    // config: function (project) {
+    //     // let confPath = `${project}/config.yml`
+    //     // if(!fs.ex)
+
+    // }
 }
 
 module.exports = {
@@ -150,5 +157,6 @@ module.exports = {
     writeLoadScript,
     readCert,
     clearLocalScript,
-    generateXrfkey
+    generateXrfkey,
+    reCreateFolders
 }
