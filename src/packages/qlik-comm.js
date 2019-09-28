@@ -45,7 +45,6 @@ const setScript = async function ({ environment, variables, script, doSave = tru
 
 const getScriptFromApp = async function ({ environment, variables }) {
 
-    // TODO: change createQlikSession to accept the full env detail and not to return it
     let session = await createQlikSession({ environment, variables })
 
     if (session.error) return session
@@ -169,7 +168,16 @@ function reloadAndGetProgress({ global, doc }) {
 
                         let timestamp = new Date().toLocaleString("en-US", timestampOptions)
 
-                        if (msg.qErrorData.length > 0 || msg.qPersistentProgress.toLowerCase().indexOf('script error.') > -1) {
+                        let loadError = false;
+
+                        try {
+                            loadError = msg.qPersistentProgress.toLowerCase().indexOf('script error.') > -1 ? true : false
+                        } catch (e) {
+
+                        }
+
+
+                        if (msg.qErrorData.length > 0 || loadError == true) {
                             reloaded = true
                             scriptError = true
                         }

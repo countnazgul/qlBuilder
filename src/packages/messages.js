@@ -23,7 +23,7 @@ const messages = {
                 'Commands during watch mode:\n',
                 '    - set script: s or set\n',
                 '    - reload app: r or rl\n',
-                '    - clear console: c or clr\n',
+                '    - clear console: c or cls\n',
                 '    - show this message again: ?\n',
                 '    - exit - x\n',
                 '(script is checked for syntax errors every time one of the qvs files is saved)\n'

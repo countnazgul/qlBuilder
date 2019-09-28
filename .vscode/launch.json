@@ -25,15 +25,15 @@
             "args": [
                 // "checkupdate"
                 // "build"
-                "setscript", "winform"
+                // "setscript", "winform"
                 // "checkscript", "winform"
                 // "watch",
                 // "winform",
                 // "-s"
                 // "reload", "winform"
-                // "watch", "qse"
+                "watch", "desktop"
                 // "-r"
-                // "create", "test"
+                // "create", "test1"
                 // "getscript", "winform"
             ]
         },

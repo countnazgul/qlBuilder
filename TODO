@@ -1,5 +1,7 @@
 Errors:
     ✔ return nice error message when unable to communicate with QS @done(19-09-24 07:53)
+    ☐ File change is not triggered on qvs file save? ... chokidar was wrong version?
+    ☐ @low Double print in watch mode and no syntax errors
 
 Migrate functions:
     ✔ create @done(19-09-23 08:28)
@@ -10,15 +12,19 @@ Migrate functions:
     ✔ checkupdate @done(19-09-20 08:23)
     ✔ build @done(19-09-20 08:10)
     ✔ getscript @done(19-09-20 08:10)
-    ☐ reloadAndGetProgress?
+    ☐ @low  reloadAndGetProgress?
 
 Other:
     ✔ in the new function structure `writeLog` can accept the return object and print/exit based on the `error` @done(19-09-24 07:53)
     ✔ move the initial checks part in separate module @done(19-09-26 23:01)
     ✔ check initial checks functions. Seems that there might be duplicates and/or unused code there @done(19-09-27 09:04)
     ✔ (thinking about Git) at the moment when creating a project the process will stop if the folder exists. If repo is cloned then the folder should exists and project should be created. @done(19-09-27 09:04)
+    ☐ @high  the env variables checks to include the other auth options (jwt, cert etc). At the moment only windows athu is handled
 
-Testing:
-    ✔ Testing @done(19-09-26 23:03)
-    ☐ Testing
+Testing:    
+    ☐ @high make sure that the workflow works ok with the other auth methods (not only windows)    
+    ☐ @high  re-test the communication errors - if QS is not reachable ... seems that qlik-auth module is failing there (for now)
+    ✔ low  full test with QS Desktop @done(19-09-27 18:14)
+    ✔ reload for desktop is failing? @done(19-09-27 18:14)
+    ☐ more test scripts to be added
     ☐ And more testing! :)
