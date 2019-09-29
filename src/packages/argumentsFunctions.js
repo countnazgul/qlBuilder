@@ -145,10 +145,11 @@ const startWatching = async function ({ environment, variables, args }) {
 
     rl.on('line', async function (line) {
         if (line.toLowerCase() === "x") {
+            process.stdout.write("\u001b[2J\u001b[0;0H");
             common.writeLog('ok', 'Bye!', true)
         }
 
-        if (line.toLowerCase() === "c" || line.toLowerCase() === "clr") {
+        if (line.toLowerCase() === "c" || line.toLowerCase() === "cls") {
             process.stdout.write("\u001b[2J\u001b[0;0H");
             console.log('Still here :)')
             rl.prompt();
@@ -183,13 +184,21 @@ const startWatching = async function ({ environment, variables, args }) {
 
         if (line == '?') console.log(messages.watch.commands())
 
+        common.writeLog('err', `Command "${line}" not found. Typ "?" to see list with all commands`, false)
         rl.prompt();
     })
 
-    const watcher = chokidar.watch('./src/**/*.qvs');
+    const watcher = chokidar.watch('./src/*.qvs', {
+        ignorePermissionErrors: true,
+        awaitWriteFinish: true,
+        ignoreInitial: true,
+        depth: 0
+    });
+
+
 
     watcher
-        .on('change', async function () {
+        .on('change', async function (fileName) {
             let script = await buildScript()
             if (script.error) common.writeLog('err', script.message, false)
 

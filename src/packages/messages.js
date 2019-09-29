@@ -23,7 +23,7 @@ const messages = {
                 'Commands during watch mode:\n',
                 '    - set script: s or set\n',
                 '    - reload app: r or rl\n',
-                '    - clear console: c or clr\n',
+                '    - clear console: c or cls\n',
                 '    - show this message again: ?\n',
                 '    - exit - x\n',
                 '(script is checked for syntax errors every time one of the qvs files is saved)\n'
@@ -70,7 +70,6 @@ const messages = {
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "authentication": {
                     "type": "jwt",
-                    "tokenLocation": "C:/path/to/jwt/file/location",
                     "sessionHeaderName": "X-Qlik-Session"
                 }
             },
