@@ -31,10 +31,10 @@
                 // "winform",
                 // "-s"
                 // "reload", "winform"
-                "watch", "desktop"
+                //"watch", "desktop"
                 // "-r"
                 // "create", "test1"
-                // "getscript", "winform"
+                "getscript", "cert"
             ]
         },
         {

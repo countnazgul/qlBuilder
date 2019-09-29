@@ -223,22 +223,18 @@ async function createQlikSession({ environment, variables }) {
 
     let qsEnt = await handleAuthenticationType[authenticationType]({ environment, variables })
 
-    if (qsEnt.error) {
-        console.log('')
-        common.writeLog('err', qsEnt.message, true)
-    }
+    if (qsEnt.error) return qsEnt
 
     try {
         const session = enigma.create({
             schema,
             url: `${environment.host}/app/engineData/identity/${+new Date()}`,
-            createSocket: url => new WebSocket(url, qsEnt)
+            createSocket: url => new WebSocket(url, qsEnt.message)
         });
 
         return { error: false, message: session }
     } catch (e) {
-        console.log('')
-        common.writeLog('err', e.message, true)
+        return { error: true, message: e.message }
     }
 }
 
@@ -246,30 +242,33 @@ const handleAuthenticationType = {
     desktop: async function () {
         return {}
     },
-    certificates: async function (envDetails) {
+    cert: async function ({ environment, variables }) {
+
+        if (variables.QLIK_USER.indexOf('\\') == -1) {
+            return { error: true, message: 'The username should be in format DOMAIN\\USER' }
+        }
+
         try {
             return {
-                ca: [helpers.readCert(envDetails.authentication.certLocation, 'root.pem')],
-                key: helpers.readCert(envDetails.authentication.certLocation, 'client_key.pem'),
-                cert: helpers.readCert(envDetails.authentication.certLocation, 'client.pem'),
-                headers: {
-                    'X-Qlik-User': `UserDirectory=${encodeURIComponent(envDetails.authentication.user.split('\\')[0])}; UserId=${encodeURIComponent(envDetails.authentication.user.split('\\')[1])}`,
-                },
+                error: false,
+                message: {
+                    ca: [helpers.readCert(variables.QLIK_CERTS, 'root.pem')],
+                    key: helpers.readCert(variables.QLIK_CERTS, 'client_key.pem'),
+                    cert: helpers.readCert(variables.QLIK_CERTS, 'client.pem'),
+                    headers: {
+                        'X-Qlik-User': `UserDirectory=${encodeURIComponent(variables.QLIK_USER.split('\\')[0])}; UserId=${encodeURIComponent(variables.QLIK_USER.split('\\')[1])}`,
+                    }
+                }
             }
         } catch (e) {
-            common.writeLog('err', e.message, true)
+            return { error: true, message: e.message }
         }
     },
-    jwt: async function (envDetails) {
-        try {
-            let tokenFileName = path.basename(envDetails.authentication.tokenLocation);
-            let tokenPath = path.dirname(envDetails.authentication.tokenLocation);
-
-            return {
-                headers: { Authorization: `Bearer ${helpers.readCert(tokenPath, tokenFileName)}` },
+    jwt: async function ({ environment, variables }) {
+        return {
+            error: false, message: {
+                headers: { Authorization: `Bearer ${variables.QLIK_TOKEN}` },
             }
-        } catch (e) {
-            common.writeLog('err', e.message, true)
         }
     },
     winform: async function ({ environment, variables }) {
@@ -280,7 +279,7 @@ const handleAuthenticationType = {
         }
 
         if (variables.QLIK_USER.indexOf('\\') == -1) {
-            return { error: true, message: 'The username should in format DOMAIN\\USER' }
+            return { error: true, message: 'The username should be in format DOMAIN\\USER' }
         }
 
         let auth_config = {
@@ -305,9 +304,6 @@ const handleAuthenticationType = {
                 'Cookie': `${sessionHeaderName}=${sessionId.message}`,
             }
         }
-    },
-    purewin: async function (envDetails) {
-
     }
 }
 

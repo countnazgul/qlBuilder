@@ -145,6 +145,7 @@ const startWatching = async function ({ environment, variables, args }) {
 
     rl.on('line', async function (line) {
         if (line.toLowerCase() === "x") {
+            process.stdout.write("\u001b[2J\u001b[0;0H");
             common.writeLog('ok', 'Bye!', true)
         }
 
@@ -183,6 +184,7 @@ const startWatching = async function ({ environment, variables, args }) {
 
         if (line == '?') console.log(messages.watch.commands())
 
+        common.writeLog('err', `Command "${line}" not found. Typ "?" to see list with all commands`, false)
         rl.prompt();
     })
 

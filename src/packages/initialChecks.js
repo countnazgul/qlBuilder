@@ -8,12 +8,16 @@ function getEnvDetails(env) {
     if (config.error) return config
     if (config.message.length == 0) return { error: true, message: `No environments found in the config file` }
 
-    let envDetails = config.message.filter(confEnv => confEnv.name == env);
+    try {
+        let envDetails = config.message.filter(confEnv => confEnv.name == env);
 
-    if (envDetails.length == 0) return { error: true, message: `The specified environment (${env}) do not exists in the config` }
-    if (envDetails.length > 1) return { error: true, message: `Multiple environments with the same name - ${env}` }
+        if (envDetails.length == 0) return { error: true, message: `The specified environment (${env}) do not exists in the config` }
+        if (envDetails.length > 1) return { error: true, message: `Multiple environments with the same name - ${env}` }
 
-    return { error: false, message: envDetails }
+        return { error: false, message: envDetails }
+    } catch (e) {
+        return { error: true, message: e.message }
+    }
 }
 
 function loadConfig() {
@@ -95,6 +99,7 @@ const envVariablesCheck = {
     auth_config: {
         winform: ['QLIK_USER', 'QLIK_PASSWORD'],
         jwt: ['QLIK_TOKEN'],
+        cert: ['QLIK_CERTS', 'QLIK_USER'],
         noVar: []
     },
     homeConfig: function (environment) {
@@ -131,7 +136,6 @@ const envVariablesCheck = {
         }
 
         return variablesContent
-
     },
     variables: function (auth_type) {
         if (!envVariablesCheck.auth_config[auth_type]) {

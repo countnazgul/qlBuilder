@@ -70,7 +70,6 @@ const messages = {
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "authentication": {
                     "type": "jwt",
-                    "tokenLocation": "C:/path/to/jwt/file/location",
                     "sessionHeaderName": "X-Qlik-Session"
                 }
             },
