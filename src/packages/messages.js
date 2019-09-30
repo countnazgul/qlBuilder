@@ -1,4 +1,5 @@
 const os = require('os');
+const chalk = require('chalk');
 
 const messages = {
     watch: {
@@ -17,6 +18,9 @@ const messages = {
 
             return rows.join('')
         },
+        disableChecks: function () {
+            return chalk.yellow(`Auto syntax checks is disabled! Please use "e" or "err" anytime syntax check is required`)
+        },
         commands: function () {
             let rows = [
                 '\n',
@@ -24,6 +28,7 @@ const messages = {
                 '    - set script: s or set\n',
                 '    - reload app: r or rl\n',
                 '    - clear console: c or cls\n',
+                '    - check for syntax errors: e or err\n',
                 '    - show this message again: ?\n',
                 '    - exit - x\n',
                 '(script is checked for syntax errors every time one of the qvs files is saved)\n'

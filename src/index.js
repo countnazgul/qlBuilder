@@ -62,6 +62,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .description('Start qlBuilder in watch mode')
         .option('-r', 'Reload and save on each file change')
         .option('-s', 'Set script and save app on each file change')
+        .option('-d', 'Disable the auto syntax error check')
         .action(async function (envName, options) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
@@ -72,6 +73,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
                 args: {
                     reload: options.R || false,
                     setScript: options.S || false,
+                    disableChecks: options.D || false,
                 }
             })
         });
@@ -80,9 +82,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('build')
         .description('Combine the tab script files into one')
         .action(async function () {
-            // the full initial checks are not required
-            // just check if src and dist folders are present
-            let checks = helpers.initialChecks.short()
+            let checks = initialChecks.short()
             if (checks.error) common.writeLog('err', checks.message, true)
 
             let buildScript = await argsFunctions.buildScript()

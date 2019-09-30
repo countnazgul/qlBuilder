@@ -46,16 +46,18 @@ Run one of the following commands from CMD/PowerShell
     * saves the `qvs` files into `src` folder
 
 
-* `qlbuilder watch [env]` - enters in watch mode. The default behavior is to build and check the script syntax on any `*.qvs` file inside `src` folder. Can accept two additional flags:
+* `qlbuilder watch [env]` - enters in watch mode. The default behavior is to build and check the script syntax on any `*.qvs` file inside `src` folder. Can accept three additional flags:
 
     * `-r` - reloads the script on any `qvs` file change
     * `-s` - sets the script (and save the app) on any `qvs` file change
+    * `-d` - disable the auto check for syntax errors. By default the script will check for syntax errors on each save (connects to QS and checks the script for errors against session/temp app)
 
     Inside `watch` mode the console is active and the developer can perform additional actions. Just type one of the letters/commands below in the console to trigger them:
 
     * `s` or `set` - build, syntax check and set script
     * `r` or `rl` - build and set the script, reload the app and save. If any syntax error (during the build and set) the reload is not triggered
     * `c` or `clr` - clear console
+    * `e` or `err` - check for syntax errors (**useful only if the watch mode is started with `-d` argument**)
     * `?` - print these commands
     * `x` - exit 
 

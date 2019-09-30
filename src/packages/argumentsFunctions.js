@@ -4,16 +4,16 @@ const readline = require('readline');
 const compareVersions = require('compare-versions');
 const axios = require('axios');
 const filenamify = require('filenamify');
-const Spinner = require('cli-spinner').Spinner;
-Spinner.setDefaultSpinnerDelay(200)
 const prompts = require('prompts');
 
 const currentVersion = require('..\\..\\package.json').version
 const messages = require('./messages');
-
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
 const common = require('./common');
+const parseLine = require('./readLine');
+const argHelpers = require('./argHelpers')
+
 
 const create = async function (project) {
 
@@ -56,25 +56,6 @@ const create = async function (project) {
     }
 }
 
-const buildScript = async function () {
-    let loadScript = helpers.buildLoadScript()
-
-    let writeScript = helpers.writeLoadScript(loadScript)
-    if (writeScript.error) return writeScript
-
-    return ({ error: false, message: loadScript })
-}
-
-const setScript = async function ({ environment, variables }) {
-    let script = await buildScript()
-    if (script.error) return script
-
-    let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
-    if (setScript.error) return setScript
-
-    return { error: false, message: setScript.message }
-}
-
 const getScript = async function ({ environment, variables }) {
 
     const response = await prompts({
@@ -103,30 +84,20 @@ const getScript = async function ({ environment, variables }) {
     }
 }
 
-const checkScript = async function ({ environment, variables, script }) {
-    let spinner = new Spinner('Checking for syntax errors ...');
-    spinner.setSpinnerString('☱☲☴');
-    spinner.start();
+const buildScript = function () {
+    return argHelpers.buildScript()
+}
 
-    let loadScript = ''
+const checkScript = async function ({ environment, variables }) {
+    let script = await buildScript()
+    if (script.error) return script
 
-    if (script) {
-        let script = await buildScript()
-        if (script.error) return script
+    let result = await argHelpers.checkScript({ environment, variables, script })
+    return result
+}
 
-        loadScript = script.message
-    }
-
-    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: loadScript })
-    if (scriptResult.error) return scriptResult
-
-    spinner.stop(true)
-
-    if (scriptResult.message.length > 0) {
-        displayScriptErrors(scriptResult.message)
-        return { error: true, message: 'Syntax errors found!' }
-    }
-    return { error: false, message: 'No syntax errors were found' }
+const setScript = async function ({ environment, variables, script }) {
+    return await argHelpers.setScript({ environment, variables, script })
 }
 
 const startWatching = async function ({ environment, variables, args }) {
@@ -134,6 +105,8 @@ const startWatching = async function ({ environment, variables, args }) {
     console.log(messages.watch.commands())
 
     if (args.reload) console.log(messages.watch.reload())
+
+    if (args.disableChecks) console.log(messages.watch.disableChecks())
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -144,48 +117,12 @@ const startWatching = async function ({ environment, variables, args }) {
     rl.prompt();
 
     rl.on('line', async function (line) {
-        if (line.toLowerCase() === "x") {
-            process.stdout.write("\u001b[2J\u001b[0;0H");
-            common.writeLog('ok', 'Bye!', true)
-        }
+        let result = await parseLine({ environment, variables, line: line })
 
-        if (line.toLowerCase() === "c" || line.toLowerCase() === "cls") {
-            process.stdout.write("\u001b[2J\u001b[0;0H");
-            console.log('Still here :)')
-            rl.prompt();
-            return { error: true, message: 'Bye!' }
-        }
+        common.writeLog(result.error ? 'err' : 'ok', result.message, result.exit)
 
-        // Reload app
-        if (line.toLowerCase() === "rl" || line.toLowerCase() === "r") {
-            let script = await buildScript()
-            if (script.error) common.writeLog('err', script.message, true)
-
-            let reload = await qlikComm.reloadApp({ environment, variables, script: script.message })
-            if (reload.error) {
-                common.writeLog('err', reload.message, false)
-                rl.prompt();
-                return { error: true, message: reload.message }
-            }
-        }
-
-        // Set script
-        if (line.toLowerCase() === "s" || line.toLowerCase() == "set") {
-            let script = await buildScript()
-            if (script.error) common.writeLog('err', script.message, true)
-
-            common.writeLog('ok', 'Script was build', false)
-
-            let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
-            if (setScript.error) common.writeLog('err', setScript.message, true)
-
-            common.writeLog('ok', setScript.message, false)
-        }
-
-        if (line == '?') console.log(messages.watch.commands())
-
-        common.writeLog('err', `Command "${line}" not found. Typ "?" to see list with all commands`, false)
         rl.prompt();
+        // rl.prompt();
     })
 
     const watcher = chokidar.watch('./src/*.qvs', {
@@ -195,46 +132,14 @@ const startWatching = async function ({ environment, variables, args }) {
         depth: 0
     });
 
-
-
     watcher
         .on('change', async function (fileName) {
-            let script = await buildScript()
-            if (script.error) common.writeLog('err', script.message, false)
+            if (!args.disableChecks) {
+                let result = await argHelpers.onFileChange({ environment, variables, args })
 
-            let checkLoadScript = await checkScript({ environment, variables, script: script.message })
-            if (checkLoadScript.error) {
-                common.writeLog('err', checkLoadScript.message, false)
+                common.writeLog(result.error ? 'err' : 'ok', result.message, result.exit)
                 rl.prompt();
-                return { error: true, message: checkLoadScript.message }
             }
-
-            common.writeLog('ok', checkLoadScript.message, false)
-
-            // if only SetScript is set
-            if (!args.reload && args.setScript) {
-                let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
-                if (setScript.error) {
-                    common.writeLog('err', setScript.message, true)
-                    // return { error: true, message: setScript.message }
-                }
-
-                common.writeLog('ok', setScript.message, false)
-            }
-
-            // if Reload is set AND/OR SetScript is set
-            if (args.reload) {
-                let reload = await qlikComm.reloadApp({ environment, variables, script: script.message })
-                if (reload.error) {
-                    common.writeLog('err', reload.message, true)
-                    // rl.prompt();
-                    // return { error: true, message: reload.message }
-                }
-
-                common.writeLog('ok', reload.message, false)
-            }
-
-            rl.prompt();
         })
 }
 
@@ -246,7 +151,7 @@ const reload = async function ({ environment, variables }) {
     if (scriptResult.error) return scriptResult
 
     if (scriptResult.message.length > 0) {
-        displayScriptErrors(scriptResult.message)
+        argHelpers.displayScriptErrors(scriptResult.message)
         return { error: true, message: 'Syntax errors found!' }
     }
 
@@ -276,27 +181,6 @@ const checkForUpdate = async function () {
         console.log('')
         return { error: true, message: `Unable to get the remote version number :'(` }
     }
-}
-
-function displayScriptErrors(scriptResultObj) {
-    let scriptFiles = fs.readdirSync(`./src`).filter(function (f) {
-        return f.indexOf('.qvs') > -1
-    })
-
-    let scriptErrorsPrimary = scriptResultObj.filter(function (e) {
-        return !e.qSecondaryFailure
-    })
-
-    for (let scriptError of scriptErrorsPrimary) {
-        let tabScript = fs.readFileSync(`./src/${scriptFiles[scriptError.qTabIx]}`).toString().split('\n')
-
-        console.log(`
-Tab : ${scriptFiles[scriptError.qTabIx]} 
-Line: ${scriptError.qLineInTab} 
-Code: ${tabScript[scriptError.qLineInTab - 1]}`)
-    }
-
-
 }
 
 function writeScriptToFiles(scriptTabs) {
