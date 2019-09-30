@@ -4,7 +4,7 @@
 
 ## Motivation
 
-`qlbuilder` is a CLI tool which is ran from command prompt (or PowerShell). The tool allows Qlik Sense developers to write their Qlik scripts on the local machine and:
+`qlbuilder` is a CLI tool which is ran from command prompt. The tool allows Qlik Sense developers to write their Qlik scripts on the local machine and:
 
 * set the build script in Qlik app
 * reload app
@@ -14,7 +14,7 @@
 
 > npm install -g qlbuilder
 
-Once the global package is installed you can use `qlbuilder` command from anywhere
+Once the global package is installed you can use `qlbuilder` command from any folder
 
 ## How to use?
 
@@ -82,8 +82,6 @@ For `QSE` with certificates the config will be:
     appId: 12345678-1234-1234-1234-12345678901 # app ID
     authentication:
       type: certificates
-      certLocation: C:\path\to\cert\folder # the folder where the exported certificates are
-      user: DOMAIN\UserName # domain or machine name + username
 ```
 
 For `QSE` with `JWT` the config will be:
@@ -94,7 +92,7 @@ For `QSE` with `JWT` the config will be:
     appId: 12345678-1234-1234-1234-12345678901a # app ID
     authentication:
       type: jwt
-      tokenLocation: C:\path\to\jwt\file\location # full path location to the file where the jwt file is
+      sessionHeaderName: X-Qlik-Session-jwt # (optional) see below
 ```
 When working with `jwt` port is not required. If `JWt` is not the main method for authentication then the Virtual Proxy prefix need to be provided. For more information how to set this please check this  
 [Qlik Support article](https://support.qlik.com/articles/000034966)
@@ -112,32 +110,43 @@ For `QSE` with Windows/Form the config will be:
 
 `sessionHeaderName` - each Virtual Proxy should have a unique session cookie header name. The default value is `X-Qlik-Session`. If the default VP is used then this config value is not needed. `qlBuilder` will show warning message and will try to connect to Qlik with the default value. 
 
-When connecting with Windows/Form method, then username and password must be provided. There are two way of providing these:
+## Environment variables and home config
 
-* `Windows` environment variables - set the variables before start running `qlbuilder` commands (see below how to set these)
+For security reasons (mainly to avoid commiting users and password) `qlbuilder` expects some environment variables to be set before start. The content of the variables can be pre-set using `.qlbuilder.yml` config file in the user home folder (see below)
 
+**Environment variables**
+* `Windows` 
   * `QLIK_USER` - in format DOMAIN\username
   * `QLIK_PASSWORD`
 
-  To set env variables:
+  > To set env variables:
+  > * in CMD - `set QLIK_USER=DOMAIN\UserName`
+  >* in PowerShell - `$env:QLIK_PASSWORD="my_password"`
 
-  * in CMD - `set QLIK_USER=DOMAIN\UserName`
-  * in PowerShell - `$env:QLIK_PASSWORD="my_password"`
+* `JWT` requires one environment variable to be set
+  * `QLIK_TOKEN` - the content of the jwt token
+* `Cert`
+  * `QLIK_CERTS`- the folder location where the certificates are stored. The script will search for 3 certificates - `root.pem`, `client_key.pem` and `client.pem`
+  * `QLIK_USER` - usename in format `DOMAIN\UserName`
 
-* `.qlbuilder.yml` config file - this file should be placed in your home folder (`c:\users\my-username`). The file contains the credentials for the Qlik environments. The name of the environments should match the ones in the local `config.yml`
+**Home config**
 
-```
+`.qlbuilder.yml` config file - this file should be placed in your home folder (`c:\users\my-username`). The file contains the credentials for the Qlik environments. The name of the environments should match the ones in the local `config.yml`
+
+```yml
 dev:
   QLIK_USER: DOMAIN\my-dev-user
   QLIK_PASSWORD: my-dev-password
 prod:
   QLIK_USER: DOMAIN\my-prod-user
   QLIK_PASSWORD: my-prod-password
+dev_jwt:
+  QLIK_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiw...
+prod_cert:
+  QLIK_CERTS: c:\path\to\cert\folder
+  QLIK_USER: DOMAIN\UserName
 ...
 ```
-
-You can have as many environments as you want (will make more sense when working with `QSE`). Make sure that the application ids are correct in each environment. `qlbuilder` will not create app if it cant find it and will throw an error.
-
 The environment name is used as an command argument (so try not to have spaces in the environment names)
 
 ## Naming script files
