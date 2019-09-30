@@ -26,7 +26,9 @@ Other:
         ✔ jwt @done(19-09-29 21:08)
         ☐ cert
     ☐ @low validate JSON schema - config.yml?
-    ☐ Update readme with the latest changes related to jwt and cert env variables
+    ✔ Update readme with the latest changes related to jwt and cert env variables @done(19-09-30 07:13)
+    ✔ add option to not check script on save. The default will check on save as usual @done(19-09-30 08:22)
+    ✔ all realine logic should be in separate module. Handling errors is not nice if left as it is @done(19-09-30 14:54)
 
 Testing:    
     ✔ @high  re-test the communication errors - if QS is not reachable ... seems that qlik-auth module is failing there (for now) @done(19-09-30 03:10)

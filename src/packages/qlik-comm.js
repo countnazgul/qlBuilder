@@ -107,6 +107,7 @@ const reloadApp = async function ({ environment, variables, script }) {
         if (reloadResult.error) {
             spinner.stop(true);
             await session.message.close()
+            console.log('');
             return { error: true, message: 'Error during reload' }
         }
 
@@ -115,7 +116,7 @@ const reloadApp = async function ({ environment, variables, script }) {
 
         spinner.stop(true);
 
-        return { error: false, message: 'App was reloaded and document was saved' }
+        return { error: false, message: 'App was reloaded and saved' }
 
     } catch (e) {
         return { error: true, message: e.message }
@@ -300,8 +301,11 @@ const handleAuthenticationType = {
         }
 
         return {
-            headers: {
-                'Cookie': `${sessionHeaderName}=${sessionId.message}`,
+            error: false,
+            message: {
+                headers: {
+                    'Cookie': `${sessionHeaderName}=${sessionId.message}`,
+                }
             }
         }
     }
