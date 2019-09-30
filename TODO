@@ -25,11 +25,11 @@ Other:
     ☐ @high make sure that the workflow works ok with the other auth methods (not only windows)    
         ✔ jwt @done(19-09-29 21:08)
         ☐ cert
-    ☐ ?validate JSON schema - config.yml
+    ☐ @low validate JSON schema - config.yml?
     ☐ Update readme with the latest changes related to jwt and cert env variables
 
 Testing:    
-    ☐ @high  re-test the communication errors - if QS is not reachable ... seems that qlik-auth module is failing there (for now)
+    ✔ @high  re-test the communication errors - if QS is not reachable ... seems that qlik-auth module is failing there (for now) @done(19-09-30 03:10)
     ✔ low  full test with QS Desktop @done(19-09-27 18:14)
     ✔ reload for desktop is failing? @done(19-09-27 18:14)
     ☐ more test scripts to be added
