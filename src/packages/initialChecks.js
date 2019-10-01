@@ -1,6 +1,7 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 const homedir = require('os').homedir();
+const chalk = require('chalk');
 
 function getEnvDetails(env) {
 
