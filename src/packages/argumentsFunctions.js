@@ -27,6 +27,9 @@ const create = async function (project) {
         let initConfig = helpers.createInitConfig(project)
         if (initConfig.error) return initConfig
 
+        let gitIgnore = helpers.createGitIgnoreFile(project)
+        if (gitIgnore.error) return gitIgnore
+
         return { error: false, message: 'All set' }
     }
 
@@ -49,6 +52,9 @@ const create = async function (project) {
 
         let writeConfig = helpers.createInitConfig(project)
         if (writeConfig.error) return writeConfig
+
+        let gitIgnore = helpers.createGitIgnoreFile(project)
+        if (gitIgnore.error) return gitIgnore
 
         return { error: false, message: 'All re-created' }
     } else {

@@ -1,10 +1,10 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
-const os = require('os');
+// const os = require('os');
 const path = require('path');
 const rimraf = require('rimraf');
 
-const common = require('./common');
+// const common = require('./common');
 const messages = require('./messages');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
@@ -41,6 +41,27 @@ const createInitConfig = function (project) {
         fs.writeFileSync(`./${project}/config.yml`, yaml.dump(defaultConfig))
 
         return { error: false, message: 'config.yml was created and populated with the default values' }
+    } catch (e) {
+        return { error: true, message: e.message }
+    }
+}
+
+const createGitIgnoreFile = function (project) {
+
+    // append if gitignore already exists
+    if (fs.existsSync(`./${project}/.gitignore`)) {
+        try {
+            fs.appendFileSync(`./${project}/.gitignore`, '\nsession.txt')
+            return { error: false, message: 'append' }
+        } catch (e) {
+            return { error: true, message: e.message }
+        }
+    }
+
+    // create if gitignore do not exists
+    try {
+        fs.writeFileSync(`./${project}/.gitignore`, 'session.txt')
+        return { error: false, message: 'gitignore was created' }
     } catch (e) {
         return { error: true, message: e.message }
     }
@@ -152,6 +173,7 @@ const reCreateFolders = {
 module.exports = {
     createInitFolders,
     createInitialScriptFiles,
+    createGitIgnoreFile,
     createInitConfig,
     buildLoadScript,
     writeLoadScript,
