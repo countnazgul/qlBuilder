@@ -1,39 +1,41 @@
-Errors:
-    ✔ return nice error message when unable to communicate with QS @done(19-09-24 07:53)
-    ✔ File change is not triggered on qvs file save? ... chokidar was wrong version? @done(19-09-28 07:36)
-    ✔ Double print in watch mode and no syntax errors @done(19-09-28 07:36)
-
-Migrate functions:
-    ✔ create @done(19-09-23 08:28)
-    ✔ setscript @done(19-09-23 16:20)
-    ✔ checkscript @done(19-09-23 16:45)
-    ✔ watch @done(19-09-24 07:51)
-    ✔ reload @done(19-09-23 18:00)
-    ✔ checkupdate @done(19-09-20 08:23)
-    ✔ build @done(19-09-20 08:10)
-    ✔ getscript @done(19-09-20 08:10)
-    ✔ reloadAndGetProgress? @done(19-09-30 16:47)
-
 Other:
-    ✔ in the new function structure `writeLog` can accept the return object and print/exit based on the `error` @done(19-09-24 07:53)
-    ✔ move the initial checks part in separate module @done(19-09-26 23:01)
-    ✔ check initial checks functions. Seems that there might be duplicates and/or unused code there @done(19-09-27 09:04)
-    ✔ (thinking about Git) at the moment when creating a project the process will stop if the folder exists. If repo is cloned then the folder should exists and project should be created. @done(19-09-27 09:04)
-    ✔ the env variables checks to include the other auth options (jwt, cert etc). At the moment only windows auth is handled @done(19-09-29 21:08)
-        ✔ jwt @done(19-09-29 20:32)
-        ✔ cert @done(19-09-29 21:08)
     ☐ @high make sure that the workflow works ok with the other auth methods (not only windows)    
-        ✔ jwt @done(19-09-29 21:08)
         ☐ cert
     ☐ @low validate JSON schema - config.yml?
-    ✔ Update readme with the latest changes related to jwt and cert env variables @done(19-09-30 07:13)
-    ✔ add option to not check script on save. The default will check on save as usual @done(19-09-30 08:22)
-    ✔ all realine logic should be in separate module. Handling errors is not nice if left as it is @done(19-09-30 14:54)
+    ☐ option to enctypt values in `.qlbuilder`?
     ☐ @low config - specify secure option and stop using the ws/wss in the host
 
 Testing:    
-    ✔ re-test the communication errors - if QS is not reachable ... seems that qlik-auth module is failing there (for now) @done(19-09-30 03:10)
-    ✔ low  full test with QS Desktop @done(19-09-27 18:14)
-    ✔ reload for desktop is failing? @done(19-09-27 18:14)
     ☐ more test scripts to be added
     ☐ And more testing! :)
+
+Archive:
+  ✔ create `.gitignore` file when creating the inital folders/files. @done(19-10-03 08:26) @project(Other)
+  ✔ add `sessions.txt` entry there @done(19-10-03 08:26) @project(Other)
+  ✔ run `build` after `qlbuilder getcript ...` @done(19-10-03 08:02) @project(Other)
+  ✔ return nice error message when unable to communicate with QS @done(19-09-24 07:53) @project(Errors)
+  ✔ File change is not triggered on qvs file save? ... chokidar was wrong version? @done(19-09-28 07:36) @project(Errors)
+  ✔ Double print in watch mode and no syntax errors @done(19-09-28 07:36) @project(Errors)
+  ✔ create @done(19-09-23 08:28) @project(Migrate functions)
+  ✔ setscript @done(19-09-23 16:20) @project(Migrate functions)
+  ✔ checkscript @done(19-09-23 16:45) @project(Migrate functions)
+  ✔ watch @done(19-09-24 07:51) @project(Migrate functions)
+  ✔ reload @done(19-09-23 18:00) @project(Migrate functions)
+  ✔ checkupdate @done(19-09-20 08:23) @project(Migrate functions)
+  ✔ build @done(19-09-20 08:10) @project(Migrate functions)
+  ✔ getscript @done(19-09-20 08:10) @project(Migrate functions)
+  ✔ reloadAndGetProgress? @done(19-09-30 16:47) @project(Migrate functions)
+  ✔ in the new function structure `writeLog` can accept the return object and print/exit based on the `error` @done(19-09-24 07:53) @project(Other)
+  ✔ move the initial checks part in separate module @done(19-09-26 23:01) @project(Other)
+  ✔ check initial checks functions. Seems that there might be duplicates and/or unused code there @done(19-09-27 09:04) @project(Other)
+  ✔ (thinking about Git) at the moment when creating a project the process will stop if the folder exists. If repo is cloned then the folder should exists and project should be created. @done(19-09-27 09:04) @project(Other)
+  ✔ the env variables checks to include the other auth options (jwt, cert etc). At the moment only windows auth is handled @done(19-09-29 21:08) @project(Other)
+  ✔ jwt @done(19-09-29 20:32) @project(Other)
+  ✔ cert @done(19-09-29 21:08) @project(Other)
+  ✔ jwt @done(19-09-29 21:08) @project(Other)
+  ✔ Update readme with the latest changes related to jwt and cert env variables @done(19-09-30 07:13) @project(Other)
+  ✔ add option to not check script on save. The default will check on save as usual @done(19-09-30 08:22) @project(Other)
+  ✔ all realine logic should be in separate module. Handling errors is not nice if left as it is @done(19-09-30 14:54) @project(Other)
+  ✔ re-test the communication errors - if QS is not reachable ... seems that qlik-auth module is failing there (for now) @done(19-09-30 03:10) @project(Testing)
+  ✔ low  full test with QS Desktop @done(19-09-27 18:14) @project(Testing)
+  ✔ reload for desktop is failing? @done(19-09-27 18:14) @project(Testing)

@@ -1,8 +1,12 @@
 {
   "name": "qlbuilder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CLI helper tool for Qlik Sense developers to allow write script locally and update in remote app",
-  "author": "Stefan Stoichev <@countnazgul> (https://sstoichev.eu)",
+  "author": {
+    "email": "stefan.stoichev@gmail.com",
+    "name": "Stefan Stoichev @countnazgul",
+    "url": "https://sstoichev.eu"
+  },
   "main": "./src/index.js",
   "preferGlobal": true,
   "bin": {

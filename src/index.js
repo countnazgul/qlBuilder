@@ -44,6 +44,9 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
             let script = await argsFunctions.getScript({ environment: checks.message.env, variables: checks.message.variables })
             common.writeLog(script.error ? 'err' : 'ok', script.message, true)
+
+            let buildScript = await argsFunctions.buildScript()
+            common.writeLog(buildScript.error ? 'err' : 'ok', buildScript.message, true)
         });
 
     program
