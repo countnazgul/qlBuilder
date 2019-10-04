@@ -73,3 +73,4 @@ launch.json
 src/test.js
 src/test.yml
 .vscode/launch.json
+.vscode/settings.json

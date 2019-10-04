@@ -67,12 +67,13 @@ Run one of the following commands from CMD/PowerShell
 
 The `create` command will create few folders and `config.yml` file. The config file is pre-populated with example values. This file specifies Qlik environments (dev, test, prod etc.)
 
-The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `ws://localhost:4848` and the app that we will target there is `qlbuilder Test.qvf`
+The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `localhost:4848` and the app that we will target there is `qlbuilder Test.qvf`
 
 ```yaml
 qlik-environments:
   - name: desktop
-    host: ws://localhost:4848
+    host: localhost:4848
+    secure: false
     appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
 ```    
 
@@ -80,7 +81,7 @@ For `QSE` with certificates the config will be:
 
 ```yaml
   - name: prod
-    host: wss://192.168.0.100:4747 # IP/FQDN of QS engine (central node)
+    host: 192.168.0.100:4747 # IP/FQDN of QS engine (central node)
     appId: 12345678-1234-1234-1234-12345678901 # app ID
     authentication:
       type: certificates
@@ -90,7 +91,7 @@ For `QSE` with `JWT` the config will be:
 
 ```yaml
   - name: jwt
-    host: wss://192.168.0.100/virtual-proxy-prefix  # IP/FQDN with of the virtual proxy (see below)
+    host: 192.168.0.100/virtual-proxy-prefix  # IP/FQDN with of the virtual proxy (see below)
     appId: 12345678-1234-1234-1234-12345678901a # app ID
     authentication:
       type: jwt
@@ -103,18 +104,20 @@ For `QSE` with Windows/Form the config will be:
 
 ```yaml
   - name: uat
-    host: wss://192.168.0.100/virtual-proxy-prefix  # IP/FQDN with of the virtual proxy (if needed)
+    host: 192.168.0.100/virtual-proxy-prefix  # IP/FQDN with of the virtual proxy (if needed)
     appId: 12345678-1234-1234-1234-12345678901a # app ID
     authentication:
       type: winform
       sessionHeaderName: X-Qlik-Session-Win # (optional) see below
 ```
 
+By default `qlbuilder` will try and connect through `https`/`wss`. If the environment is QS Desktop or the communication is done via `http`/`ws` then `secure: false` need to be added to the environment configuration
+
 `sessionHeaderName` - each Virtual Proxy should have a unique session cookie header name. The default value is `X-Qlik-Session`. If the default VP is used then this config value is not needed. `qlBuilder` will show warning message and will try to connect to Qlik with the default value. 
 
 ## Environment variables and home config
 
-For security reasons (mainly to avoid commiting users and password) `qlbuilder` expects some environment variables to be set before start. The content of the variables can be pre-set using `.qlbuilder.yml` config file in the user home folder (see below)
+For security reasons (mainly to avoid commit users and password) `qlbuilder` expects some environment variables to be set before start. The content of the variables can be pre-set using `.qlbuilder.yml` config file in the user home folder (see below)
 
 **Environment variables**
 * `Windows` 
@@ -129,7 +132,7 @@ For security reasons (mainly to avoid commiting users and password) `qlbuilder` 
   * `QLIK_TOKEN` - the content of the jwt token
 * `Cert`
   * `QLIK_CERTS`- the folder location where the certificates are stored. The script will search for 3 certificates - `root.pem`, `client_key.pem` and `client.pem`
-  * `QLIK_USER` - usename in format `DOMAIN\UserName`
+  * `QLIK_USER` - username in format `DOMAIN\UserName`
 
 **Home config**
 

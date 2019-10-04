@@ -229,7 +229,7 @@ async function createQlikSession({ environment, variables }) {
     try {
         const session = enigma.create({
             schema,
-            url: `${environment.host}/app/engineData/identity/${+new Date()}`,
+            url: `${environment.engineHost}/app/engineData/identity/${+new Date()}`,
             createSocket: url => new WebSocket(url, qsEnt.message)
         });
 
@@ -286,7 +286,7 @@ const handleAuthenticationType = {
         let auth_config = {
             type: 'win',
             props: {
-                url: environment.host.replace('wss', 'https').replace('ws', 'http'),
+                url: environment.host,
                 proxy: '',
                 username: variables.QLIK_USER,
                 password: variables.QLIK_PASSWORD,
