@@ -6,7 +6,7 @@ const axios = require('axios');
 const filenamify = require('filenamify');
 const prompts = require('prompts');
 
-const currentVersion = require('..\\..\\package.json').version
+const currentVersion = require('../../package.json').version
 const messages = require('./messages');
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
@@ -200,7 +200,7 @@ function writeScriptToFiles(scriptTabs) {
 
                 let scriptContent = rows.slice(1, rows.length).join('\r\n')
 
-                fs.writeFileSync(`${process.cwd()}\\src\\${i}--${tabNameSafe}.qvs`, scriptContent)
+                fs.writeFileSync(`${process.cwd()}/src/${i}--${tabNameSafe}.qvs`, scriptContent)
             }
         }
         return { error: false, message: 'Local script files were created' }
