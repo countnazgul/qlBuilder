@@ -99,7 +99,7 @@ const writeLoadScript = function (script) {
 }
 
 const readCert = function (certPath, filename) {
-    return fs.readFileSync(`${certPath}\\${filename}`);
+    return fs.readFileSync(`${certPath}/${filename}`);
 }
 
 const clearLocalScript = async function () {
