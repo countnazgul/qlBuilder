@@ -56,12 +56,14 @@ const messages = {
         return [
             {
                 "name": "desktop",
-                "host": "ws://localhost:4848",
+                "host": "localhost:4848",
+                "secure": false,
                 "appId": `C:/Users/${os.userInfo().username}/Documents/Qlik/Sense/Apps/test.qvf`
             },
             {
                 "name": "qse",
-                "host": "wss://my-qs-engine-host:4747",
+                "host": "my-qs-engine-host:4747",
+                "secure": true,
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "authentication": {
                     "type": "certificates",
@@ -71,7 +73,8 @@ const messages = {
             },
             {
                 "name": "jwt",
-                "host": "wss://my-qs-engine-host/virtual-proxy-prefix",
+                "host": "my-qs-engine-host/virtual-proxy-prefix",
+                "secure": true,                
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "authentication": {
                     "type": "jwt",
@@ -80,7 +83,8 @@ const messages = {
             },
             {
                 "name": "winform",
-                "host": "wss://my-qs-proxy",
+                "host": "my-qs-proxy",
+                "secure": true,                
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "parseInclude": true,
                 "authentication": {

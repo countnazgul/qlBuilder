@@ -1,15 +1,21 @@
 Other:
+    ☐ @low validate JSON schema - config.yml?    
     ☐ @high make sure that the workflow works ok with the other auth methods (not only windows)    
         ☐ cert
-    ☐ @low validate JSON schema - config.yml?
-    ☐ option to enctypt values in `.qlbuilder`?
-    ☐ @low config - specify secure option and stop using the ws/wss in the host
 
-Testing:    
+Testing: 
     ☐ more test scripts to be added
-    ☐ And more testing! :)
+
+Features:
+    ☐ `include` / `must_include` - generate script function with the actual code and call the function instead of the statement
+    ☐ different way(s) to organise the script files. Functional approach? config?
+    ☐ option to enctypt values in `.qlbuilder`?
 
 Archive:
+  ✔ @low config - specify secure option and stop using the `ws`/`wss` in the host @done(19-10-04 18:16) @project(Other)
+  ✔ update related parts for ws/wss change @done(19-10-04 17:59) @project(Other)
+  ✔ documentation @done(19-10-04 17:59) @project(Other)
+  ✔ initial files generation @done(19-10-04 17:59) @project(Other)
   ✔ create `.gitignore` file when creating the inital folders/files. @done(19-10-03 08:26) @project(Other)
   ✔ add `sessions.txt` entry there @done(19-10-03 08:26) @project(Other)
   ✔ run `build` after `qlbuilder getcript ...` @done(19-10-03 08:02) @project(Other)

@@ -15,6 +15,10 @@ function getEnvDetails(env) {
         if (envDetails.length == 0) return { error: true, message: `The specified environment (${env}) do not exists in the config` }
         if (envDetails.length > 1) return { error: true, message: `Multiple environments with the same name - ${env}` }
 
+        if (!envDetails[0].hasOwnProperty('secure')) envDetails[0].secure = true
+        envDetails[0].engineHost = `${envDetails[0].secure ? 'wss' : 'ws'}://${envDetails[0].host}`
+        envDetails[0].host = `${envDetails[0].secure ? 'https' : 'http'}://${envDetails[0].host}`
+
         return { error: false, message: envDetails }
     } catch (e) {
         return { error: true, message: e.message }
