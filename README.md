@@ -61,6 +61,8 @@ Run one of the following commands from CMD/PowerShell
     * `?` - print these commands
     * `x` - exit 
 
+* `qlbuilder encode` - encode the provided string. To avoid storing passwords in plain text we can use this command to encode the windows password(s) and paste the returned string in `.qlbuilder.yml`. This is applied when authentication is `Windows` for `QLIK_PASSWORD` value. **Encoding QLIK_PASSWORD is not needed when using environment variables. Only for .qlbuilder.yml!**
+
 * `qlbuilder checkupdate` - compares the current version number to the remote one
 
 ## config.yml

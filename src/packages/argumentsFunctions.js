@@ -189,6 +189,38 @@ const checkForUpdate = async function () {
     }
 }
 
+const encode = {
+    ask: async function () {
+        try {
+            const response = await prompts({
+                type: 'password',
+                name: 'value',
+                message: 'Your secret string here:'
+            })
+
+            return { error: false, message: response.value }
+        } catch (e) {
+            return { error: false, message: e.message }
+        }
+    },
+    encodeBase: function (secretString) {
+        return { error: false, message: Buffer.from(secretString).toString('base64') }
+    },
+    combined: async function () {
+        let secretString = await this.ask()
+        if (secretString.error) return secretString
+
+        let encodedString = this.encodeBase(secretString.message)
+
+        return { error: false, message: encodedString.message }
+    }
+}
+
+const decode = function (encodedString) {
+    let decodedString = Buffer.from(encodedString, 'base64').toString()
+    return { error: false, message: decodedString }
+}
+
 function writeScriptToFiles(scriptTabs) {
     try {
         for (let [i, tab] of scriptTabs.entries()) {
@@ -217,5 +249,7 @@ module.exports = {
     reload,
     startWatching,
     checkForUpdate,
-    getScript
+    getScript,
+    encode,
+    decode
 }

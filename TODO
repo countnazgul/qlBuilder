@@ -1,17 +1,20 @@
 Other:
+    ☐ @low search for `yaml` files as well. not only `yml`
     ☐ @low validate JSON schema - config.yml?    
     ☐ @high make sure that the workflow works ok with the other auth methods (not only windows)    
         ☐ cert
 
 Testing: 
     ☐ more test scripts to be added
+    ☐ quick check with Linux environment
 
 Features:
     ☐ `include` / `must_include` - generate script function with the actual code and call the function instead of the statement
     ☐ different way(s) to organise the script files. Functional approach? config?
-    ☐ option to enctypt values in `.qlbuilder`?
 
 Archive:
+  ✔ option to encrypt values in `.qlbuilder`? @done(19-10-08 18:19) @project(Features)
+  ✔ `btoa` the password at least @done(19-10-08 18:19) @project(Features)
   ✔ @low config - specify secure option and stop using the `ws`/`wss` in the host @done(19-10-04 18:16) @project(Other)
   ✔ update related parts for ws/wss change @done(19-10-04 17:59) @project(Other)
   ✔ documentation @done(19-10-04 17:59) @project(Other)

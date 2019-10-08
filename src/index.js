@@ -106,6 +106,15 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         });
 
     program
+        .command('encode')
+        .description('Encode the provided string. Used when encoding the credentials password')
+        .action(async function () {
+            let encoded = await argsFunctions.encode.combined()
+
+            common.writeLog(encoded.error ? 'err' : 'ok', encoded.message, true)
+        });
+
+    program
         .command('checkupdate')
         .description('Check for qlBuilder updates')
         .action(async function () {
