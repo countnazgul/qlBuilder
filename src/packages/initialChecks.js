@@ -118,6 +118,10 @@ const envVariablesCheck = {
             return { error: true, message: 'config exists but there is no env config there' }
         }
 
+        if (!config[environment].authentication.encoding) {
+            config[environment].authentication.encoding = true
+        }
+        config[environment].isHomeConfig = true
         return { error: false, message: config[environment] }
     },
     homeConfigEnvironmentsCheck: function (auth_type, homeVariables) {
@@ -140,15 +144,17 @@ const envVariablesCheck = {
             variablesContent.message[eVar] = homeVariables[eVar]
         }
 
+        // variablesContent.message['isHomeConfig'] = true
+
         return variablesContent
     },
     variables: function (auth_type) {
         if (!envVariablesCheck.auth_config[auth_type]) {
-            return { error: true, message: 'the required type was not found' }
+            return { error: true, message: 'The required type was not found' }
         }
 
         if (auth_type == 'noVar') {
-            return { error: false, message: 'the required type do not need any variables' }
+            return { error: false, message: 'The required type do not require any variables' }
         }
 
         let variablesContent = { error: false, message: {} }
@@ -160,7 +166,6 @@ const envVariablesCheck = {
             }
 
             variablesContent.message[eVar] = process.env[eVar]
-
         }
 
         return variablesContent

@@ -216,11 +216,6 @@ const encode = {
     }
 }
 
-const decode = function (encodedString) {
-    let decodedString = Buffer.from(encodedString, 'base64').toString()
-    return { error: false, message: decodedString }
-}
-
 function writeScriptToFiles(scriptTabs) {
     try {
         for (let [i, tab] of scriptTabs.entries()) {
@@ -250,6 +245,5 @@ module.exports = {
     startWatching,
     checkForUpdate,
     getScript,
-    encode,
-    decode
+    encode
 }

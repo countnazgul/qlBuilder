@@ -1,6 +1,6 @@
 {
   "name": "qlbuilder",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "CLI helper tool for Qlik Sense developers to allow write script locally and update in remote app",
   "author": {
     "email": "stefan.stoichev@gmail.com",
@@ -37,6 +37,7 @@
     "compare-versions": "^3.5.1",
     "enigma.js": "^2.4.0",
     "filenamify": "^4.1.0",
+    "is-base64": "^1.0.0",
     "js-yaml": "^3.13.1",
     "prompts": "^2.1.0",
     "qlik-sense-authenticate": "^0.1.8",

@@ -41,7 +41,13 @@ const writeLog = function (type, message, exit) {
 
 }
 
+const decode = function (encodedString) {
+    let decodedString = Buffer.from(encodedString, 'base64').toString()
+    return { error: false, message: decodedString }
+}
+
 module.exports = {
     writeLog,
-    write
+    write,
+    decode
 }

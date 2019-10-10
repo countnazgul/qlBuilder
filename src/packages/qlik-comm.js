@@ -1,4 +1,4 @@
-const path = require("path");
+const isBase64 = require('is-base64');
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
 const schema = require('enigma.js/schemas/12.170.2.json');
@@ -281,6 +281,17 @@ const handleAuthenticationType = {
 
         if (variables.QLIK_USER.indexOf('\\') == -1) {
             return { error: true, message: 'The username should be in format DOMAIN\\USER' }
+        }
+
+        // decode the password only if the password is comming from .qlbuilder.yml
+        // and encoding != false in the env config (the used dont want to use encoded password)
+        if (variables.isHomeConfig && environment.authentication.encoding) {
+            if (!isBase64(variables.QLIK_PASSWORD)) {
+                return { error: true, message: 'Please do not store passwords in plain text! Use "qlbuilder encode" to get the encoded version of the password and update the yml entry' }
+            }
+
+            let decodedPassword = common.decode(variables.QLIK_PASSWORD)
+            variables.QLIK_PASSWORD = decodedPassword.message
         }
 
         let auth_config = {
