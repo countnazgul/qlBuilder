@@ -1,5 +1,4 @@
 Other:
-    ☐ set script to multiple apps (by request https://github.com/countnazgul/qlBuilder/issues/17) @high 
     ☐ reload progress - script tuning (https://github.com/countnazgul/qlBuilder/issues/19) @high 
     ☐ set authentication == none when no authentication is needed @high 
     ☐ @low validate JSON schema - config.yml?
@@ -15,6 +14,7 @@ Features:
     ☐ different way(s) to organise the script files. Functional approach? config?
 
 Archive:
+  ✔ set script to multiple apps (by request https://github.com/countnazgul/qlBuilder/issues/17) @high @done(19-11-12 18:42) @project(Other)
   ✔ Wrong script tab order after build (https://github.com/countnazgul/qlBuilder/issues/18) @high @done(19-11-12 18:38) @project(Other)
   ✔ option to encrypt values in `.qlbuilder`? @done(19-10-08 18:19) @project(Features)
   ✔ `btoa` the password at least @done(19-10-08 18:19) @project(Features)
