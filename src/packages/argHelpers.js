@@ -5,6 +5,7 @@ const fs = require('fs');
 
 const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
+const common = require('./common');
 
 const buildScript = async function () {
     let loadScript = helpers.buildLoadScript()
@@ -51,6 +52,22 @@ const setScript = async function ({ environment, variables }) {
 
     let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
     if (setScript.error) return setScript
+
+    if(environment.otherApps && environment.otherApps.length > 0) {
+        await Promise.all(environment.otherApps.map(async function(a) {
+            let tempEnvironment = environment
+            tempEnvironment.appId = a
+            
+            common.write.log({error: 'info', message: `Setting script for ${a}`, exit: false})
+            let additionalSetScript = await qlikComm.setScript({ environment: tempEnvironment, variables, script: script.message })
+            common.write.log({error:'false', message: `Script set for ${a}`, exit: false})
+
+            return additionalSetScript
+        }))
+        .then(function() {
+            return { error: false, message: setScript.message }
+        })
+    }
 
     return { error: false, message: setScript.message }
 }

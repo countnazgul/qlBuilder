@@ -175,7 +175,7 @@ const envVariablesCheck = {
 
         let envVariables = { error: false, message: 'No environment variables are required. QS desktop' }
 
-        if (envConfig.host.indexOf(':4848') == -1) {
+        if (envConfig.host.indexOf(':4848') == -1 && envConfig.host.indexOf(':9076') == -1) {
             // its not QS desktop
             envVariables = envVariablesCheck.variables(envConfig.authentication.type)
         }

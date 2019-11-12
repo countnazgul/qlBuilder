@@ -3,6 +3,7 @@ const yaml = require('js-yaml');
 // const os = require('os');
 const path = require('path');
 const rimraf = require('rimraf');
+const { orderBy } = require('natural-orderby');
 
 // const common = require('./common');
 const messages = require('./messages');
@@ -76,6 +77,8 @@ const buildLoadScript = function (initProject) {
     let scriptFiles = fs.readdirSync(`./${projectFolder}src`).filter(function (f) {
         return f.indexOf('.qvs') > -1
     })
+
+    scriptFiles = orderBy(scriptFiles)
 
     let buildScript = []
     for (let file of scriptFiles) {

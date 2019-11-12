@@ -283,8 +283,8 @@ const handleAuthenticationType = {
             return { error: true, message: 'The username should be in format DOMAIN\\USER' }
         }
 
-        // decode the password only if the password is comming from .qlbuilder.yml
-        // and encoding != false in the env config (the used dont want to use encoded password)
+        // decode the password only if the password is coming from .qlbuilder.yml
+        // and encoding != false in the env config (the used don't want to use encoded password)
         if (variables.isHomeConfig && environment.authentication.encoding) {
             if (!isBase64(variables.QLIK_PASSWORD)) {
                 return { error: true, message: 'Please do not store passwords in plain text! Use "qlbuilder encode" to get the encoded version of the password and update the yml entry' }
