@@ -102,8 +102,8 @@ const checkScript = async function ({ environment, variables }) {
     return result
 }
 
-const setScript = async function ({ environment, variables, script }) {
-    return await argHelpers.setScript({ environment, variables, script })
+const setScript = async function ({ environment, variables, args }) {
+    return await argHelpers.setScript({ environment, variables, args })
 }
 
 const startWatching = async function ({ environment, variables, args }) {

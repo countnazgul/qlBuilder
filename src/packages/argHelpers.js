@@ -46,27 +46,29 @@ const checkScript = async function ({ environment, variables, script }) {
     return { error: false, message: 'No syntax errors were found' }
 }
 
-const setScript = async function ({ environment, variables }) {
+const setScript = async function ({ environment, variables, args }) {
     let script = await buildScript()
     if (script.error) return script
 
     let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
     if (setScript.error) return setScript
 
-    if(environment.otherApps && environment.otherApps.length > 0) {
-        await Promise.all(environment.otherApps.map(async function(a) {
-            let tempEnvironment = environment
-            tempEnvironment.appId = a
-            
-            common.write.log({error: 'info', message: `Setting script for ${a}`, exit: false})
-            let additionalSetScript = await qlikComm.setScript({ environment: tempEnvironment, variables, script: script.message })
-            common.write.log({error:'false', message: `Script set for ${a}`, exit: false})
+    if(args.setAll) {
+        if(environment.otherApps && environment.otherApps.length > 0) {
+            await Promise.all(environment.otherApps.map(async function(a) {
+                let tempEnvironment = environment
+                tempEnvironment.appId = a
+                
+                common.write.log({error: 'info', message: `Setting script for ${a}`, exit: false})
+                let additionalSetScript = await qlikComm.setScript({ environment: tempEnvironment, variables, script: script.message })
+                common.write.log({error:'false', message: `Script set for ${a}`, exit: false})
 
-            return additionalSetScript
-        }))
-        .then(function() {
-            return { error: false, message: setScript.message }
-        })
+                return additionalSetScript
+            }))
+            .then(function() {
+                return { error: false, message: setScript.message }
+            })
+        }
     }
 
     return { error: false, message: setScript.message }

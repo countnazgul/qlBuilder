@@ -27,11 +27,18 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('setscript [env]')
         .description('Build and set the script')
-        .action(async function (envName) {
+        .option('-a', 'Set the same script to all additional apps as well')        
+        .action(async function (envName, options) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
 
-            let setScript = await argsFunctions.setScript({ environment: checks.message.env, variables: checks.message.variables })
+            let setScript = await argsFunctions.setScript({
+                 environment: checks.message.env, 
+                 variables: checks.message.variables,
+                 args: {
+                     setAll: options.A || false
+                 }
+                })
             common.writeLog(setScript.error ? 'err' : 'ok', setScript.message, true)
         });
 
