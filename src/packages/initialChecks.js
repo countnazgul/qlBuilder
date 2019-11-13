@@ -118,9 +118,10 @@ const envVariablesCheck = {
             return { error: true, message: 'config exists but there is no env config there' }
         }
 
-        if (!config[environment].authentication.encoding) {
-            config[environment].authentication.encoding = true
-        }
+        // if (!config[environment].authentication.encoding) {
+        //     config[environment].authentication.encoding = true
+        // }
+
         config[environment].isHomeConfig = true
         return { error: false, message: config[environment] }
     },
@@ -144,7 +145,7 @@ const envVariablesCheck = {
             variablesContent.message[eVar] = homeVariables[eVar]
         }
 
-        // variablesContent.message['isHomeConfig'] = true
+        variablesContent.message['isHomeConfig'] = true
 
         return variablesContent
     },

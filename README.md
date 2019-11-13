@@ -40,6 +40,8 @@ Run one of the following commands from CMD/PowerShell
     * sets the new script
     * saves the app
 
+* `qlbuilder setscript [env] -a` - same as `setscript` but in addition the same script is set to all other apps, defined in the `config.yml`
+
 * `qlbuilder getscript [env]` - (the opposite of `setscript`) get the remote script, split it to tabs and save the files to `scr` folder. `config.yml` should present to indicate from which env/app to extract the script
     * connects to Qlik and get the script from desired app - `env` is the environment name from `config.yml`
     * split the script into tabs/files
@@ -55,6 +57,7 @@ Run one of the following commands from CMD/PowerShell
     Inside `watch` mode the console is active and the developer can perform additional actions. Just type one of the letters/commands below in the console to trigger them:
 
     * `s` or `set` - build, syntax check and set script
+    * `sa` or `setall` - build, syntax check and set the same script to the main app and all other apps
     * `r` or `rl` - build and set the script, reload the app and save. If any syntax error (during the build and set) the reload is not triggered
     * `c` or `clr` - clear console
     * `e` or `err` - check for syntax errors (**useful only if the watch mode is started with `-d` argument**)
@@ -72,12 +75,16 @@ The `create` command will create few folders and `config.yml` file. The config f
 The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `localhost:4848` and the app that we will target there is `qlbuilder Test.qvf`
 
 ```yaml
-qlik-environments:
-  - name: desktop
-    host: localhost:4848
-    secure: false
-    appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
+- name: desktop
+  host: localhost:4848
+  secure: false
+  appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
+  otherApps:
+    - C:\Users\MyUserName\Documents\Qlik\Sense\Apps\TestApp1.qvf
+    - C:\Users\MyUserName\Documents\Qlik\Sense\Apps\TestApp2.qvf
 ```    
+
+(Take a look at the example above for how to specify `otherApps`. Used for setting the same script to additional apps)
 
 For `QSE` with certificates the config will be:
 
