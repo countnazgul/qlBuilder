@@ -8,7 +8,7 @@ const { orderBy } = require('natural-orderby');
 // const common = require('./common');
 const messages = require('./messages');
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 const createInitFolders = function (project) {
     try {

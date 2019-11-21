@@ -2,6 +2,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const homedir = require('os').homedir();
 const chalk = require('chalk');
+const common = require('./common');
 
 function getEnvDetails(env) {
 
@@ -176,9 +177,10 @@ const envVariablesCheck = {
 
         let envVariables = { error: false, message: 'No environment variables are required. QS desktop' }
 
-        if (envConfig.host.indexOf(':4848') == -1 && envConfig.host.indexOf(':9076') == -1) {
-            // its not QS desktop
+        if(envConfig.authentication) {
             envVariables = envVariablesCheck.variables(envConfig.authentication.type)
+        } else {
+            common.write.log({error: 'info', message: 'No authentication is provided. Will try and connect directly!', exit: false})
         }
 
         // both env var and home config are in error

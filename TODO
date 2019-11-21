@@ -1,8 +1,9 @@
 Other:
+    ☐ @low `NODE_TLS_REJECT_UNAUTHORIZED` should be a setting and not hardcoded (https://github.com/countnazgul/qlBuilder/issues/20)
     ☐ reload progress - script tuning (https://github.com/countnazgul/qlBuilder/issues/19) @high 
-    ☐ set authentication == none when no authentication is needed @high 
+    ☐ @medium (not problem with `qlbuilder` itself but ...) sometimes when `session.txt` is present `qlik-sense-authenticate` is complaning ... lowdly 
     ☐ @low validate JSON schema - config.yml?
-    ☐ @high make sure that the workflow works ok with the other auth methods (not only windows)
+    ☐ @low make sure that the workflow works ok with the other auth methods
         ☐ cert
 
 Testing: 
@@ -14,6 +15,7 @@ Features:
     ☐ different way(s) to organise the script files. Functional approach? config?
 
 Archive:
+  ✔ set authentication == none when no authentication is needed @high @done(19-11-13 18:11) @project(Other)
   ✔ set script to multiple apps (by request https://github.com/countnazgul/qlBuilder/issues/17) @high @done(19-11-12 18:42) @project(Other)
   ✔ Wrong script tab order after build (https://github.com/countnazgul/qlBuilder/issues/18) @high @done(19-11-12 18:38) @project(Other)
   ✔ option to encrypt values in `.qlbuilder`? @done(19-10-08 18:19) @project(Features)

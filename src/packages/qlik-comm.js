@@ -230,7 +230,7 @@ async function createQlikSession({ environment, variables }) {
         const session = enigma.create({
             schema,
             url: `${environment.engineHost}/app/engineData/identity/${+new Date()}`,
-            createSocket: url => new WebSocket(url, qsEnt.message)
+            createSocket: url => new WebSocket(url, {headers: qsEnt.message.headers , rejectUnauthorized: true})
         });
 
         return { error: false, message: session }
@@ -301,7 +301,8 @@ const handleAuthenticationType = {
                 proxy: '',
                 username: variables.QLIK_USER,
                 password: variables.QLIK_PASSWORD,
-                header: sessionHeaderName
+                header: sessionHeaderName,
+                rejectUnauthorized: false
             }
         }
 
