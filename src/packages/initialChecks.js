@@ -106,7 +106,7 @@ const envVariablesCheck = {
         winform: ['QLIK_USER', 'QLIK_PASSWORD'],
         jwt: ['QLIK_TOKEN'],
         cert: ['QLIK_CERTS', 'QLIK_USER'],
-        saas: ['TOKEN'],
+        saas: ['QLIK_TOKEN'],
         noVar: []
     },
     homeConfig: function (environment) {

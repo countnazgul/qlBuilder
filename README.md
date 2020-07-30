@@ -43,6 +43,9 @@ Run one of the following commands from CMD/PowerShell
 * `qlbuilder setscript [env] -a` - same as `setscript` but in addition the same script is set to all other apps, defined in the `config.yml`
 
 * `qlbuilder getscript [env]` - (the opposite of `setscript`) get the remote script, split it to tabs and save the files to `scr` folder. `config.yml` should present to indicate from which env/app to extract the script
+    * `-y` - optional flag. If present will get the script and overwrite the local files without prompt (the default behavior is to ask if you are sure to overwrite)
+
+    Steps:
     * connects to Qlik and get the script from desired app - `env` is the environment name from `config.yml`
     * split the script into tabs/files
     * saves the `qvs` files into `src` folder
@@ -121,6 +124,16 @@ For `QSE` with Windows/Form the config will be:
       sessionHeaderName: X-Qlik-Session-Win # (optional) see below
 ```
 
+For `Qlik Saas` and `Qlik for Kubernetes` (ex Qlik Cloud for Business) with Windows/Form the config will be:
+
+```yaml
+  - name: saas
+    host: tenant-name.eu.qlikcloud.com
+    appId: 12345678-1234-1234-1234-12345678901a # app ID
+    authentication:
+      type: saas
+```
+
 By default `qlbuilder` will try and connect through `https`/`wss`. If the environment is QS Desktop or the communication is done via `http`/`ws` then `secure: false` need to be added to the environment configuration
 
 `sessionHeaderName` - each Virtual Proxy should have a unique session cookie header name. The default value is `X-Qlik-Session`. If the default VP is used then this config value is not needed. `qlBuilder` will show warning message and will try to connect to Qlik with the default value. 
@@ -143,6 +156,8 @@ For security reasons (mainly to avoid commit users and password) `qlbuilder` exp
 * `Cert`
   * `QLIK_CERTS`- the folder location where the certificates are stored. The script will search for 3 certificates - `root.pem`, `client_key.pem` and `client.pem`
   * `QLIK_USER` - username in format `DOMAIN\UserName`
+* `Saas`
+  * `QLIK_TOKEN` - the API key, generated from the user settings panel
 
 **Home config**
 

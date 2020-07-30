@@ -268,7 +268,7 @@ const handleAuthenticationType = {
     jwt: async function ({ environment, variables }) {
         return {
             error: false, message: {
-                headers: { Authorization: `Bearer ${variables.TOKEN}` },
+                headers: { Authorization: `Bearer ${variables.QLIK_TOKEN}` },
             }
         }
     },
@@ -326,7 +326,7 @@ const handleAuthenticationType = {
             error: false,
             message: {
                 headers: {
-                    'Authorization': `Bearer ${variables.TOKEN}`,
+                    'Authorization': `Bearer ${variables.QLIK_TOKEN}`,
                 }
             }
         }
