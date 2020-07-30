@@ -29,26 +29,26 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.0",
-    "chalk": "^2.4.2",
-    "chokidar": "^3.2.0",
+    "axios": "^0.19.2",
+    "chalk": "^4.1.0",
+    "chokidar": "^3.4.1",
     "cli-spinner": "^0.2.10",
-    "commander": "^2.20.0",
-    "compare-versions": "^3.5.1",
-    "enigma.js": "^2.4.0",
+    "commander": "^6.0.0",
+    "compare-versions": "^3.6.0",
+    "enigma.js": "^2.7.1",
     "filenamify": "^4.1.0",
-    "js-yaml": "^3.13.1",
-    "prompts": "^2.1.0",
+    "js-yaml": "^3.14.0",
+    "prompts": "^2.3.2",
     "qlik-sense-authenticate": "^0.1.8",
     "querystring": "^0.2.0",
-    "rimraf": "^3.0.0",
-    "ws": "^7.1.1"
+    "rimraf": "^3.0.2",
+    "ws": "^7.3.1"
   },
   "engines": {
     "node": ">=8"
   },
   "devDependencies": {
-    "jest": "^24.9.0"
+    "jest": "^26.1.0"
   },
   "jest": {
     "testEnvironment": "node"
