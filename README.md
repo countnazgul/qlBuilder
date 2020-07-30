@@ -71,7 +71,7 @@ Run one of the following commands from CMD/PowerShell
 
 * `qlbuilder checkupdate` - compares the current version number to the remote one
 
-## config.yml
+## config.yml 
 
 The `create` command will create few folders and `config.yml` file. The config file is pre-populated with example values. This file specifies Qlik environments (dev, test, prod etc.)
 
