@@ -4,7 +4,10 @@ test2/
 test3/
 temp_git/
 # dist/
-
+tests/src
+tests/dist
+tests/config.yml
+tests/session.txt
 # Logs
 logs
 *.log
@@ -74,3 +77,4 @@ src/test.js
 src/test.yml
 .vscode/launch.json
 .vscode/settings.json
+tests/config.yml

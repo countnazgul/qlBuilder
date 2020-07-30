@@ -31,11 +31,18 @@ const readline = async function ({ environment, variables, line }) {
         if (script.error) return script
 
         common.writeLog('ok', 'Script was build', false)
-
+        
         let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
         if (setScript.error) return setScript
 
         return setScript
+    }
+
+    if (line.toLowerCase() === "sa" || line.toLowerCase() == "setall") {
+        let setAllScripts = await argHelpers.setScript({environment, variables, args: { setAll: true }})
+        if (setAllScripts.error) return setScript        
+
+        return setAllScripts
     }
 
     if (line.toLowerCase() === "rl" || line.toLowerCase() === "r") {

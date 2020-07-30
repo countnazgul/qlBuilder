@@ -62,16 +62,22 @@ const create = async function (project) {
     }
 }
 
-const getScript = async function ({ environment, variables }) {
+const getScript = async function ({ environment, variables, args }) {
 
-    const response = await prompts({
-        type: 'confirm',
-        name: 'value',
-        message: 'This will overwrite all local files. Are you sure?',
-        initial: false
-    })
+    let overwrite = false
 
-    if (response.value == true) {
+    if (args.overwrite == true) {
+        overwrite = true
+    } else {
+        overwrite = await prompts({
+            type: 'confirm',
+            name: 'value',
+            message: 'This will overwrite all local files. Are you sure?',
+            initial: false
+        }).then((v) => v.value)
+    }
+
+    if (overwrite == true) {
         let getScriptFromApp = await qlikComm.getScriptFromApp({ environment, variables })
         if (getScriptFromApp.error) return getScriptFromApp
 
@@ -102,8 +108,8 @@ const checkScript = async function ({ environment, variables }) {
     return result
 }
 
-const setScript = async function ({ environment, variables, script }) {
-    return await argHelpers.setScript({ environment, variables, script })
+const setScript = async function ({ environment, variables, args }) {
+    return await argHelpers.setScript({ environment, variables, args })
 }
 
 const startWatching = async function ({ environment, variables, args }) {
@@ -189,6 +195,33 @@ const checkForUpdate = async function () {
     }
 }
 
+const encode = {
+    ask: async function () {
+        try {
+            const response = await prompts({
+                type: 'password',
+                name: 'value',
+                message: 'Your secret string here:'
+            })
+
+            return { error: false, message: response.value }
+        } catch (e) {
+            return { error: false, message: e.message }
+        }
+    },
+    encodeBase: function (secretString) {
+        return { error: false, message: Buffer.from(secretString).toString('base64') }
+    },
+    combined: async function () {
+        let secretString = await this.ask()
+        if (secretString.error) return secretString
+
+        let encodedString = this.encodeBase(secretString.message)
+
+        return { error: false, message: encodedString.message }
+    }
+}
+
 function writeScriptToFiles(scriptTabs) {
     try {
         for (let [i, tab] of scriptTabs.entries()) {
@@ -217,5 +250,6 @@ module.exports = {
     reload,
     startWatching,
     checkForUpdate,
-    getScript
+    getScript,
+    encode
 }

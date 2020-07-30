@@ -40,7 +40,12 @@ Run one of the following commands from CMD/PowerShell
     * sets the new script
     * saves the app
 
+* `qlbuilder setscript [env] -a` - same as `setscript` but in addition the same script is set to all other apps, defined in the `config.yml`
+
 * `qlbuilder getscript [env]` - (the opposite of `setscript`) get the remote script, split it to tabs and save the files to `scr` folder. `config.yml` should present to indicate from which env/app to extract the script
+    * `-y` - optional flag. If present will get the script and overwrite the local files without prompt (the default behavior is to ask if you are sure to overwrite)
+
+    Steps:
     * connects to Qlik and get the script from desired app - `env` is the environment name from `config.yml`
     * split the script into tabs/files
     * saves the `qvs` files into `src` folder
@@ -55,27 +60,34 @@ Run one of the following commands from CMD/PowerShell
     Inside `watch` mode the console is active and the developer can perform additional actions. Just type one of the letters/commands below in the console to trigger them:
 
     * `s` or `set` - build, syntax check and set script
+    * `sa` or `setall` - build, syntax check and set the same script to the main app and all other apps
     * `r` or `rl` - build and set the script, reload the app and save. If any syntax error (during the build and set) the reload is not triggered
     * `c` or `clr` - clear console
     * `e` or `err` - check for syntax errors (**useful only if the watch mode is started with `-d` argument**)
     * `?` - print these commands
     * `x` - exit 
 
+* `qlbuilder encode` - encode the provided string. To avoid storing passwords in plain text we can use this command to encode the windows password(s) and paste the returned string in `.qlbuilder.yml`. Also add `encoding: true` in the `config.yml` This is applied when authentication is `Windows` for `QLIK_PASSWORD` value. **Encoding QLIK_PASSWORD is not needed when using environment variables. Only for .qlbuilder.yml!**
+
 * `qlbuilder checkupdate` - compares the current version number to the remote one
 
-## config.yml
+## config.yml 
 
 The `create` command will create few folders and `config.yml` file. The config file is pre-populated with example values. This file specifies Qlik environments (dev, test, prod etc.)
 
 The config file is in `yaml` format. The config below defines one environment (`desktop`) and the connection to it is made on `localhost:4848` and the app that we will target there is `qlbuilder Test.qvf`
 
 ```yaml
-qlik-environments:
-  - name: desktop
-    host: localhost:4848
-    secure: false
-    appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
+- name: desktop
+  host: localhost:4848
+  secure: false
+  appId: C:\Users\MyUserName\Documents\Qlik\Sense\Apps\qlbuilder Test.qvf
+  otherApps:
+    - C:\Users\MyUserName\Documents\Qlik\Sense\Apps\TestApp1.qvf
+    - C:\Users\MyUserName\Documents\Qlik\Sense\Apps\TestApp2.qvf
 ```    
+
+(Take a look at the example above for how to specify `otherApps`. Used for setting the same script to additional apps)
 
 For `QSE` with certificates the config will be:
 
@@ -108,7 +120,18 @@ For `QSE` with Windows/Form the config will be:
     appId: 12345678-1234-1234-1234-12345678901a # app ID
     authentication:
       type: winform
+      encoding: true
       sessionHeaderName: X-Qlik-Session-Win # (optional) see below
+```
+
+For `Qlik Saas` and `Qlik for Kubernetes` (ex Qlik Cloud for Business) with Windows/Form the config will be:
+
+```yaml
+  - name: saas
+    host: tenant-name.eu.qlikcloud.com
+    appId: 12345678-1234-1234-1234-12345678901a # app ID
+    authentication:
+      type: saas
 ```
 
 By default `qlbuilder` will try and connect through `https`/`wss`. If the environment is QS Desktop or the communication is done via `http`/`ws` then `secure: false` need to be added to the environment configuration
@@ -133,6 +156,8 @@ For security reasons (mainly to avoid commit users and password) `qlbuilder` exp
 * `Cert`
   * `QLIK_CERTS`- the folder location where the certificates are stored. The script will search for 3 certificates - `root.pem`, `client_key.pem` and `client.pem`
   * `QLIK_USER` - username in format `DOMAIN\UserName`
+* `Saas`
+  * `QLIK_TOKEN` - the API key, generated from the user settings panel
 
 **Home config**
 

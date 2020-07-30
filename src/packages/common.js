@@ -6,7 +6,8 @@ const write = {
         let symbol = {
             true: chalk.red('✖'),
             warn: chalk.yellow('\u26A0'),
-            false: chalk.green('√')
+            false: chalk.green('√'),
+            info: chalk.yellow('\u24D8')
         }
 
         let logMessage = `${symbol[error.toString()]} ${message}`
@@ -16,7 +17,6 @@ const write = {
         if (exit) {
             process.exit()
         }
-
     },
 
     file: function (path, content) {
@@ -28,7 +28,8 @@ const writeLog = function (type, message, exit) {
     let symbol = {
         err: chalk.red('✖'),
         warn: chalk.yellow('\u26A0'),
-        ok: chalk.green('√')
+        ok: chalk.green('√'),
+        info: chalk.yellow('\u24D8')
     }
 
     let logMessage = `${symbol[type]} ${message}`
@@ -41,7 +42,13 @@ const writeLog = function (type, message, exit) {
 
 }
 
+const decode = function (encodedString) {
+    let decodedString = Buffer.from(encodedString, 'base64').toString()
+    return { error: false, message: decodedString }
+}
+
 module.exports = {
     writeLog,
-    write
+    write,
+    decode
 }

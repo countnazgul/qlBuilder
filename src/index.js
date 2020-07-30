@@ -3,10 +3,9 @@ const argsFunctions = require('./packages/argumentsFunctions');
 const helpers = require('./packages/helpers');
 const common = require('./packages/common');
 const initialChecks = require('./packages/initialChecks');
-const currentVersion = require('../package.json').version
+const currentVersion = require('../package.json').version;
 
-
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 (async function () {
     program
@@ -27,22 +26,36 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('setscript [env]')
         .description('Build and set the script')
-        .action(async function (envName) {
+        .option('-a', 'Set the same script to all additional apps as well')
+        .action(async function (envName, options) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
 
-            let setScript = await argsFunctions.setScript({ environment: checks.message.env, variables: checks.message.variables })
+            let setScript = await argsFunctions.setScript({
+                environment: checks.message.env,
+                variables: checks.message.variables,
+                args: {
+                    setAll: options.a || false
+                }
+            })
             common.writeLog(setScript.error ? 'err' : 'ok', setScript.message, true)
         });
 
     program
         .command('getscript [env]')
         .description('Get the script from the target Qlik app and overwrite the local script')
-        .action(async function (envName) {
+        .option('-y', 'WARNING! Using this option will automatically overwrite the local script files without any prompt')
+        .action(async function (envName, options) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
 
-            let script = await argsFunctions.getScript({ environment: checks.message.env, variables: checks.message.variables })
+            let script = await argsFunctions.getScript({
+                environment: checks.message.env,
+                variables: checks.message.variables,
+                args: {
+                    overwrite: options.y || false
+                }
+            })
             common.writeLog(script.error ? 'err' : 'ok', script.message, true)
 
             let buildScript = await argsFunctions.buildScript()
@@ -74,9 +87,9 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
                 environment: checks.message.env,
                 variables: checks.message.variables,
                 args: {
-                    reload: options.R || false,
-                    setScript: options.S || false,
-                    disableChecks: options.D || false,
+                    reload: options.r || false,
+                    setScript: options.s || false,
+                    disableChecks: options.d || false,
                 }
             })
         });
@@ -103,6 +116,15 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
             let reload = await argsFunctions.reload({ environment: checks.message.env, variables: checks.message.variables })
             common.writeLog(reload.error ? 'err' : 'ok', reload.message, true)
+        });
+
+    program
+        .command('encode')
+        .description('Encode the provided string. Used when encoding the credentials password')
+        .action(async function () {
+            let encoded = await argsFunctions.encode.combined()
+
+            common.writeLog(encoded.error ? 'err' : 'ok', encoded.message, true)
         });
 
     program
