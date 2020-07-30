@@ -229,8 +229,8 @@ async function createQlikSession({ environment, variables }) {
     try {
         const session = enigma.create({
             schema,
-            url: `${environment.engineHost}/app/engineData/identity/${+new Date()}`,
-            createSocket: url => new WebSocket(url, {headers: qsEnt.message.headers , rejectUnauthorized: true})
+            url: `${environment.engineHost}/app/${environment.appId}/identity/${+new Date()}`,
+            createSocket: url => new WebSocket(url, { headers: qsEnt.message.headers, rejectUnauthorized: true })
         });
 
         return { error: false, message: session }
@@ -268,7 +268,7 @@ const handleAuthenticationType = {
     jwt: async function ({ environment, variables }) {
         return {
             error: false, message: {
-                headers: { Authorization: `Bearer ${variables.QLIK_TOKEN}` },
+                headers: { Authorization: `Bearer ${variables.TOKEN}` },
             }
         }
     },
@@ -317,6 +317,16 @@ const handleAuthenticationType = {
             message: {
                 headers: {
                     'Cookie': `${sessionHeaderName}=${sessionId.message}`,
+                }
+            }
+        }
+    },
+    saas: async function ({ environment, variables }) {
+        return {
+            error: false,
+            message: {
+                headers: {
+                    'Authorization': `Bearer ${variables.TOKEN}`,
                 }
             }
         }

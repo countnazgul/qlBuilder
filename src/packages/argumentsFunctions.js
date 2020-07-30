@@ -62,16 +62,22 @@ const create = async function (project) {
     }
 }
 
-const getScript = async function ({ environment, variables }) {
+const getScript = async function ({ environment, variables, args }) {
 
-    const response = await prompts({
-        type: 'confirm',
-        name: 'value',
-        message: 'This will overwrite all local files. Are you sure?',
-        initial: false
-    })
+    let overwrite = false
 
-    if (response.value == true) {
+    if (args.overwrite == true) {
+        overwrite = true
+    } else {
+        overwrite = await prompts({
+            type: 'confirm',
+            name: 'value',
+            message: 'This will overwrite all local files. Are you sure?',
+            initial: false
+        }).then((v) => v.value)
+    }
+
+    if (overwrite == true) {
         let getScriptFromApp = await qlikComm.getScriptFromApp({ environment, variables })
         if (getScriptFromApp.error) return getScriptFromApp
 

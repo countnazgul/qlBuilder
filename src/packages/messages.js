@@ -26,7 +26,7 @@ const messages = {
                 '\n',
                 'Commands during watch mode:\n',
                 '    - set script: s or set\n',
-                '    - set script to all apps: sa or setall\n',                
+                '    - set script to all apps: sa or setall\n',
                 '    - reload app: r or rl\n',
                 '    - clear console: c or cls\n',
                 '    - check for syntax errors: e or err\n',
@@ -75,7 +75,7 @@ const messages = {
             {
                 "name": "jwt",
                 "host": "my-qs-engine-host/virtual-proxy-prefix",
-                "secure": true,                
+                "secure": true,
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "authentication": {
                     "type": "jwt",
@@ -85,12 +85,22 @@ const messages = {
             {
                 "name": "winform",
                 "host": "my-qs-proxy",
-                "secure": true,                
+                "secure": true,
                 "appId": "12345678-1234-1234-1234-12345678901",
                 "parseInclude": true,
                 "authentication": {
                     "type": "winform",
                     "sessionHeaderName": "X-Qlik-Session"
+                }
+            },
+            {
+                "name": "saas",
+                "host": "my-qs-proxy",
+                "secure": true,
+                "appId": "12345678-1234-1234-1234-12345678901",
+                "parseInclude": true,
+                "authentication": {
+                    "type": "saas"
                 }
             }
         ]
