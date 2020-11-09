@@ -94,7 +94,6 @@ const buildLoadScript = function (initProject) {
 const createVSCodeTasks = function (project) {
     try {
         let f = './'
-
         if(project) f = `./${project}/`
 
         fs.mkdirSync(`${f}.vscode`)
