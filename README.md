@@ -23,6 +23,7 @@ Once the global package is installed you can use `qlbuilder` command from any fo
 Run one of the following commands from CMD/PowerShell
 
 * `qlbuilder create [name]` - create the initial folders and files in the current folder. `name` is used as root folder name
+  * `-t` (optional) - supplying this argument will create `VSCode` specific files inside `.vscode` folder as well. The `tasks.json` file describe all tasks that can be ran with `qlbuilder`. Change the environment name in `settings.json` file and use `VSCode` to start the tasks. (`tasks.json` can be left as it is. No need for editing there)
 
 * `qlbuilder build`
     * builds the full load script from `/src/*.qvs` files. The produced script is saved in `dist` folder (`LoadScript.qvs`)
@@ -68,6 +69,8 @@ Run one of the following commands from CMD/PowerShell
     * `x` - exit 
 
 * `qlbuilder encode` - encode the provided string. To avoid storing passwords in plain text we can use this command to encode the windows password(s) and paste the returned string in `.qlbuilder.yml`. Also add `encoding: true` in the `config.yml` This is applied when authentication is `Windows` for `QLIK_PASSWORD` value. **Encoding QLIK_PASSWORD is not needed when using environment variables. Only for .qlbuilder.yml!**
+
+* `qlbuilder vscode` - creates the `.vscode` folder (inside the current folder) with the `tasks.json` and `settings.json` files. Please check the `create` command description above for more info
 
 * `qlbuilder checkupdate` - compares the current version number to the remote one
 

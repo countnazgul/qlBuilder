@@ -12,10 +12,11 @@ const helpers = require('./helpers');
 const qlikComm = require('./qlik-comm');
 const common = require('./common');
 const parseLine = require('./readLine');
-const argHelpers = require('./argHelpers')
+const argHelpers = require('./argHelpers');
+const { help } = require('commander');
 
 
-const create = async function (project) {
+const create = async function (project, createTasks) {
 
     if (!fs.existsSync(`${process.cwd()}/${project}`)) {
         let folders = helpers.createInitFolders(project)
@@ -29,6 +30,11 @@ const create = async function (project) {
 
         let gitIgnore = helpers.createGitIgnoreFile(project)
         if (gitIgnore.error) return gitIgnore
+
+        if(createTasks) {
+            let tasksFiles = helpers.createVSCodeTasks(project)
+            if (tasksFiles.error) return tasksFiles
+        }
 
         return { error: false, message: 'All set' }
     }
@@ -60,6 +66,13 @@ const create = async function (project) {
     } else {
         return { error: false, message: 'Ok. Nothing is performed' }
     }
+}
+
+const vscode = function () {
+    let tasksFiles = helpers.createVSCodeTasks()
+    if (tasksFiles.error) return tasksFiles
+
+    return {error: false, message: 'Folder and files were created'}
 }
 
 const getScript = async function ({ environment, variables, args }) {
@@ -244,6 +257,7 @@ function writeScriptToFiles(scriptTabs) {
 
 module.exports = {
     create,
+    vscode,
     buildScript,
     setScript,
     checkScript,
