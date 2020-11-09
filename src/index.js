@@ -17,10 +17,10 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('create [project name]')
         .option('-t', 'Creates .vscode folder with pre-defined tasks.json and settings.json')
         .description('Create new project folder structure')
-        .action(async function (projectName) {
+        .action(async function (projectName, options) {
             if (!projectName) common.write.log({ error: true, message: `Please specify project name`, exit: true })
 
-            let init = await argsFunctions.create(projectName)
+            let init = await argsFunctions.create(projectName, options.t ? true : false)
             common.writeLog(init.error ? 'err' : 'ok', init.message, true)
         });
 

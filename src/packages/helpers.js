@@ -91,6 +91,22 @@ const buildLoadScript = function (initProject) {
     return buildScript.join('\n\n')
 }
 
+const createVSCodeTasks = function (project) {
+    try {
+        let f = './'
+
+        if(project) f = `./${project}/`
+
+        fs.mkdirSync(`${f}.vscode`)
+        fs.writeFileSync(`${f}.vscode/tasks.json`, messages.vscode.tasks())
+        fs.writeFileSync(`${f}.vscode/settings.json`, messages.vscode.settings())
+
+        return { error: false, message: 'VSCode specific folder and files were created' }
+    } catch (e) {
+        return { error: true, message: e.message }
+    }
+}
+
 const writeLoadScript = function (script) {
     try {
         fs.writeFileSync('./dist/LoadScript.qvs', script)
@@ -177,6 +193,7 @@ module.exports = {
     createInitFolders,
     createInitialScriptFiles,
     createGitIgnoreFile,
+    createVSCodeTasks,
     createInitConfig,
     buildLoadScript,
     writeLoadScript,
