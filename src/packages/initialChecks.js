@@ -105,7 +105,7 @@ const envVariablesCheck = {
     auth_config: {
         winform: ['QLIK_USER', 'QLIK_PASSWORD'],
         jwt: ['QLIK_TOKEN'],
-        cert: ['QLIK_CERTS', 'QLIK_USER'],
+        certificates: ['QLIK_CERTS', 'QLIK_USER'],
         saas: ['QLIK_TOKEN'],
         noVar: []
     },
