@@ -20,7 +20,11 @@ function getEnvDetails(env) {
         envDetails[0].engineHost = `${envDetails[0].secure ? 'wss' : 'ws'}://${envDetails[0].host}`
         envDetails[0].host = `${envDetails[0].secure ? 'https' : 'http'}://${envDetails[0].host}`
 
-        if (!envDetails[0].hasOwnProperty('trustAllCerts')) process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+        if (envDetails[0].hasOwnProperty('trustAllCerts')) {
+            if (envDetails[0].trustAllCerts) {
+                process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+            }
+        }
 
         return { error: false, message: envDetails }
     } catch (e) {
