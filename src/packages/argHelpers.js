@@ -16,7 +16,7 @@ const buildScript = async function () {
     return ({ error: false, message: loadScript })
 }
 
-const checkScript = async function ({ environment, variables, script }) {
+const checkScript = async function ({ environment, variables, script, args }) {
     let spinner = new Spinner('Checking for syntax errors ...');
     spinner.setSpinnerString('☱☲☴');
     spinner.start();
@@ -30,7 +30,7 @@ const checkScript = async function ({ environment, variables, script }) {
         loadScript = script.message
     }
 
-    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: loadScript })
+    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: loadScript, debug: args.debug })
     if (scriptResult.error) {
         spinner.stop(true)
         return scriptResult
@@ -50,24 +50,24 @@ const setScript = async function ({ environment, variables, args }) {
     let script = await buildScript()
     if (script.error) return script
 
-    let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
+    let setScript = await qlikComm.setScript({ environment, variables, script: script.message, debug: args.debug })
     if (setScript.error) return setScript
 
-    if(args.setAll) {
-        if(environment.otherApps && environment.otherApps.length > 0) {
-            await Promise.all(environment.otherApps.map(async function(a) {
+    if (args.setAll) {
+        if (environment.otherApps && environment.otherApps.length > 0) {
+            await Promise.all(environment.otherApps.map(async function (a) {
                 let tempEnvironment = environment
                 tempEnvironment.appId = a
-                
-                common.write.log({error: 'info', message: `Setting script for ${a}`, exit: false})
+
+                common.write.log({ error: 'info', message: `Setting script for ${a}`, exit: false })
                 let additionalSetScript = await qlikComm.setScript({ environment: tempEnvironment, variables, script: script.message })
-                common.write.log({error:'false', message: `Script set for ${a}`, exit: false})
+                common.write.log({ error: 'false', message: `Script set for ${a}`, exit: false })
 
                 return additionalSetScript
             }))
-            .then(function() {
-                return { error: false, message: setScript.message }
-            })
+                .then(function () {
+                    return { error: false, message: setScript.message }
+                })
         }
     }
 
@@ -97,12 +97,12 @@ const onFileChange = async function ({ environment, variables, args }) {
     let script = await buildScript()
     if (script.error) return script
 
-    let checkLoadScript = await checkScript({ environment, variables, script: script.message })
+    let checkLoadScript = await checkScript({ environment, variables, script: script.message, args })
     if (checkLoadScript.error) return checkLoadScript
 
     // if only SetScript is set
     if (!args.reload && args.setScript) {
-        let setScript = await qlikComm.setScript({ environment, variables, script: script.message })
+        let setScript = await qlikComm.setScript({ environment, variables, script: script.message, args })
         if (setScript.error) return { error: true, message: setScript.message }
 
         return { error: false, message: setScript.message }
@@ -110,7 +110,7 @@ const onFileChange = async function ({ environment, variables, args }) {
 
     // if Reload is set AND/OR SetScript is set
     if (args.reload) {
-        let reload = await qlikComm.reloadApp({ environment, variables, script: script.message })
+        let reload = await qlikComm.reloadApp({ environment, variables, script: script.message, args })
         if (reload.error) return { error: true, message: reload.message }
 
         return { error: false, message: reload.message }
