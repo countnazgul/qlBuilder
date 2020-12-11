@@ -14,7 +14,7 @@ const currentVersion = require('../package.json').version;
         .version(currentVersion, '-v, --version', 'Output the current version');
 
     program
-        .command('create [project name]')
+        .command('create [name]')
         .option('-t', 'Creates .vscode folder with pre-defined tasks.json and settings.json')
         .description('Create new project folder structure')
         .action(async function (projectName, options) {
@@ -26,10 +26,9 @@ const currentVersion = require('../package.json').version;
 
     program
         .command('vscode')
-        .description('Creates .vscode folder and tasks.json and settings.json files in it')
+        .description('Creates .vscode folder with pre-defined tasks.json and settings.json')
         .action(async function () {
             let init = await argsFunctions.vscode()
-            // common.writeLog(init.error ? 'err' : 'ok', init.message, true)
         });
 
     program

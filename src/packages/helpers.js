@@ -93,12 +93,9 @@ const buildLoadScript = function (initProject) {
 
 const createVSCodeTasks = function (project) {
     try {
-        let f = './'
-        if(project) f = `./${project}/`
-
-        fs.mkdirSync(`${f}.vscode`)
-        fs.writeFileSync(`${f}.vscode/tasks.json`, messages.vscode.tasks())
-        fs.writeFileSync(`${f}.vscode/settings.json`, messages.vscode.settings())
+        fs.mkdirSync(`./.vscode`)
+        fs.writeFileSync(`./.vscode/tasks.json`, messages.vscode.tasks())
+        fs.writeFileSync(`./.vscode/settings.json`, messages.vscode.settings())
 
         return { error: false, message: 'VSCode specific folder and files were created' }
     } catch (e) {
