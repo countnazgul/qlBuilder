@@ -1,6 +1,6 @@
 {
   "name": "qlbuilder",
-  "version": "1.4.2-beta.1",
+  "version": "1.4.2",
   "description": "CLI helper tool for Qlik Sense developers to allow write script locally and update in remote app",
   "author": {
     "email": "stefan.stoichev@gmail.com",
