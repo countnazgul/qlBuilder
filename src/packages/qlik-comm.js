@@ -1,3 +1,7 @@
+const fs = require('fs');
+const os = require('os');
+const homedir = os.homedir();
+const eol = os.EOL;
 const isBase64 = require('is-base64');
 const enigma = require('enigma.js');
 const WebSocket = require('ws');
@@ -10,8 +14,8 @@ Spinner.setDefaultSpinnerDelay(200)
 const helpers = require('./helpers')
 const common = require('./common')
 
-const setScript = async function ({ environment, variables, script, doSave = true }) {
-    let session = await createQlikSession({ environment, variables })
+const setScript = async function ({ environment, variables, script, doSave = true, debug }) {
+    let session = await createQlikSession({ environment, variables, debug })
     if (session.error) return session
 
     try {
@@ -43,10 +47,9 @@ const setScript = async function ({ environment, variables, script, doSave = tru
     }
 }
 
-const getScriptFromApp = async function ({ environment, variables }) {
+const getScriptFromApp = async function ({ environment, variables, debug }) {
 
-    let session = await createQlikSession({ environment, variables })
-
+    let session = await createQlikSession({ environment, variables, debug })
     if (session.error) return session
 
     try {
@@ -70,9 +73,9 @@ const getScriptFromApp = async function ({ environment, variables }) {
     }
 }
 
-const checkScriptSyntax = async function ({ environment, variables, script }) {
+const checkScriptSyntax = async function ({ environment, variables, script, debug }) {
 
-    let session = await createQlikSession({ environment, variables })
+    let session = await createQlikSession({ environment, variables, debug })
     if (session.error) return session
 
     try {
@@ -89,8 +92,8 @@ const checkScriptSyntax = async function ({ environment, variables, script }) {
     }
 }
 
-const reloadApp = async function ({ environment, variables, script }) {
-    let session = await createQlikSession({ environment, variables })
+const reloadApp = async function ({ environment, variables, script, debug }) {
+    let session = await createQlikSession({ environment, variables, debug })
     if (session.error) return session
 
     try {
@@ -214,14 +217,12 @@ function reloadAndGetProgress({ global, doc }) {
     })
 }
 
-async function createQlikSession({ environment, variables }) {
-
+async function createQlikSession({ environment, variables, debug }) {
     let authenticationType = 'desktop'
 
     if (environment.authentication) {
         authenticationType = environment.authentication.type
     }
-
     let qsEnt = await handleAuthenticationType[authenticationType]({ environment, variables })
 
     if (qsEnt.error) return qsEnt
@@ -233,6 +234,21 @@ async function createQlikSession({ environment, variables }) {
             createSocket: url => new WebSocket(url, { headers: qsEnt.message.headers, rejectUnauthorized: false })
         });
 
+        if (debug) {
+            let builderHomeFolder = `${homedir}/qlBuilder`
+            let trafficFile = `${homedir}/qlBuilder/traffic_${environment.name}.txt`
+
+            if (!fs.existsSync(builderHomeFolder)) {
+                fs.mkdirSync(`${homedir}/qlBuilder`)
+            }
+
+            session.on('traffic:*', function (direction, data) {
+                fs.appendFileSync(trafficFile, `${new Date().toISOString()} ${direction.toString().toUpperCase()} ${JSON.stringify(data)} ${eol}`, 'utf8', function (err) {
+                    if (err) console.log(err);
+                })
+            });
+        }
+
         return { error: false, message: session }
     } catch (e) {
         return { error: true, message: e.message }
@@ -243,7 +259,7 @@ const handleAuthenticationType = {
     desktop: async function () {
         return {}
     },
-    cert: async function ({ environment, variables }) {
+    certificates: async function ({ environment, variables }) {
 
         if (variables.QLIK_USER.indexOf('\\') == -1) {
             return { error: true, message: 'The username should be in format DOMAIN\\USER' }

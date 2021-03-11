@@ -31,7 +31,7 @@ const create = async function (project, createTasks) {
         let gitIgnore = helpers.createGitIgnoreFile(project)
         if (gitIgnore.error) return gitIgnore
 
-        if(createTasks) {
+        if (createTasks) {
             let tasksFiles = helpers.createVSCodeTasks(project)
             if (tasksFiles.error) return tasksFiles
         }
@@ -72,7 +72,7 @@ const vscode = function () {
     let tasksFiles = helpers.createVSCodeTasks()
     if (tasksFiles.error) return tasksFiles
 
-    return {error: false, message: 'Folder and files were created'}
+    return { error: false, message: 'Folder and files were created' }
 }
 
 const getScript = async function ({ environment, variables, args }) {
@@ -91,7 +91,7 @@ const getScript = async function ({ environment, variables, args }) {
     }
 
     if (overwrite == true) {
-        let getScriptFromApp = await qlikComm.getScriptFromApp({ environment, variables })
+        let getScriptFromApp = await qlikComm.getScriptFromApp({ environment, variables, debug: args.debug })
         if (getScriptFromApp.error) return getScriptFromApp
 
         let scriptTabs = getScriptFromApp.message.split('///$tab ')
@@ -113,11 +113,11 @@ const buildScript = function () {
     return argHelpers.buildScript()
 }
 
-const checkScript = async function ({ environment, variables }) {
+const checkScript = async function ({ environment, variables, args }) {
     let script = await buildScript()
     if (script.error) return script
 
-    let result = await argHelpers.checkScript({ environment, variables, script })
+    let result = await argHelpers.checkScript({ environment, variables, script, args })
     return result
 }
 
@@ -168,11 +168,11 @@ const startWatching = async function ({ environment, variables, args }) {
         })
 }
 
-const reload = async function ({ environment, variables }) {
+const reload = async function ({ environment, variables, args }) {
     let script = await buildScript()
     if (script.error) return script
 
-    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: script.message })
+    let scriptResult = await qlikComm.checkScriptSyntax({ environment, variables, script: script.message, debug: args.debug })
     if (scriptResult.error) return scriptResult
 
     if (scriptResult.message.length > 0) {
@@ -182,7 +182,7 @@ const reload = async function ({ environment, variables }) {
 
     common.writeLog('ok', 'No syntax errors', false)
 
-    let reloadApp = await qlikComm.reloadApp({ environment, variables, script: script.message })
+    let reloadApp = await qlikComm.reloadApp({ environment, variables, script: script.message, debug: args.debug })
     if (reloadApp.error) return reloadApp
 
     return { error: false, message: reloadApp.message }

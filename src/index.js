@@ -5,7 +5,7 @@ const common = require('./packages/common');
 const initialChecks = require('./packages/initialChecks');
 const currentVersion = require('../package.json').version;
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 (async function () {
     program
@@ -14,7 +14,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .version(currentVersion, '-v, --version', 'Output the current version');
 
     program
-        .command('create [project name]')
+        .command('create [name]')
         .option('-t', 'Creates .vscode folder with pre-defined tasks.json and settings.json')
         .description('Create new project folder structure')
         .action(async function (projectName, options) {
@@ -26,16 +26,16 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
     program
         .command('vscode')
-        .description('Creates .vscode folder and tasks.json and settings.json files in it')
+        .description('Creates .vscode folder with pre-defined tasks.json and settings.json')
         .action(async function () {
             let init = await argsFunctions.vscode()
-            // common.writeLog(init.error ? 'err' : 'ok', init.message, true)
         });
 
     program
         .command('setscript [env]')
         .description('Build and set the script')
         .option('-a', 'Set the same script to all additional apps as well')
+        .option('-d', 'Debug. Write out enigma traffic messages')
         .action(async function (envName, options) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
@@ -44,7 +44,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
                 environment: checks.message.env,
                 variables: checks.message.variables,
                 args: {
-                    setAll: options.a || false
+                    setAll: options.a || false,
+                    debug: options.d || false
                 }
             })
             common.writeLog(setScript.error ? 'err' : 'ok', setScript.message, true)
@@ -54,6 +55,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .command('getscript [env]')
         .description('Get the script from the target Qlik app and overwrite the local script')
         .option('-y', 'WARNING! Using this option will automatically overwrite the local script files without any prompt')
+        .option('-d', 'Debug. Write out enigma traffic messages')
         .action(async function (envName, options) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
@@ -62,7 +64,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
                 environment: checks.message.env,
                 variables: checks.message.variables,
                 args: {
-                    overwrite: options.y || false
+                    overwrite: options.y || false,
+                    debug: options.d || false
                 }
             })
             common.writeLog(script.error ? 'err' : 'ok', script.message, true)
@@ -74,11 +77,18 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('checkscript [env]')
         .description('Check local script for syntax errors')
+        .option('-d', 'Debug. Write out enigma traffic messages')
         .action(async function (envName) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
 
-            let checkScript = await argsFunctions.checkScript({ environment: checks.message.env, variables: checks.message.variables })
+            let checkScript = await argsFunctions.checkScript({
+                environment: checks.message.env,
+                variables: checks.message.variables,
+                args: {
+                    debug: options.d || false
+                }
+            })
             common.writeLog(checkScript.error ? 'err' : 'ok', checkScript.message, true)
         });
 
@@ -87,7 +97,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         .description('Start qlBuilder in watch mode')
         .option('-r', 'Reload and save on each file change')
         .option('-s', 'Set script and save app on each file change')
-        .option('-d', 'Disable the auto syntax error check')
+        .option('-de', 'Disable the auto syntax error check')
+        .option('-d', 'Debug. Write out enigma traffic messages')
         .action(async function (envName, options) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
@@ -99,6 +110,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
                     reload: options.r || false,
                     setScript: options.s || false,
                     disableChecks: options.d || false,
+                    debug: options.d || false
                 }
             })
         });
@@ -119,11 +131,19 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     program
         .command('reload [env]')
         .description('Set script and reload the target app')
+        .option('-d', 'Debug. Write out enigma traffic messages')
         .action(async function (envName) {
             let checks = initialChecks.combined(envName)
             if (checks.error) common.writeLog('err', checks.message, true)
 
-            let reload = await argsFunctions.reload({ environment: checks.message.env, variables: checks.message.variables })
+            let reload = await argsFunctions.reload({
+                environment: checks.message.env,
+                variables: checks.message.variables,
+                args: {
+                    debug: options.d || false
+                }
+            })
+
             common.writeLog(reload.error ? 'err' : 'ok', reload.message, true)
         });
 
